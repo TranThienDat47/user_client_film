@@ -1,0 +1,28 @@
+.wrapper {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+}
+
+.container {
+   margin-top: var(--height-default-header);
+   width: 100%;
+   display: flex;
+   position: fixed;
+   height: calc(100vh - var(--height-default-header));
+}
+
+.content {
+   flex: 1;
+   overflow: hidden;
+
+   @media (max-width: 424px) {
+      padding: 0;
+   }
+}
+
+@media (min-width: 186px) and (max-width: 754px) {
+   .content {
+      margin-left: 0;
+   }
+}

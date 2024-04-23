@@ -1,0 +1,220 @@
+.wrapper {
+   padding: 39px 36px;
+
+   display: flex;
+   flex-direction: column;
+
+   .button {
+      font-size: 1.6rem;
+      margin: 0px 64px;
+   }
+
+   & .logo {
+      width: 139px;
+      height: 39px;
+   }
+
+   & input {
+      font-size: 1.6rem;
+      line-height: 2.2rem;
+
+      border: 1px solid var(--border-color);
+      border-radius: 9px;
+
+      padding: 13px 16px;
+
+      &:focus {
+         outline: auto;
+         outline: 1px solid var(--outline-input-color);
+         box-shadow: 0 0 3.69px 0.13px var(--outline-input-color);
+      }
+   }
+}
+
+.invalid {
+   flex-direction: column;
+   & > input {
+      position: relative;
+      outline: 1px solid var(--invalid-color);
+      box-shadow: 0 0 3.69px 0.13px var(--invalid-color);
+   }
+
+   &::after {
+      content: attr(invalid-message);
+      background-image: url('../../../assets/img/invalidpng.png');
+      background-repeat: no-repeat;
+      background-size: 11px 11px;
+      background-position: 1px 1.3px;
+      color: var(--invalid-color);
+      padding-left: 16px;
+      font-size: 1.3rem;
+      line-height: 1.3rem;
+      font-weight: 400;
+      margin-top: 6px;
+   }
+}
+
+.header {
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+
+   .title {
+      font-size: 2.3rem;
+      margin-top: 13px;
+      font-weight: 500;
+   }
+}
+
+.frmLogin {
+   display: flex;
+   flex-direction: column;
+
+   margin-top: 26px;
+
+   .forget {
+      color: var(--link-color);
+
+      margin-top: 13px;
+      margin-left: 3px;
+
+      font-size: 1.5rem;
+   }
+
+   .block-input {
+      display: flex;
+   }
+}
+
+.block-input {
+   & > input {
+      width: 100%;
+   }
+
+   .first-name {
+      width: 63%;
+   }
+   .last-name {
+      width: 36%;
+   }
+}
+
+.block-other {
+   display: flex;
+   margin-top: 16px;
+   margin-left: 3px;
+
+   & > label {
+      margin-left: 9px;
+   }
+}
+
+.control {
+   margin-top: 43px;
+   display: flex;
+   justify-content: space-between;
+
+   & > div {
+      display: flex;
+   }
+
+   & .btn-submit {
+      font-size: 1.5rem;
+      font-weight: 500;
+
+      background-color: var(--btn-submit);
+      color: var(--white);
+
+      &:hover {
+         background-color: var(--btn-submit-hover);
+      }
+   }
+
+   & .btn-register,
+   .btn-login,
+   .btn-change-account {
+      font-size: 1.5rem;
+      font-weight: 500;
+
+      color: var(--link-color);
+      padding: 0px 6px;
+
+      &:hover {
+         color: var(--link-color-hover);
+         background-color: rgb(248, 251, 251);
+         box-shadow: 0 0 1px 0.1px var(--box-shadow-color);
+      }
+   }
+}
+
+.btn-change-account {
+   margin-top: 9px;
+   font-size: 1.5rem;
+   font-weight: 500;
+
+   color: var(--link-color);
+   padding: 0px 6px;
+
+   &:hover {
+      color: var(--link-color-hover);
+      background-color: rgb(248, 251, 251);
+      box-shadow: 0 0 1px 0.1px var(--box-shadow-color);
+   }
+}
+
+.list-login {
+   margin-top: -3px;
+
+   & > div {
+      display: block;
+      width: 100%;
+
+      margin-top: 13px;
+   }
+}
+
+.item-with {
+   border-radius: 9px;
+
+   width: 100%;
+
+   &.with-google {
+      border: 1px solid var(--border-color);
+   }
+   &.with-facebook {
+      color: var(--white);
+      background-color: #00acff;
+   }
+
+   & .icon {
+      font-size: 2.2rem;
+   }
+}
+
+.separator-with_text {
+   position: relative;
+   text-align: center;
+   font-size: 1.6rem;
+   margin: 20px 0;
+   margin-top: 39px;
+
+   color: rgba(0, 0, 0, 0.63);
+
+   &::before,
+   &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      border-bottom: 2px solid var(--border-color);
+      width: 40%;
+   }
+
+   &::before {
+      left: 0;
+   }
+
+   &::after {
+      right: 0;
+   }
+}

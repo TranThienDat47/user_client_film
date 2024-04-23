@@ -1,0 +1,134 @@
+.wrapper {
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100%;
+   display: flex;
+   justify-content: space-between;
+   flex-direction: row;
+   padding: 0 var(--space-content);
+   align-items: center;
+   height: var(--height-default-header);
+   background-color: var(--primary);
+   z-index: 10;
+}
+
+.search {
+   display: flex;
+   flex-direction: row;
+   align-items: center;
+   flex: 0 2 568px;
+   min-width: 0px;
+}
+
+.nav {
+   display: flex;
+   align-items: center;
+   height: 100%;
+   min-width: 239px;
+}
+
+.nav-icon {
+   width: 40px;
+   height: 24px;
+   cursor: pointer;
+}
+
+.logo-link {
+   display: flex;
+   align-items: center;
+   height: 100%;
+
+   & > img {
+      display: flex;
+      height: 20px;
+      margin-left: 12px;
+      user-select: none;
+   }
+}
+
+.infor {
+   display: flex;
+   flex-direction: row;
+   justify-content: flex-end;
+   align-items: center;
+   min-width: 239px;
+   height: 100%;
+
+   .infor-icon {
+      position: relative;
+      margin: 0 4px;
+
+      .icon {
+         text-align: center;
+         height: 23px;
+         width: 23px;
+      }
+
+      .wrapper-account {
+         position: absolute;
+
+         width: 300px;
+         right: 0;
+
+         .title {
+            font-size: 1.6rem;
+            font-weight: 500;
+         }
+      }
+   }
+
+   .header__icon {
+      font-size: 2.3rem;
+      width: 40px;
+      height: 40px;
+   }
+
+   .login {
+      width: fit-content;
+
+      & p {
+         font-size: 1.3rem;
+         white-space: nowrap;
+      }
+   }
+
+   .user {
+      font-size: 2.4rem;
+      width: 60px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: transparent;
+      border: 1px solid transparent;
+
+      &:active .avt {
+         border: 1px solid rgba(22, 24, 35, 0.4);
+      }
+   }
+
+   .avt {
+      width: 40px;
+      height: 40px;
+      border-radius: 9999px;
+   }
+}
+
+.account-avt {
+   width: 53px !important;
+   height: 53px !important;
+}
+
+.account-name {
+   font-size: 1.69rem;
+}
+
+.account-email {
+   max-width: 193px;
+   overflow: hidden;
+   white-space: nowrap;
+   text-overflow: ellipsis;
+   font-size: 1.4rem;
+   margin-top: 3px;
+}

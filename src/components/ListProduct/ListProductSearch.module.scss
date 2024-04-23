@@ -1,0 +1,25 @@
+.wrapper {
+}
+
+.list {
+   width: 100%;
+   list-style-type: disc;
+   list-style: none;
+   -webkit-margin-before: 0;
+   -webkit-margin-after: 0;
+   -webkit-margin-start: 0;
+   -webkit-margin-end: 0;
+   -webkit-padding-start: 0;
+   padding: 0;
+   display: flex;
+   flex-direction: column;
+}
+
+.item {
+   display: inline-block !important;
+   margin-right: 0.5%;
+   margin-left: 0.5%;
+   text-align: -webkit-match-parent;
+   margin-bottom: 16px;
+   width: 100%;
+}
