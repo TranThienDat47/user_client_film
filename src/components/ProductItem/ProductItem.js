@@ -17,6 +17,7 @@ const cx = classNames.bind(styles);
 function ProductItem({
    onClick,
    extraLarge = false,
+   modeSearchPage = false,
    data = { _id: '', img: '', _name: '', anotherName: '', view: '', episodes: '' },
    ...passProp
 }) {
@@ -145,6 +146,7 @@ function ProductItem({
 
    const classes = cx('wrapper', {
       extraLarge,
+      modeSearchPage,
    });
 
    return (

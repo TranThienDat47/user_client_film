@@ -44,8 +44,14 @@ const Watch = () => {
 
    useEffect(() => {
       setProductCurrent({ _id: parent_id });
+      // eslint-disable-next-line
    }, [parent_id]);
-
+   useEffect(() => {
+      if (!parent_id || !episodeCurrent) {
+         navigate(`/`);
+      }
+      // eslint-disable-next-line
+   }, []);
    useEffect(() => {
       if (productCurrent.product_details && productCurrent.product_details.length > 0) {
          const tempDetail = sortedEpisodes(productCurrent.product_details).find(
@@ -55,7 +61,7 @@ const Watch = () => {
          tempDetailRef.current = { _id: tempDetail?._id, episode: tempDetail?.episode };
          setProductDetailCurrentState({ _id: tempDetail?._id, episode: tempDetail?.episode });
       }
-      wrapperRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      if (wrapperRef.current) wrapperRef.current.scrollTo({ top: 0, behavior: 'smooth' });
    }, [productCurrent, episodeCurrent]);
 
    useEffect(() => {
@@ -88,6 +94,7 @@ const Watch = () => {
       ) {
          navigate(`/product?id=${parent_id}`);
       }
+      // eslint-disable-next-line
    }, [productCurrent, parent_id]);
 
    useEffect(() => {

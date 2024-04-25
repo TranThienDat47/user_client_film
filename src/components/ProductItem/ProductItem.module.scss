@@ -1,3 +1,14 @@
+:root {
+   --width-image-item: 29%;
+   --width-image-item-search: 19%;
+}
+
+.modeSearchPage {
+   .wrapper-avt {
+      width: var(--width-image-item-search);
+   }
+}
+
 .item-wrapper {
    position: relative;
 
@@ -36,6 +47,15 @@
       height: 100%;
       display: block;
       cursor: pointer;
+
+      .info-wrapper {
+         width: 100%;
+         max-width: 100%;
+      }
+
+      .name div {
+         -webkit-line-clamp: 2;
+      }
    }
 
    &.extraLarge .animation {
@@ -104,8 +124,9 @@
 }
 
 .wrapper-avt {
+   flex-shrink: 0;
    position: relative;
-   width: 203px;
+   width: var(--width-image-item);
    border-radius: 8px;
    overflow: hidden;
 
@@ -150,6 +171,7 @@
    margin: 6px 0 0 13px;
    padding-right: 24px;
    width: 100%;
+   max-width: calc(100% - var(--width-image-item) - 16px);
 }
 
 .info {
@@ -167,13 +189,14 @@
 
 .name div {
    overflow: hidden;
-   -webkit-line-clamp: 2;
+   -webkit-line-clamp: 1;
    text-overflow: ellipsis;
    -webkit-box-orient: vertical;
    display: -webkit-box;
    height: 100%;
    margin-bottom: 5px;
    max-height: 8rem;
+   white-space: normal;
 
    &:empty {
       height: 18px;
@@ -192,6 +215,7 @@
    -webkit-box-orient: vertical;
    display: -webkit-box;
    margin-bottom: 2px;
+   white-space: normal;
 
    &:empty {
       height: 18px;

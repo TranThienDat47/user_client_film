@@ -19,37 +19,329 @@ import { IoMdCheckmark } from 'react-icons/io';
 import Menu from '../Popper/Menu';
 import Button from '../Button';
 
-const videoSrc = 'http://localhost:5000/api/video/stream/6624a5df0148c458ad613575?mode=m3u8';
-
 const cx = classNames.bind(styles);
 
-const Video = ({ width, height }) => {
-   const [dataInitQualityState, setDataInitQualityState] = useState([
+const Video = ({
+   videoInfo = {
+      videoID: '662a4a22891b7b2fd8f0036d',
+      listVideoSrc: [
+         { videoSrc: '662a4a70891b7b2fd8f0039c', quality: '480p' },
+         { videoSrc: '662a4a44891b7b2fd8f00372', quality: '360p' },
+      ],
+   },
+   width,
+   height,
+}) => {
+   const currentStateOfVideoRef = useRef({ width: 0, height: 0, isPlay: 0 });
+   const [currentVideoState, setCurrentVideoState] = useState(videoInfo.listVideoSrc[0]);
+   const [autoPlayState, setAutoPlayState] = useState(true);
+
+   const currentQualityRef = useRef({
+      index: 3,
+      quality: `Chuẩn 360p`,
+   });
+
+   const currentSpeedRef = useRef({
+      index: 3,
+      speed: 1,
+   });
+
+   const handleOnChangeSpeed = ({ index = 3, speed = 1 }) => {
+      currentSpeedRef.current = {
+         index,
+         speed,
+      };
+
+      if (videoRef.current) {
+         videoRef.current.playbackRate = speed;
+      }
+      dataInitSettingRef.current = dataInitSettingRef.current.map((element, index) => {
+         if (index === 1) {
+            return element;
+         } else {
+            return {
+               title: <div className={cx('menu-setting_title')}>Tốc độ phát</div>,
+               left_icon: <IoMdSpeedometer className={cx('menu-setting_icon')} />,
+               right_icon: (
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                     {currentSpeedRef.current.speed === 1 ? 'Chuẩn' : currentSpeedRef.current.speed}
+                     <FaAngleRight
+                        style={{ marginLeft: '6px' }}
+                        className={cx('menu-setting_icon')}
+                     />
+                  </div>
+               ),
+               children: {
+                  title: (
+                     <div style={{ fontSize: '1.5rem' }} className={cx('menu-setting_title')}>
+                        Tốc độ phát
+                     </div>
+                  ),
+                  data: dataInitSpeedRef.current.map((element, index) => {
+                     if (index === currentSpeedRef.current.index) {
+                        return {
+                           ...element,
+                           left_icon: (
+                              <div
+                                 className={cx(
+                                    'menu-setting_icon-time_speed',
+                                    'menu-setting_icon-time_speed-active',
+                                 )}
+                              >
+                                 <IoMdCheckmark></IoMdCheckmark>
+                              </div>
+                           ),
+                        };
+                     } else {
+                        return {
+                           ...element,
+                           left_icon: (
+                              <div className={cx('menu-setting_icon-time_speed')}>
+                                 <IoMdCheckmark></IoMdCheckmark>
+                              </div>
+                           ),
+                        };
+                     }
+                  }),
+               },
+            };
+         }
+      });
+
+      setDataInitSettingState(dataInitSettingRef.current);
+   };
+
+   const handleOnChangeQuality = ({ index = 3, quality = 'Tự động' }) => {
+      currentQualityRef.current = {
+         index,
+         quality,
+      };
+
+      setAutoPlayState(false);
+
+      if (screenStateRef.current === 0) {
+         currentStateOfVideoRef.current = {
+            width: '100%',
+            height: videoRef.current.getBoundingClientRect().height,
+            isPlay: videoRef.current.paused ? 0 : 1,
+         };
+      } else {
+         currentStateOfVideoRef.current = {
+            width: '100%',
+            height: 'auto',
+            isPlay: videoRef.current.paused ? 0 : 1,
+         };
+      }
+
+      setCurrentVideoState(
+         videoInfo.listVideoSrc.find(
+            (element, index) => element.quality === currentQualityRef.current.quality,
+         ),
+      );
+
+      dataInitSettingRef.current = dataInitSettingRef.current.map((element, index) => {
+         if (index === 0) {
+            return element;
+         } else {
+            return {
+               title: <div className={cx('menu-setting_title')}>Chất lượng</div>,
+               left_icon: <IoMdOptions className={cx('menu-setting_icon')} />,
+               right_icon: (
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                     {currentQualityRef.current.quality}
+                     <FaAngleRight
+                        style={{ marginLeft: '6px' }}
+                        className={cx('menu-setting_icon')}
+                     />
+                  </div>
+               ),
+               children: {
+                  title: (
+                     <div style={{ fontSize: '1.5rem' }} className={cx('menu-setting_title')}>
+                        Chất lượng
+                     </div>
+                  ),
+                  data: dataInitQualityRef.current.map((element, index) => {
+                     if (index === currentQualityRef.current.index) {
+                        return {
+                           ...element,
+                           left_icon: (
+                              <div
+                                 className={cx(
+                                    'menu-setting_icon-quality',
+                                    'menu-setting_icon-quality-active',
+                                 )}
+                              >
+                                 <IoMdCheckmark></IoMdCheckmark>
+                              </div>
+                           ),
+                        };
+                     } else {
+                        return {
+                           ...element,
+                           left_icon: (
+                              <div className={cx('menu-setting_icon-quality')}>
+                                 <IoMdCheckmark></IoMdCheckmark>
+                              </div>
+                           ),
+                        };
+                     }
+                  }),
+               },
+            };
+         }
+      });
+      setDataInitSettingState(dataInitSettingRef.current);
+   };
+
+   const dataInitSpeedRef = useRef([
       {
-         title: <div className={cx('menu-setting_title')}>720p</div>,
+         title: <div className={cx('menu-setting_title')}>0.25</div>,
          left_icon: (
-            <div className={cx('menu-setting_icon-quality')}>
+            <div className={cx('menu-setting_icon-time_speed')}>
                <IoMdCheckmark></IoMdCheckmark>
             </div>
          ),
+         onChange: (dataItem) => {
+            handleOnChangeSpeed({
+               index: 0,
+               speed: 0.25,
+            });
+         },
       },
       {
-         title: <div className={cx('menu-setting_title')}>480p</div>,
+         title: <div className={cx('menu-setting_title')}>0.5</div>,
          left_icon: (
-            <div className={cx('menu-setting_icon-quality')}>
+            <div className={cx('menu-setting_icon-time_speed')}>
                <IoMdCheckmark></IoMdCheckmark>
             </div>
          ),
+         onChange: (dataItem) => {
+            handleOnChangeSpeed({
+               index: 1,
+               speed: 0.5,
+            });
+         },
       },
       {
-         title: <div className={cx('menu-setting_title')}>360p</div>,
+         title: <div className={cx('menu-setting_title')}>0.75</div>,
          left_icon: (
-            <div className={cx('menu-setting_icon-quality', 'menu-setting_icon-quality-active')}>
+            <div className={cx('menu-setting_icon-time_speed')}>
                <IoMdCheckmark></IoMdCheckmark>
             </div>
          ),
+         onChange: (dataItem) => {
+            handleOnChangeSpeed({
+               index: 2,
+               speed: 0.75,
+            });
+         },
+      },
+      {
+         title: <div className={cx('menu-setting_title')}>Chuẩn</div>,
+         left_icon: (
+            <div
+               className={cx('menu-setting_icon-time_speed', 'menu-setting_icon-time_speed-active')}
+            >
+               <IoMdCheckmark></IoMdCheckmark>
+            </div>
+         ),
+         onChange: (dataItem) => {
+            handleOnChangeSpeed({
+               index: 3,
+               speed: 1,
+            });
+         },
+      },
+      {
+         title: <div className={cx('menu-setting_title')}>1.25</div>,
+         left_icon: (
+            <div className={cx('menu-setting_icon-time_speed')}>
+               <IoMdCheckmark></IoMdCheckmark>
+            </div>
+         ),
+         onChange: (dataItem) => {
+            handleOnChangeSpeed({
+               index: 4,
+               speed: 1.25,
+            });
+         },
+      },
+      {
+         title: <div className={cx('menu-setting_title')}>1.5</div>,
+         left_icon: (
+            <div className={cx('menu-setting_icon-time_speed')}>
+               <IoMdCheckmark></IoMdCheckmark>
+            </div>
+         ),
+         onChange: (dataItem) => {
+            handleOnChangeSpeed({
+               index: 5,
+               speed: 1.5,
+            });
+         },
+      },
+      {
+         title: <div className={cx('menu-setting_title')}>1.75</div>,
+         left_icon: (
+            <div className={cx('menu-setting_icon-time_speed')}>
+               <IoMdCheckmark></IoMdCheckmark>
+            </div>
+         ),
+         onChange: (dataItem) => {
+            handleOnChangeSpeed({
+               index: 6,
+               speed: 1.75,
+            });
+         },
+      },
+      {
+         title: <div className={cx('menu-setting_title')}>2</div>,
+         left_icon: (
+            <div className={cx('menu-setting_icon-time_speed')}>
+               <IoMdCheckmark></IoMdCheckmark>
+            </div>
+         ),
+         onChange: (dataItem) => {
+            handleOnChangeSpeed({
+               index: 7,
+               speed: 2,
+            });
+         },
       },
    ]);
+
+   const dataInitQualityRef = useRef(
+      videoInfo.listVideoSrc.map((element, index) => ({
+         title: element.quality,
+         left_icon: (
+            <div className={cx('menu-setting_icon-quality')}>
+               <IoMdCheckmark></IoMdCheckmark>
+            </div>
+         ),
+         onChange: (dataItem) => {
+            handleOnChangeQuality({ index: index, quality: element.quality });
+         },
+      })),
+      // .concat([
+      //    {
+      //       title: `Tự động`,
+      //       left_icon: (
+      //          <div
+      //             className={cx('menu-setting_icon-quality', 'menu-setting_icon-quality-active')}
+      //          >
+      //             <IoMdCheckmark></IoMdCheckmark>
+      //          </div>
+      //       ),
+      //       onChange: (dataItem) => {
+      //          handleOnChangeQuality({
+      //             index: videoInfo.listVideoSrc.length + 1,
+      //             quality: 'Tự động',
+      //          });
+      //       },
+      //    },
+      // ]),
+   );
 
    const [dataInitSettingState, setDataInitSettingState] = useState([
       {
@@ -67,77 +359,7 @@ const Video = ({ width, height }) => {
                   Tốc độ phát
                </div>
             ),
-            data: [
-               {
-                  title: <div className={cx('menu-setting_title')}>0.25</div>,
-                  left_icon: (
-                     <div className={cx('menu-setting_icon-time_speed')}>
-                        <IoMdCheckmark></IoMdCheckmark>
-                     </div>
-                  ),
-               },
-               {
-                  title: <div className={cx('menu-setting_title')}>0.5</div>,
-                  left_icon: (
-                     <div className={cx('menu-setting_icon-time_speed')}>
-                        <IoMdCheckmark></IoMdCheckmark>
-                     </div>
-                  ),
-               },
-               {
-                  title: <div className={cx('menu-setting_title')}>0.75</div>,
-                  left_icon: (
-                     <div className={cx('menu-setting_icon-time_speed')}>
-                        <IoMdCheckmark></IoMdCheckmark>
-                     </div>
-                  ),
-               },
-               {
-                  title: <div className={cx('menu-setting_title')}>Chuẩn</div>,
-                  left_icon: (
-                     <div
-                        className={cx(
-                           'menu-setting_icon-time_speed',
-                           'menu-setting_icon-time_speed-active',
-                        )}
-                     >
-                        <IoMdCheckmark></IoMdCheckmark>
-                     </div>
-                  ),
-               },
-               {
-                  title: <div className={cx('menu-setting_title')}>1.25</div>,
-                  left_icon: (
-                     <div className={cx('menu-setting_icon-time_speed')}>
-                        <IoMdCheckmark></IoMdCheckmark>
-                     </div>
-                  ),
-               },
-               {
-                  title: <div className={cx('menu-setting_title')}>1.5</div>,
-                  left_icon: (
-                     <div className={cx('menu-setting_icon-time_speed')}>
-                        <IoMdCheckmark></IoMdCheckmark>
-                     </div>
-                  ),
-               },
-               {
-                  title: <div className={cx('menu-setting_title')}>1.75</div>,
-                  left_icon: (
-                     <div className={cx('menu-setting_icon-time_speed')}>
-                        <IoMdCheckmark></IoMdCheckmark>
-                     </div>
-                  ),
-               },
-               {
-                  title: <div className={cx('menu-setting_title')}>2</div>,
-                  left_icon: (
-                     <div className={cx('menu-setting_icon-time_speed')}>
-                        <IoMdCheckmark></IoMdCheckmark>
-                     </div>
-                  ),
-               },
-            ],
+            data: dataInitSpeedRef.current,
          },
       },
       {
@@ -145,7 +367,7 @@ const Video = ({ width, height }) => {
          left_icon: <IoMdOptions className={cx('menu-setting_icon')} />,
          right_icon: (
             <div style={{ display: 'flex', alignItems: 'center' }}>
-               Chuẩn
+               Tự động
                <FaAngleRight style={{ marginLeft: '6px' }} className={cx('menu-setting_icon')} />
             </div>
          ),
@@ -155,12 +377,28 @@ const Video = ({ width, height }) => {
                   Chất lượng
                </div>
             ),
-            data: dataInitQualityState,
+            data: dataInitQualityRef.current,
          },
       },
    ]);
 
-   const prevStateVideo = useRef(0);
+   useEffect(() => {
+      if (!dragVideoRef.current) {
+         if (videoRef.current) videoRef.current.currentTime = tempCurrentTimeRef.current;
+
+         if (currentStateOfVideoRef.current.height > 0) {
+            videoRef.current.style.height = currentStateOfVideoRef.current.height + 'px';
+         }
+
+         if (currentStateOfVideoRef.current.isPlay === 1) {
+            videoRef.current.play();
+         }
+      }
+   }, [currentVideoState]);
+
+   const dataInitSettingRef = useRef(dataInitSettingState);
+
+   const prevStateShowControlVideo = useRef(0);
 
    const modalVideoRef = useRef();
    const watchRef = useRef();
@@ -172,7 +410,7 @@ const Video = ({ width, height }) => {
    const timeDurationRef = useRef();
    const timeCurrentRef = useRef();
 
-   const tempCurrentRef = useRef(0.0);
+   const tempCurrentTimeRef = useRef(0.0);
 
    const isEndedRef = useRef(false);
 
@@ -231,8 +469,6 @@ const Video = ({ width, height }) => {
 
    const [showSetting, setShowSetting] = useState(false);
 
-   const tempTimeSaveRef = useRef(0);
-
    const convertTime = (time) => {
       if (!isNaN(+time)) {
          const date = new Date(null);
@@ -254,7 +490,7 @@ const Video = ({ width, height }) => {
 
    const handlePlayAndPaus = (e) => {
       e.preventDefault();
-      if (videoRef.current.paused) {
+      if (videoRef.current && videoRef.current.paused) {
          setShowEffectRef(1);
       } else {
          setShowEffectRef(2);
@@ -268,26 +504,28 @@ const Video = ({ width, height }) => {
    };
 
    const handleAutoProgress = () => {
-      const widthProgress = progressRefRef.current.getBoundingClientRect().width;
+      if (videoRef.current) {
+         const widthProgress = progressRefRef.current.getBoundingClientRect().width;
 
-      setTimeout(() => {
-         curIntervalRef.current = setInterval(() => {
-            let moveProgress = videoRef.current.currentTime / videoRef.current.duration;
+         setTimeout(() => {
+            curIntervalRef.current = setInterval(() => {
+               let moveProgress = videoRef.current.currentTime / videoRef.current.duration;
 
-            if (moveProgress > 1) {
-               moveProgress = 1;
-            } else if (moveProgress < 0) {
-               moveProgress = 0;
-            }
+               if (moveProgress > 1) {
+                  moveProgress = 1;
+               } else if (moveProgress < 0) {
+                  moveProgress = 0;
+               }
 
-            tempCurrentRef.current = videoRef.current.currentTime;
+               tempCurrentTimeRef.current = videoRef.current.currentTime;
 
-            progressCurrent.current.style.transform = `scaleX(${moveProgress})`;
-            progressBall.current.style.transform = `translateX(calc(${
-               moveProgress * 100
-            }% - var(--size-ball-progress) / 2))`;
-         }, (videoRef.current.duration * 650) / widthProgress);
-      });
+               progressCurrent.current.style.transform = `scaleX(${moveProgress})`;
+               progressBall.current.style.transform = `translateX(calc(${
+                  moveProgress * 100
+               }% - var(--size-ball-progress) / 2))`;
+            }, (videoRef.current.duration * 650) / widthProgress);
+         });
+      }
    };
 
    const handleMoveProgress = useCallback((e) => {
@@ -299,10 +537,10 @@ const Video = ({ width, height }) => {
       if (moveProgress > 1) {
          moveProgress = 1;
 
-         tempCurrentRef.current = moveProgress * (videoRef.current.duration - 0.001);
+         tempCurrentTimeRef.current = moveProgress * (videoRef.current.duration - 0.001);
 
-         timeCurrentRef.current.innerHTML = `${convertTime(tempCurrentRef.current)}`;
-         curTimeImgRef.current.innerHTML = `${convertTime(tempCurrentRef.current)}`;
+         timeCurrentRef.current.innerHTML = `${convertTime(tempCurrentTimeRef.current)}`;
+         curTimeImgRef.current.innerHTML = `${convertTime(tempCurrentTimeRef.current)}`;
 
          progressCurrent.current.style.transform = `scaleX(${moveProgress})`;
          progressBall.current.style.transform = `translateX(calc(${
@@ -314,9 +552,9 @@ const Video = ({ width, height }) => {
          moveProgress = 0;
       }
 
-      tempCurrentRef.current = moveProgress * videoRef.current.duration;
-      timeCurrentRef.current.innerHTML = `${convertTime(tempCurrentRef.current)}`;
-      curTimeImgRef.current.innerHTML = `${convertTime(tempCurrentRef.current)}`;
+      tempCurrentTimeRef.current = moveProgress * videoRef.current.duration;
+      timeCurrentRef.current.innerHTML = `${convertTime(tempCurrentTimeRef.current)}`;
+      curTimeImgRef.current.innerHTML = `${convertTime(tempCurrentTimeRef.current)}`;
 
       progressCurrent.current.style.transform = `scaleX(${moveProgress})`;
       progressBall.current.style.transform = `translateX(calc(${
@@ -382,24 +620,26 @@ const Video = ({ width, height }) => {
 
          modalPreviewRef.current.style.visibility = 'hidden';
 
-         videoRef.current.currentTime = tempCurrentRef.current;
+         videoRef.current.currentTime = tempCurrentTimeRef.current;
 
          // if (
          //    videoRef.current.buffered.end(tempBufferedRef.current) < videoRef.current.currentTime ||
          //    videoRef.current.buffered.start(tempBufferedRef.current) > videoRef.current.currentTime
          // ) {
-         //    for (let i = 0; i < videoRef.current.buffered.length; i++) {
-         //       if (
-         //          videoRef.current.buffered.start(i) <= videoRef.current.currentTime &&
-         //          videoRef.current.buffered.end(i) >= videoRef.current.currentTime
-         //       ) {
-         //          tempBufferedRef.current = i;
-         //          progressBuffered.current.style.transform = `scaleX(${
-         //             videoRef.current.buffered.end(i) / videoRef.current.duration
-         //          })`;
-         //          break;
-         //       }
-         //    }
+         if (videoRef.current.buffered && videoRef.current.buffered.length > 0) {
+            for (let i = 0; i < videoRef.current.buffered.length; i++) {
+               if (
+                  videoRef.current.buffered.start(i) <= videoRef.current.currentTime &&
+                  videoRef.current.buffered.end(i) >= videoRef.current.currentTime
+               ) {
+                  tempBufferedRef.current = i;
+                  progressBuffered.current.style.transform = `scaleX(${
+                     videoRef.current.buffered.end(i) / videoRef.current.duration
+                  })`;
+                  break;
+               }
+            }
+         }
          // }
 
          if (!hoverProgress.current) {
@@ -493,13 +733,13 @@ const Video = ({ width, height }) => {
 
    const handleKeyMoveProgress = (e) => {
       if (e.keyCode === 39) {
-         tempCurrentRef.current = tempCurrentRef.current + 5;
-         let moveProgress = tempCurrentRef.current / videoRef.current.duration;
+         tempCurrentTimeRef.current = tempCurrentTimeRef.current + 5;
+         let moveProgress = tempCurrentTimeRef.current / videoRef.current.duration;
 
          if (moveProgress >= 1) {
             moveProgress = 1;
 
-            tempCurrentRef.current = videoRef.current.duration;
+            tempCurrentTimeRef.current = videoRef.current.duration;
 
             timeCurrentRef.current.innerHTML = `${convertTime(videoRef.current.duration)}`;
             curTimeImgRef.current.innerHTML = `${convertTime(videoRef.current.duration)}`;
@@ -514,28 +754,28 @@ const Video = ({ width, height }) => {
             return;
          } else if (moveProgress < 0) {
             moveProgress = 0;
-            tempCurrentRef.current = 0;
+            tempCurrentTimeRef.current = 0;
          }
 
-         timeCurrentRef.current.innerHTML = `${convertTime(tempCurrentRef.current)}`;
-         curTimeImgRef.current.innerHTML = `${convertTime(tempCurrentRef.current)}`;
+         timeCurrentRef.current.innerHTML = `${convertTime(tempCurrentTimeRef.current)}`;
+         curTimeImgRef.current.innerHTML = `${convertTime(tempCurrentTimeRef.current)}`;
 
          progressCurrent.current.style.transform = `scaleX(${moveProgress})`;
          progressBall.current.style.transform = `translateX(calc(${
             moveProgress * 100
          }% - var(--size-ball-progress) / 2))`;
 
-         videoRef.current.currentTime = tempCurrentRef.current;
+         videoRef.current.currentTime = tempCurrentTimeRef.current;
       }
 
       if (e.keyCode === 37) {
-         tempCurrentRef.current -= 5;
-         let moveProgress = tempCurrentRef.current / videoRef.current.duration;
+         tempCurrentTimeRef.current -= 5;
+         let moveProgress = tempCurrentTimeRef.current / videoRef.current.duration;
 
          if (moveProgress >= 1) {
             moveProgress = 1;
 
-            tempCurrentRef.current = videoRef.current.duration;
+            tempCurrentTimeRef.current = videoRef.current.duration;
 
             timeCurrentRef.current.innerHTML = `${convertTime(videoRef.current.duration)}`;
             curTimeImgRef.current.innerHTML = `${convertTime(videoRef.current.duration)}`;
@@ -550,18 +790,18 @@ const Video = ({ width, height }) => {
             return;
          } else if (moveProgress < 0) {
             moveProgress = 0;
-            tempCurrentRef.current = 0;
+            tempCurrentTimeRef.current = 0;
          }
 
-         timeCurrentRef.current.innerHTML = `${convertTime(tempCurrentRef.current)}`;
-         curTimeImgRef.current.innerHTML = `${convertTime(tempCurrentRef.current)}`;
+         timeCurrentRef.current.innerHTML = `${convertTime(tempCurrentTimeRef.current)}`;
+         curTimeImgRef.current.innerHTML = `${convertTime(tempCurrentTimeRef.current)}`;
 
          progressCurrent.current.style.transform = `scaleX(${moveProgress})`;
          progressBall.current.style.transform = `translateX(calc(${
             moveProgress * 100
          }% - var(--size-ball-progress) / 2))`;
 
-         videoRef.current.currentTime = tempCurrentRef.current;
+         videoRef.current.currentTime = tempCurrentTimeRef.current;
 
          if (isEndedRef.current) {
             setPlay(1);
@@ -666,10 +906,8 @@ const Video = ({ width, height }) => {
          if (videoRef.current && !videoRef.current.paused) setPlay(1);
       };
 
-      const loadUser = async () => {
-         const response = await axios.get(`${apiUrl}/video/thumbnail/6624a5df0148c458ad613575`);
-
-         console.log(response);
+      const loadThumbnail = async () => {
+         const response = await axios.get(`${apiUrl}/video/thumbnail/${videoInfo.videoID}`);
 
          response.data.thumbnails.forEach((element) => {
             previewListRef.current = previewListRef.current.concat(element);
@@ -677,7 +915,7 @@ const Video = ({ width, height }) => {
 
          previewListRef.current = previewListRef.current.sort((a, b) => a.timemark - b.timemark);
       };
-      loadUser();
+      loadThumbnail();
    }, []);
 
    const handleScreen = (e) => {
@@ -691,6 +929,8 @@ const Video = ({ width, height }) => {
    useEffect(() => {
       if (screenVideo === 1) {
          screenStateRef.current = 1;
+
+         videoRef.current.style.height = 'auto';
 
          if (wrapperVideoRef.current.requestFullscreen) {
             wrapperVideoRef.current.requestFullscreen();
@@ -818,9 +1058,9 @@ const Video = ({ width, height }) => {
 
          isEndedRef.current = true;
 
-         if (dragVideoRef.current) {
-            videoRef.current.autoplay = false;
-         }
+         // if (dragVideoRef.current) {
+         // videoRef.current.autoplay = false;
+         // }
          setShowControl(2);
       };
 
@@ -844,7 +1084,6 @@ const Video = ({ width, height }) => {
       };
 
       window.onkeydown = (e) => {
-         console.log(e.keyCode);
          if (e.keyCode === 32) {
             handlePlayAndPaus(e);
             if (videoRef.current.paused) {
@@ -938,19 +1177,21 @@ const Video = ({ width, height }) => {
             //    videoRef.current.buffered.start(tempBufferedRef.current) >
             //       videoRef.current.currentTime
             // ) {
-            for (let i = 0; i < videoRef.current.buffered.length; i++) {
-               if (
-                  videoRef.current.buffered.start(i) <= videoRef.current.currentTime &&
-                  videoRef.current.buffered.end(i) >= videoRef.current.currentTime
-               ) {
-                  tempBufferedRef.current = i;
-                  progressBuffered.current.style.transform = `scaleX(${
-                     videoRef.current.buffered.end(tempBufferedRef.current) /
-                     videoRef.current.duration
-                  })`;
-                  break;
+            if (videoRef.current.buffered && videoRef.current.buffered.length > 0) {
+               for (let i = 0; i < videoRef.current.buffered.length; i++) {
+                  if (
+                     videoRef.current.buffered.start(i) <= videoRef.current.currentTime &&
+                     videoRef.current.buffered.end(i) >= videoRef.current.currentTime
+                  ) {
+                     tempBufferedRef.current = i;
+                     progressBuffered.current.style.transform = `scaleX(${
+                        videoRef.current.buffered.end(i) / videoRef.current.duration
+                     })`;
+                     break;
+                  }
                }
             }
+
             // }
          }
       };
@@ -987,12 +1228,12 @@ const Video = ({ width, height }) => {
       };
 
       if (showSetting) {
-         prevStateVideo.current = showControl;
+         prevStateShowControlVideo.current = showControl;
          setShowControl(2);
          modalVideoRef.current.style.zIndex = 0;
       } else {
-         if (prevStateVideo.current === 1) prevStateVideo.current = 0;
-         setShowControl(prevStateVideo.current);
+         if (prevStateShowControlVideo.current === 1) prevStateShowControlVideo.current = 0;
+         setShowControl(prevStateShowControlVideo.current);
          modalVideoRef.current.style.zIndex = -1;
       }
    }, [showSetting]);
@@ -1002,8 +1243,8 @@ const Video = ({ width, height }) => {
          <div ref={watchRef} className={cx('wrapper')}>
             <div ref={wrapperVideoRef} className={cx('watch')}>
                <ReactHlsPlayer
-                  src={videoSrc}
-                  autoPlay={true}
+                  src={`http://localhost:5000/api/video/stream/${currentVideoState.videoSrc}?mode=m3u8`}
+                  autoPlay={autoPlayState}
                   controls={false}
                   width="100%"
                   height="auto"
@@ -1110,6 +1351,8 @@ const Video = ({ width, height }) => {
                            }}
                         >
                            <Menu
+                              width="269px"
+                              placement={'top-end'}
                               items={dataInitSettingState}
                               key={dataInitSettingState}
                               hideOnClick={true}
@@ -1122,6 +1365,12 @@ const Video = ({ width, height }) => {
                               className={cx('wrapper-setting')}
                               darkMode
                               offset={[66, 23]}
+                              onChange={(e) => {
+                                 if (e.onChange) e.onChange();
+                              }}
+                              getItems={() => {
+                                 return dataInitSettingRef.current;
+                              }}
                            >
                               <Button
                                  key="setting1"

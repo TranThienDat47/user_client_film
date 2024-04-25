@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import React from 'react';
 import classNames from 'classnames/bind';
 import styles from './Menu.module.scss';
 
@@ -30,4 +31,4 @@ MenuItem.propTypes = {
    onClick: PropTypes.func,
 };
 
-export default MenuItem;
+export default React.memo(MenuItem);

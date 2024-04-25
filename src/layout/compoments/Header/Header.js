@@ -334,6 +334,7 @@ function Header() {
                <div className={cx('infor-icon')}>
                   {isAuthenticated && user ? (
                      <Menu
+                        placement={'bottom-start'}
                         items={dataInit}
                         key={dataInit}
                         hideOnClick={true}

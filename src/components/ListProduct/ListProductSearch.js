@@ -5,13 +5,13 @@ import { ProductItem } from '~/components/ProductItem';
 
 const cx = classNames.bind(styles);
 
-function ListProducts({ data = [], ...props }) {
+function ListProductsSearch({ data = [], ...props }) {
    return (
       <div className={cx('wrapper')}>
          <ul className={cx('list')}>
             {data.map((res, index) => (
                <li key={index} className={cx('item')}>
-                  <ProductItem extraLarge={false} data={res} />
+                  <ProductItem modeSearchPage extraLarge={false} data={res} />
                </li>
             ))}
          </ul>
@@ -19,4 +19,4 @@ function ListProducts({ data = [], ...props }) {
    );
 }
 
-export default ListProducts;
+export default ListProductsSearch;

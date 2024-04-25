@@ -6,23 +6,26 @@ export const init = {
    screenVideo: 0,
 };
 
-export const videoReducer = (state, action) => {
-   const {
-      type,
-      payload: { volume, play, showControl, showEffect, screenVideo },
-   } = action;
+const cases = [
+   {
+      type: 'SET_AUTH',
+      returnData: (state, { volume, play, showControl, showEffect, screenVideo }) => ({
+         ...state,
+         volume,
+         play,
+         showControl,
+         showEffect,
+         screenVideo,
+      }),
+   },
+];
 
-   switch (type) {
-      case 'SET_AUTH':
-         return {
-            ...state,
-            volume,
-            play,
-            showControl,
-            showEffect,
-            screenVideo,
-         };
-      default:
-         return state;
+export const videoReducer = (state, action) => {
+   const selectedCase = cases.find((item) => item.type === action.type);
+
+   if (selectedCase) {
+      return selectedCase.returnData(state, action.payload);
+   } else {
+      return state;
    }
 };

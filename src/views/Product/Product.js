@@ -119,10 +119,10 @@ const Product = () => {
                   </div>
                   <div className={cx('top__details')}>
                      <div className={cx('top__name', 'content-empty w-200 h-29')}>
-                        {loading ? '' : productCurrentState._name}
+                        {productCurrentState._name}
                      </div>
                      <div className={cx('top__another-name', 'content-empty w-200 h-23')}>
-                        {loading ? '' : productCurrentState.anotherName}
+                        {productCurrentState.anotherName}
                      </div>
 
                      <div className={cx('top__details-inf')}>
@@ -136,20 +136,20 @@ const Product = () => {
                                     'strong',
                                  )}
                               >
-                                 {loading ? '' : productCurrentState.releaseDate}
+                                 {productCurrentState.releaseDate}
                               </div>
                            </div>
                            <div className={cx('wrapper-count', 'count-episode')}>
                               <span>Số tập:</span>
                               <div
                                  className={cx(
-                                    'content-empty w-100 h-20',
+                                    loading ? 'content-empty w-100 h-20' : '',
                                     'string-formatted',
                                     'strong',
                                  )}
                               >
-                                 {loading ? '' : productCurrentState.currentEpisodes}/
-                                 {loading ? '' : productCurrentState.episodes}
+                                 {productCurrentState.currentEpisodes}/
+                                 {productCurrentState.episodes}
                               </div>
                            </div>
                            <div className={cx('wrapper-count', 'count-views')}>
@@ -235,7 +235,7 @@ const Product = () => {
                                     'text-align-justify',
                                  )}
                               >
-                                 {loading ? '' : productCurrentState.description}
+                                 {productCurrentState.description}
                               </div>
                            </div>
 
@@ -251,7 +251,7 @@ const Product = () => {
                                     'text-align-justify',
                                  )}
                               >
-                                 {loading ? '' : productCurrentState.releaseDate}
+                                 {productCurrentState.releaseDate}
                               </div>
                            </div>
 
@@ -263,11 +263,11 @@ const Product = () => {
                               <div
                                  className={cx(
                                     'string-formatted',
-                                    'content-empty w-100 h-20',
+                                    loading ? 'content-empty w-100 h-20' : '',
                                     'text-align-justify',
                                  )}
                               >
-                                 {loading ? '' : productCurrentState.country_Of_Origin}
+                                 {productCurrentState.country_Of_Origin}
                               </div>
                            </div>
 
@@ -298,8 +298,8 @@ const Product = () => {
                                     'text-align-justify',
                                  )}
                               >
-                                 {loading ? '' : productCurrentState.currentEpisodes}/
-                                 {loading ? '' : productCurrentState.episodes}
+                                 {productCurrentState.currentEpisodes}/
+                                 {productCurrentState.episodes}
                               </div>
                            </div>
 

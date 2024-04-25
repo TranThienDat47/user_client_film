@@ -5,22 +5,25 @@ export const initialState = {
    user: null,
 };
 
-export const authReducer = (state, action) => {
-   const {
-      type,
-      payload: { isAuthenticated, isVerify, user },
-   } = action;
+const cases = [
+   {
+      type: 'SET_AUTH',
+      returnData: (state, { isAuthenticated, isVerify, user }) => ({
+         ...state,
+         authLoading: false,
+         isAuthenticated,
+         isVerify,
+         user,
+      }),
+   },
+];
 
-   switch (type) {
-      case 'SET_AUTH':
-         return {
-            ...state,
-            authLoading: false,
-            isAuthenticated,
-            isVerify,
-            user,
-         };
-      default:
-         return state;
+export const authReducer = (state, action) => {
+   const selectedCase = cases.find((item) => item.type === action.type);
+
+   if (selectedCase) {
+      return selectedCase.returnData(state, action.payload);
+   } else {
+      return state;
    }
 };

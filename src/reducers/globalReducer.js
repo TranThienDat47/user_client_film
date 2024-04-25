@@ -6,31 +6,38 @@ export const initialState = {
    error: null,
 };
 
-export const globalReducer = (state, action) => {
-   const {
-      type,
-      payload: { productCurrent, theme, language, error },
-   } = action;
+const cases = [
+   {
+      type: 'FETCH_PRODUCT_CURRENT_REQUEST',
+      returnData: (state) => ({
+         ...state,
+         loading: true,
+      }),
+   },
+   {
+      type: 'FETCH_PRODUCT_CURRENT_SUCCESS',
+      returnData: (state, { productCurrent }) => ({
+         ...state,
+         loading: false,
+         productCurrent,
+      }),
+   },
+   {
+      type: 'FETCH_PRODUCT_CURRENT_FAILURE',
+      returnData: (state, { error }) => ({
+         ...state,
+         loading: false,
+         error,
+      }),
+   },
+];
 
-   switch (type) {
-      case 'FETCH_PRODUCT_CURRENT_REQUEST':
-         return {
-            ...state,
-            loading: true,
-         };
-      case 'FETCH_PRODUCT_CURRENT_SUCCESS':
-         return {
-            ...state,
-            loading: false,
-            productCurrent,
-         };
-      case 'FETCH_PRODUCT_CURRENT_FAILURE':
-         return {
-            ...state,
-            loading: false,
-            error,
-         };
-      default:
-         return state;
+export const globalReducer = (state, action) => {
+   const selectedCase = cases.find((item) => item.type === action.type);
+
+   if (selectedCase) {
+      return selectedCase.returnData(state, action.payload);
+   } else {
+      return state;
    }
 };

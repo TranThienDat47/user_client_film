@@ -35,9 +35,9 @@ function SearchResult({ result = [], ...passProp }) {
    const handleMouseOver = useCallback((e) => {
       if (resultRef.current) {
          if (checkNode(resultRef.current, e.target)) {
-            if (tempHoverRef.current !== +tempRef.children[0].id) {
-               setTempHoverState(+tempRef.children[0].id);
-               tempHoverRef.current = +tempRef.children[0].id;
+            if (tempHoverRef.current !== +tempRef?.children[0]?.id) {
+               setTempHoverState(+tempRef?.children[0]?.id);
+               tempHoverRef.current = +tempRef?.children[0]?.id;
             }
          }
       }
