@@ -14,10 +14,16 @@ import imgs from '~/assets/img';
 import { converterDate, converterDateTitle, sortedEpisodes } from '~/utils/validated';
 import LazyLoading from '~/components/loading/LazyLoading';
 import { ProductContext } from '~/contexts/product';
+import FollowService from '~/services/FollowService';
+import { AuthContext } from '~/contexts/auth';
 
 const cx = classNames.bind(styles);
 
 const Product = () => {
+   const {
+      authState: { user },
+   } = useContext(AuthContext);
+
    const {
       globalState: { productCurrent, product_details, loading },
       setProductCurrent,
@@ -29,6 +35,7 @@ const Product = () => {
       loadRecommendProduct,
    } = useContext(ProductContext);
 
+   const [followState, setFollowState] = useState({ isFollow: false, flagNotify: 1 }); //flag 1: notify, 0: not notify
    const [productCurrentState, setProductCurrentState] = useState({});
 
    const location = useLocation();
@@ -41,6 +48,28 @@ const Product = () => {
    const childRefRecommend = useRef(null);
    const wrapperRef = useRef(null);
    const tempWatchRef = useRef(null);
+
+   const handleFollow = async () => {
+      FollowService.follow({ user_id: user?._id, ref_id: parent_id }).then((res) => {
+         setFollowState({ ...followState, isFollow: true });
+      });
+   };
+   const handleFollowAfter = async () => {
+      FollowService.unfollow({ user_id: user?._id, ref_id: parent_id }).then((res) => {
+         setFollowState({ ...followState, isFollow: false });
+      });
+   };
+
+   useEffect(() => {
+      if (user)
+         FollowService.checkIsFollow({ user_id: user?._id, ref_id: parent_id }).then((res) => {
+            if (res.isFollow) {
+               setFollowState({ ...followState, isFollow: true });
+            } else {
+               setFollowState({ ...followState, isFollow: false });
+            }
+         });
+   }, [user]);
 
    useEffect(() => {
       setProductCurrent({ _id: parent_id });
@@ -187,9 +216,26 @@ const Product = () => {
                                  <Button grey rounded className={cx('btn_follow')}>
                                     Xem sau
                                  </Button>
-                                 <Button grey rounded className={cx('btn_watching')}>
-                                    Theo dõi
-                                 </Button>
+
+                                 {followState.isFollow ? (
+                                    <Button
+                                       onClick={handleFollowAfter}
+                                       grey
+                                       rounded
+                                       className={cx('btn_watching')}
+                                    >
+                                       Bỏ theo dõi
+                                    </Button>
+                                 ) : (
+                                    <Button
+                                       onClick={handleFollow}
+                                       grey
+                                       rounded
+                                       className={cx('btn_watching')}
+                                    >
+                                       Theo dõi
+                                    </Button>
+                                 )}
                               </>
                            )}
                         </div>

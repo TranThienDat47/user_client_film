@@ -37,8 +37,8 @@ const Video = ({
    const [autoPlayState, setAutoPlayState] = useState(true);
 
    const currentQualityRef = useRef({
-      index: 3,
-      quality: `Chuẩn 360p`,
+      index: 0,
+      quality: `480p`,
    });
 
    const currentSpeedRef = useRef({
@@ -112,86 +112,88 @@ const Video = ({
    };
 
    const handleOnChangeQuality = ({ index = 3, quality = 'Tự động' }) => {
-      currentQualityRef.current = {
-         index,
-         quality,
-      };
-
-      setAutoPlayState(false);
-
-      if (screenStateRef.current === 0) {
-         currentStateOfVideoRef.current = {
-            width: '100%',
-            height: videoRef.current.getBoundingClientRect().height,
-            isPlay: videoRef.current.paused ? 0 : 1,
+      if (index !== currentQualityRef.current.index) {
+         currentQualityRef.current = {
+            index,
+            quality,
          };
-      } else {
-         currentStateOfVideoRef.current = {
-            width: '100%',
-            height: 'auto',
-            isPlay: videoRef.current.paused ? 0 : 1,
-         };
-      }
 
-      setCurrentVideoState(
-         videoInfo.listVideoSrc.find(
-            (element, index) => element.quality === currentQualityRef.current.quality,
-         ),
-      );
+         setAutoPlayState(false);
 
-      dataInitSettingRef.current = dataInitSettingRef.current.map((element, index) => {
-         if (index === 0) {
-            return element;
+         if (screenStateRef.current === 0) {
+            currentStateOfVideoRef.current = {
+               width: '100%',
+               height: videoRef.current.getBoundingClientRect().height,
+               isPlay: videoRef.current.paused ? 0 : 1,
+            };
          } else {
-            return {
-               title: <div className={cx('menu-setting_title')}>Chất lượng</div>,
-               left_icon: <IoMdOptions className={cx('menu-setting_icon')} />,
-               right_icon: (
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                     {currentQualityRef.current.quality}
-                     <FaAngleRight
-                        style={{ marginLeft: '6px' }}
-                        className={cx('menu-setting_icon')}
-                     />
-                  </div>
-               ),
-               children: {
-                  title: (
-                     <div style={{ fontSize: '1.5rem' }} className={cx('menu-setting_title')}>
-                        Chất lượng
-                     </div>
-                  ),
-                  data: dataInitQualityRef.current.map((element, index) => {
-                     if (index === currentQualityRef.current.index) {
-                        return {
-                           ...element,
-                           left_icon: (
-                              <div
-                                 className={cx(
-                                    'menu-setting_icon-quality',
-                                    'menu-setting_icon-quality-active',
-                                 )}
-                              >
-                                 <IoMdCheckmark></IoMdCheckmark>
-                              </div>
-                           ),
-                        };
-                     } else {
-                        return {
-                           ...element,
-                           left_icon: (
-                              <div className={cx('menu-setting_icon-quality')}>
-                                 <IoMdCheckmark></IoMdCheckmark>
-                              </div>
-                           ),
-                        };
-                     }
-                  }),
-               },
+            currentStateOfVideoRef.current = {
+               width: '100%',
+               height: 'auto',
+               isPlay: videoRef.current.paused ? 0 : 1,
             };
          }
-      });
-      setDataInitSettingState(dataInitSettingRef.current);
+
+         setCurrentVideoState(
+            videoInfo.listVideoSrc.find(
+               (element, index) => element.quality === currentQualityRef.current.quality,
+            ),
+         );
+
+         dataInitSettingRef.current = dataInitSettingRef.current.map((element, index) => {
+            if (index === 0) {
+               return element;
+            } else {
+               return {
+                  title: <div className={cx('menu-setting_title')}>Chất lượng</div>,
+                  left_icon: <IoMdOptions className={cx('menu-setting_icon')} />,
+                  right_icon: (
+                     <div style={{ display: 'flex', alignItems: 'center' }}>
+                        {currentQualityRef.current.quality}
+                        <FaAngleRight
+                           style={{ marginLeft: '6px' }}
+                           className={cx('menu-setting_icon')}
+                        />
+                     </div>
+                  ),
+                  children: {
+                     title: (
+                        <div style={{ fontSize: '1.5rem' }} className={cx('menu-setting_title')}>
+                           Chất lượng
+                        </div>
+                     ),
+                     data: dataInitQualityRef.current.map((element, index) => {
+                        if (index === currentQualityRef.current.index) {
+                           return {
+                              ...element,
+                              left_icon: (
+                                 <div
+                                    className={cx(
+                                       'menu-setting_icon-quality',
+                                       'menu-setting_icon-quality-active',
+                                    )}
+                                 >
+                                    <IoMdCheckmark></IoMdCheckmark>
+                                 </div>
+                              ),
+                           };
+                        } else {
+                           return {
+                              ...element,
+                              left_icon: (
+                                 <div className={cx('menu-setting_icon-quality')}>
+                                    <IoMdCheckmark></IoMdCheckmark>
+                                 </div>
+                              ),
+                           };
+                        }
+                     }),
+                  },
+               };
+            }
+         });
+         setDataInitSettingState(dataInitSettingRef.current);
+      }
    };
 
    const dataInitSpeedRef = useRef([
@@ -315,7 +317,12 @@ const Video = ({
       videoInfo.listVideoSrc.map((element, index) => ({
          title: element.quality,
          left_icon: (
-            <div className={cx('menu-setting_icon-quality')}>
+            <div
+               className={cx(
+                  'menu-setting_icon-quality',
+                  index === 0 && 'menu-setting_icon-quality-active',
+               )}
+            >
                <IoMdCheckmark></IoMdCheckmark>
             </div>
          ),
@@ -394,7 +401,11 @@ const Video = ({
             videoRef.current.play();
          }
       }
-   }, [currentVideoState]);
+
+      return () => {
+         clearInterval(curIntervalRef.current);
+      };
+   }, [currentVideoState, autoPlayState]);
 
    const dataInitSettingRef = useRef(dataInitSettingState);
 

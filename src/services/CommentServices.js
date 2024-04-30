@@ -26,12 +26,19 @@ class CommentServices {
       }
    }
 
-   async addComment({ parent_id = null, user_id = null, content = '', isReply = false }) {
+   async addComment({
+      parent_id = null,
+      user_id = null,
+      content = '',
+      reply_with = {},
+      isReply = false,
+   }) {
       try {
          const response = await axios.post(`${apiUrl}/comments`, {
             parent_id,
             user_id,
             content,
+            reply_with,
             isReply,
          });
 

@@ -1,9 +1,19 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState, memo } from 'react';
+import {
+   forwardRef,
+   useEffect,
+   useImperativeHandle,
+   useRef,
+   useState,
+   memo,
+   useContext,
+} from 'react';
 import classNames from 'classnames/bind';
 
 import Button from '../Button';
 
 import styles from './Comment.module.scss';
+import { AuthContext } from '~/contexts/auth';
+import imgs from '~/assets/img';
 
 const cx = classNames.bind(styles);
 
@@ -17,6 +27,10 @@ const CommentWrite = forwardRef(
       },
       ref,
    ) => {
+      const {
+         authState: { user },
+      } = useContext(AuthContext);
+
       const classes = cx('wrapper', {
          modeReply,
          ...passProp,
@@ -77,7 +91,15 @@ const CommentWrite = forwardRef(
             <div className={cx('inner-top')}>
                <div className={cx('comment-left')}>
                   <div className={cx('avata')}>
-                     <img src="" alt="" className={cx('avt')} />
+                     <img
+                        src={user?.img}
+                        alt=""
+                        className={cx('avt')}
+                        onError={(e) => {
+                           e.target.onerror = null;
+                           e.target.src = imgs.noImage;
+                        }}
+                     />
                   </div>
                </div>
                <div className={cx('comment-right', 'write-comment')}>
@@ -88,7 +110,7 @@ const CommentWrite = forwardRef(
                      onKeyDown={(e) => {
                         e.stopPropagation();
                      }}
-                  ></div>
+                  />
                   <div className={cx('write-comment--controls')}>
                      <div className={cx('control-left')}></div>
                      <div className={cx('control-right')}>

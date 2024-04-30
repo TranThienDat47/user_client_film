@@ -97,30 +97,27 @@ function CommentItem({
       setShowReplyWrite(false);
    };
 
-   const handleComment = useCallback(
-      async (text) => {
-         console.log(modeReply, parentId, data._id);
-         await CommentServices.addComment({
-            parent_id: modeReply ? parentId : data._id,
-            user_id: user._id,
-            content: text || ' ',
-            isReply: true,
+   const handleComment = async (text) => {
+      await CommentServices.addComment({
+         parent_id: modeReply ? parentId : data._id,
+         user_id: user._id,
+         content: text || ' ',
+         isReply: true,
+         reply_with: modeReply ? { parentId, _name: data._name } : undefined,
+      })
+         .then((response) => {
+            const comment =
+               response.comments.comment_details[response.comments.comment_details.length - 1];
+
+            comment._name = user._name;
+            comment.img = user.img;
+
+            socket.emit('comment_reply', comment);
+
+            data.replies++;
          })
-            .then((response) => {
-               const comment =
-                  response.comments.comment_details[response.comments.comment_details.length - 1];
-
-               comment._name = user._name;
-               comment.img = user.img;
-
-               socket.emit('comment_reply', comment);
-
-               data.replies++;
-            })
-            .catch((error) => {});
-      },
-      [socket, suggestedComments],
-   );
+         .catch((error) => {});
+   };
 
    const fetchNumLikes = async (e) => {
       const fetchDislikeComment = await CommentServices.getNumLikeComment({
@@ -243,7 +240,18 @@ function CommentItem({
                         validateTime(data.createdAt).unit}
                   </span>
                </div>
-               <div className={cx('content')}>{data.content}</div>
+               <div className={cx('content')}>
+                  {modeReply && data?.reply_with?._name ? (
+                     <>
+                        <a style={{ color: 'var(--link-color)', cursor: 'pointer' }}>
+                           @{data?.reply_with?._name}
+                        </a>{' '}
+                        {data?.content}
+                     </>
+                  ) : (
+                     data?.content
+                  )}
+               </div>
             </div>
          </div>
          <div className={cx('inner-bottom')}>

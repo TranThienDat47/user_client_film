@@ -61,30 +61,12 @@
    font-size: 13px;
    font-weight: 600;
    margin-left: 13px;
+   margin-top: 6px;
 
    & .notification-item__time {
       margin-top: 6px;
       color: var(--text-bland);
       font-size: 12px;
-   }
-}
-
-.notification-item__title {
-   &:empty {
-      margin-top: 6px;
-      background-color: rgba(22, 24, 35, 0.1);
-      height: 1.9rem;
-      width: 293px;
-      border-radius: 3px;
-   }
-}
-
-.notification-item__time {
-   &:empty {
-      background-color: rgba(22, 24, 35, 0.1);
-      height: 1.9rem;
-      width: 96px;
-      border-radius: 3px;
    }
 }
 
@@ -95,3 +77,24 @@
    align-items: center;
    justify-content: center;
 }
+
+// .fetchLoading {
+//    .notification-item__title {
+//       &:empty {
+//          margin-top: 6px;
+//          background-color: rgba(22, 24, 35, 0.1);
+//          height: 1.9rem;
+//          width: 293px;
+//          border-radius: 3px;
+//       }
+//    }
+
+//    .notification-item__time {
+//       &:empty {
+//          background-color: rgba(22, 24, 35, 0.1);
+//          height: 1.9rem;
+//          width: 96px;
+//          border-radius: 3px;
+//       }
+//    }
+// }
