@@ -1,48 +1,43 @@
 .wrapper {
+   overflow-x: hidden;
+   overflow-y: auto;
    position: fixed;
-   padding: 3px 3px;
+
+   padding: 0px 9px;
    top: var(--height-default-header);
    background-color: var(--white);
    width: var(--width-default-sidebar);
-   height: 100%;
+   height: calc(100% - var(--height-default-header));
    z-index: 10;
 
-   &::before {
-      content: '';
-      position: absolute;
-      top: -1px;
-      right: -15px;
-      clip-path: polygon(
-         0 100%,
-         0 0,
-         100% 0,
-         76% 6%,
-         59% 13%,
-         47% 19%,
-         38% 25%,
-         28% 34%,
-         21% 43%,
-         15% 53%,
-         11% 63%,
-         6% 78%
-      );
-      width: 16px;
-      height: 16px;
-      background: var(--white);
+   scrollbar-color: transparent transparent;
+   scrollbar-width: thin;
+
+   &:hover {
+      scrollbar-color: var(--scrollbar-bland) transparent;
    }
    .button {
+      position: relative;
+      display: flex;
+      justify-content: flex-start;
       width: 100%;
-      height: calc(var(--width-default-sidebar) - 6px);
       font-size: 2.3rem;
+      padding: 9px 16px;
       border-radius: 13px;
+      overflow: hidden;
+
+      .content {
+         margin-left: 16px;
+      }
 
       .content .icon {
          margin-bottom: 4px;
       }
 
       .content div {
-         font-size: 1.2rem;
-         line-height: 1.2rem;
+         font-size: 1.6rem;
+         line-height: 1.6rem;
+         font-weight: 500;
       }
 
       div {
@@ -50,7 +45,82 @@
       }
 
       &:hover {
-         background-color: rgba(22, 24, 35, 0.1);
+         background-color: var(--hover-item-color);
+      }
+
+      &.active {
+         .content div {
+            font-weight: 550;
+         }
+      }
+
+      &.active::after {
+         content: '';
+         position: absolute;
+         top: 0;
+         bottom: 0;
+         left: 0;
+         right: 0;
+         background-color: var(--hover-item-color);
+      }
+      .img-item {
+         position: relative;
+         width: 23px;
+         border-radius: 3px;
+         overflow: hidden;
+
+         &::before {
+            content: '';
+            display: block;
+            padding-top: 135.3333%;
+            background-color: aliceblue;
+         }
+      }
+   }
+
+   .wrapper-sperator {
+      margin-top: 13px;
+      margin-bottom: 9px;
+
+      .header-title {
+         margin-top: 16px;
+         padding: 0 16px;
+
+         font-size: 1.8rem;
+         font-weight: 600;
+      }
+   }
+}
+
+.wrapper {
+   &.collaped {
+      overflow-x: hidden;
+      overflow-y: hidden;
+      padding: 0px 0px;
+
+      .button {
+         padding: 9px 0px;
+         display: flex;
+         justify-content: center;
+         .content div {
+            font-size: 1.2rem;
+            line-height: 1.2rem;
+            margin-top: 6px;
+         }
+
+         .content {
+            margin-left: 0px;
+         }
+
+         &.active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: transparent;
+         }
       }
    }
 }

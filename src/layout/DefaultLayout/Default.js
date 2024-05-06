@@ -3,15 +3,26 @@ import PropTypes from 'prop-types';
 import Header from '../compoments/Header';
 import styles from './Default.module.scss';
 import SideBar from './Sidebar';
+import { useEffect, useRef, useState, useContext, Fragment } from 'react';
 
 const cx = classNames.bind(styles);
 
 function DefaultLayout({ children }) {
+   const [navbarCollapsedState, setNavbarCollapsedState] = useState(false);
+
    return (
       <div className={cx('wrapper')}>
-         <Header />
+         <Header
+            collapseDefault={false}
+            onCollapse={() => {
+               setNavbarCollapsedState(true);
+            }}
+            onExpand={() => {
+               setNavbarCollapsedState(false);
+            }}
+         />
          <div className={cx('container')}>
-            <SideBar />
+            <SideBar collaped={navbarCollapsedState} />
             <div className={cx('content')}>{children}</div>
          </div>
       </div>

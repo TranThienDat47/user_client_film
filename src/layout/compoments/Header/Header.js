@@ -29,12 +29,14 @@ import { RiSettingsLine } from 'react-icons/ri';
 
 const cx = classNames.bind(styles);
 
-function Header() {
+function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () => {} }) {
    const {
       authState: { isAuthenticated, isVerify, user },
    } = useContext(AuthContext);
 
+   const [ableHeaderSidebarState, setAbleHeaderSidebarState] = useState(false);
    const [canClickSideBarState, setCanClickSideBarState] = useState(true);
+   const [navbarCollapsedState, setNavbarCollapsedState] = useState(collapseDefault);
 
    const [showNotification, setShowNotification] = useState(false);
    const [dataInit, setDataInit] = useState([
@@ -272,13 +274,23 @@ function Header() {
       };
    }, [notificationResultRef]);
 
-   const handleClick = () => {
-      if (canClickSideBarState) {
-         childRef.current.showAndHide();
-         setCanClickSideBarState(false); // Đặt cờ là false để ngăn người dùng click trong 1 giây
-         setTimeout(() => {
-            setCanClickSideBarState(true); // Đặt lại cờ sau 1 giây
-         }, 900);
+   const handleClickMenuSidebar = () => {
+      if (ableHeaderSidebarState) {
+         if (canClickSideBarState) {
+            childRef.current.showAndHide();
+            setCanClickSideBarState(false); // Đặt cờ là false để ngăn người dùng click trong 1 giây
+            setTimeout(() => {
+               setCanClickSideBarState(true); // Đặt lại cờ sau 1 giây
+            }, 900);
+         }
+      } else {
+         if (navbarCollapsedState) {
+            onExpand();
+            setNavbarCollapsedState(false);
+         } else {
+            onCollapse();
+            setNavbarCollapsedState(true);
+         }
       }
    };
 
@@ -286,7 +298,7 @@ function Header() {
       <>
          <header className={cx('wrapper')}>
             <div className={cx('nav')}>
-               <AiOutlineMenu className={cx('nav-icon')} onClick={handleClick} />
+               <AiOutlineMenu className={cx('nav-icon')} onClick={handleClickMenuSidebar} />
                <a href={config.routes.home} className={cx('logo-link')}>
                   <img src={imgs.logo} alt="Blog" />
                </a>
@@ -373,7 +385,7 @@ function Header() {
                </div>
             </div>
          </header>
-         <HeaderSidebar ref={childRef} />
+         {ableHeaderSidebarState && <HeaderSidebar ref={childRef} />}
       </>
    );
 }

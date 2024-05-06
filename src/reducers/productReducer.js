@@ -12,6 +12,10 @@ export const initialState = {
    pageSearchResultProducts: -1,
    keySearch: '',
    tempSelectSearchResult: '',
+   hasMoreSearch: false,
+   loadingSearch: false,
+   loadingMoreSearch: false,
+   errorSearch: null,
 
    hasMore: false,
    loading: false,
@@ -21,6 +25,14 @@ export const initialState = {
 
 const cases = [
    //search
+   {
+      type: 'RESET_RESULT_SEARCH',
+      returnData: (state) => ({
+         ...state,
+         searchResultProducts: [],
+         pageSearchResultProducts: -1,
+      }),
+   },
    {
       type: 'SET_TEMP_SELECT_SEARCH_RESULT_REQUEST',
       returnData: (state, { tempSelectSearchResult }) => ({
@@ -32,31 +44,29 @@ const cases = [
       type: 'FETCH_SEARCH_SUGGESTED_PRODUCTS_REQUEST',
       returnData: (state) => ({
          ...state,
-         loading: true,
+         loadingSearch: true,
       }),
    },
    {
       type: 'FETCH_SEARCH_SUGGESTED_PRODUCTS_SUCCESS',
       returnData: (state, { searchSuggestedProducts }) => ({
          ...state,
-         loading: false,
+         loadingSearch: false,
          searchSuggestedProducts,
       }),
    },
    {
       type: 'FETCH_SEARCH_SUGGESTED_PRODUCTS_FAILURE',
-      returnData: (state, { error }) => ({
+      returnData: (state, { errorSearch }) => ({
          ...state,
-         loading: false,
-         error,
+         loadingSearch: false,
+         errorSearch,
       }),
    },
    {
       type: 'FETCH_KEY_SEARCH_PRODUCTS_REQUEST',
       returnData: (state, { keySearch }) => ({
          ...state,
-         // pageSearchResultProducts: -1,
-         // searchResultProducts: [],
          keySearch,
       }),
    },
@@ -64,26 +74,26 @@ const cases = [
       type: 'FETCH_SEARCH_RESULT_PRODUCTS_REQUEST',
       returnData: (state) => ({
          ...state,
-         loadingMore: true,
-         hasMore: true,
+         loadingMoreSearch: true,
+         hasMoreSearch: true,
       }),
    },
    {
       type: 'FETCH_SEARCH_RESULT_PRODUCTS_SUCCESS',
-      returnData: (state, { searchResultProducts, hasMore, pageSearchResultProducts }) => ({
+      returnData: (state, { searchResultProducts, hasMoreSearch, pageSearchResultProducts }) => ({
          ...state,
-         loadingMore: false,
+         loadingMoreSearch: false,
          searchResultProducts: [...state.searchResultProducts, ...searchResultProducts],
-         hasMore,
+         hasMoreSearch,
          pageSearchResultProducts,
       }),
    },
    {
       type: 'FETCH_SEARCH_RESULT_PRODUCTS_FAILURE',
-      returnData: (state, { error }) => ({
+      returnData: (state, { errorSearch }) => ({
          ...state,
-         loadingMore: false,
-         error,
+         loadingMoreSearch: false,
+         errorSearch,
       }),
    },
 

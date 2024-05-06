@@ -20,6 +20,12 @@ const fetchNewProductsSuccess = ({ newProducts }) => ({
    },
 });
 
+//search
+const fetchResetSearchResult = () => ({
+   type: 'RESET_RESULT_SEARCH',
+   payload: {},
+});
+
 const setTeampSelectSearchResult = ({ tempSelectSearchResult }) => ({
    type: 'SET_TEMP_SELECT_SEARCH_RESULT_REQUEST',
    payload: { tempSelectSearchResult },
@@ -37,18 +43,19 @@ const fetchSearchResultProductsRequest = () => ({
 
 const fetchSearchResultProductsSuccess = ({
    searchResultProducts,
-   hasMore,
+   hasMoreSearch,
    pageSearchResultProducts,
 }) => ({
    type: 'FETCH_SEARCH_RESULT_PRODUCTS_SUCCESS',
-   payload: { searchResultProducts, hasMore, pageSearchResultProducts },
+   payload: { searchResultProducts, hasMoreSearch, pageSearchResultProducts },
 });
 
-const fetchSearchResultProductsFailure = ({ error }) => ({
+const fetchSearchResultProductsFailure = ({ errorSearch }) => ({
    type: 'FETCH_SEARCH_RESULT_PRODUCTS_FAILURE',
-   payload: { error },
+   payload: { errorSearch },
 });
 
+//recommend
 const fetchRecommendProductsRequest = () => ({
    type: 'FETCH_RECOMMEND_PRODUCTS_REQUEST',
    payload: {},
@@ -69,6 +76,7 @@ export {
    fetchSuggestedProductsSuccess,
    fetchSuggestedProductsFailure,
    fetchNewProductsSuccess,
+   fetchResetSearchResult,
    fetchSearchResultProductsRequest,
    fetchSearchResultProductsSuccess,
    fetchSearchResultProductsFailure,

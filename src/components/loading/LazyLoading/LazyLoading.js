@@ -8,6 +8,7 @@ const cx = classNames.bind(styles);
 const LazyLoading = forwardRef(
    (
       {
+         ableLoading = true,
          hasMore = false,
          loadingMore = false,
          pageCurrent = -1,
@@ -20,13 +21,13 @@ const LazyLoading = forwardRef(
    ) => {
       useEffect(() => {
          if (pageCurrent === -1) beforeLoad();
-      }, []);
+      }, [pageCurrent]);
 
       useEffect(() => {
-         if (!loadingMore || !hasMore) return;
+         if (!loadingMore || !hasMore || !ableLoading) return;
 
          loadProductMore(pageCurrent + 1);
-      }, [loadingMore, hasMore]);
+      }, [loadingMore, hasMore, ableLoading, pageCurrent]);
 
       useImperativeHandle(ref, () => ({
          handleScroll(parentNode) {

@@ -14,13 +14,14 @@ const Search = () => {
       productState: {
          searchResultProducts,
          pageSearchResultProducts,
-         hasMore,
-         loadingMore,
+         hasMoreSearch,
+         loadingMoreSearch,
          keySearch,
       },
       beforeLoadSearchResult,
       loadSearchResult,
       loadKeySearch,
+      resetSearchResult,
    } = useContext(ProductContext);
 
    const wrapperRef = useRef(null);
@@ -33,7 +34,12 @@ const Search = () => {
    useEffect(() => {
       loadKeySearch(search_query);
 
-      if (keySearch.trim() !== '') beforeLoadSearchResult();
+      resetSearchResult();
+      setTimeout(() => {
+         if (keySearch.trim() !== '') {
+            beforeLoadSearchResult();
+         }
+      }, 10);
    }, [search_query]);
 
    useEffect(() => {
@@ -54,8 +60,8 @@ const Search = () => {
             <div className={cx('result')}>
                <LazyLoading
                   ref={childRef}
-                  hasMore={hasMore}
-                  loadingMore={loadingMore}
+                  hasMore={hasMoreSearch}
+                  loadingMore={loadingMoreSearch}
                   pageCurrent={pageSearchResultProducts}
                   beforeLoad={beforeLoadSearchResult}
                   loadProductMore={loadSearchResult}

@@ -1,4 +1,4 @@
-import { createContext, useReducer, useEffect, useState } from 'react';
+import { createContext, useReducer, useEffect, useState, useContext } from 'react';
 
 import { productReducer, initialState } from '~/reducers/productReducer';
 
@@ -17,6 +17,7 @@ import {
    fetchRecommendProductsRequest,
    fetchRecommendProductsSuccess,
    fetchRecommendProductsFailure,
+   fetchResetSearchResult,
 } from '../actionCreators/product';
 
 const ProductContext = createContext();
@@ -42,10 +43,14 @@ const ProductContextProvider = ({ children }) => {
       dispatch(fetchSuggestedProductsRequest());
    };
 
+   const resetSearchResult = async () => {
+      dispatch(fetchResetSearchResult());
+   };
+
    const beforeLoadSearchResult = async () => {
-      console.log('haha');
       dispatch(fetchSearchResultProductsRequest());
    };
+
    const beforeLoadReCommendProduct = async () => {
       dispatch(fetchRecommendProductsRequest());
    };
@@ -62,7 +67,7 @@ const ProductContextProvider = ({ children }) => {
             dispatch(
                fetchSearchResultProductsSuccess({
                   searchResultProducts: response.products,
-                  hasMore: true,
+                  hasMoreSearch: true,
                   pageSearchResultProducts: page,
                }),
             );
@@ -70,7 +75,7 @@ const ProductContextProvider = ({ children }) => {
             dispatch(
                fetchSearchResultProductsSuccess({
                   searchResultProducts: response.products,
-                  hasMore: false,
+                  hasMoreSearch: false,
                   pageSearchResultProducts: page,
                }),
             );
@@ -78,7 +83,7 @@ const ProductContextProvider = ({ children }) => {
             dispatch(
                fetchSearchResultProductsSuccess({
                   searchResultProducts: response.products,
-                  hasMore: false,
+                  hasMoreSearch: false,
                   pageSearchResultProducts: page - 1,
                }),
             );
@@ -193,6 +198,7 @@ const ProductContextProvider = ({ children }) => {
       beforeLoadSearchResult,
       loadKeySearch,
       loadTempSelectSearchResult,
+      resetSearchResult,
       loadRecommendProduct,
       beforeLoadReCommendProduct,
    };

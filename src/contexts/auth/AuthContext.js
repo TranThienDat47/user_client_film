@@ -5,9 +5,19 @@ import { authReducer, initialState } from '~/reducers/authReducer';
 import { apiUrl, LOCAL_STORAGE_TOKEN_NAME } from '../../config/constants';
 import setAuthToken from '../../utils/setAuthToken';
 import AuthServices from '~/services/AuthServices';
+import {
+   fetchFollowProductsRequest,
+   fetchFollowProductsSuccess,
+   fetchKeySearchFromPageFollow,
+   fetchResetFollowProducts,
+   fetchSortFollowProduct,
+} from '../actionCreators/auth';
+import FollowService from '~/services/FollowService';
 const AuthContext = createContext();
 
 export { AuthContext };
+
+const LENGTH_PAGE_FOLLOW = 9;
 
 const AuthContextProvider = ({ children }) => {
    const [authState, dispatch] = useReducer(authReducer, initialState);
@@ -115,6 +125,64 @@ const AuthContextProvider = ({ children }) => {
       }
    };
 
+   const setSortFromPageFollow = async ({ sortFromPageFollow }) => {
+      dispatch(fetchSortFollowProduct({ sortFromPageFollow }));
+   };
+
+   const resetFollowProducts = async () => {
+      dispatch(fetchResetFollowProducts());
+   };
+
+   const setKeySearchFromPageFollow = async ({ keySearchFromPageFollow = '' }) => {
+      dispatch(
+         fetchKeySearchFromPageFollow({
+            keySearchFromPageFollow,
+         }),
+      );
+   };
+
+   const beforeLoadFollowProduct = async () => {
+      dispatch(fetchFollowProductsRequest());
+   };
+
+   const loadFollowProduct = async (page) => {
+      const response = await FollowService.getListFollow({
+         skip: page * LENGTH_PAGE_FOLLOW,
+         limit: LENGTH_PAGE_FOLLOW,
+         user_id: authState?.user?._id,
+         keySearch: authState?.keySearchFromPageFollow,
+         sort: authState?.sortFromPageFollow,
+      });
+
+      if (response.success) {
+         if (response?.follows.length >= LENGTH_PAGE_FOLLOW) {
+            dispatch(
+               fetchFollowProductsSuccess({
+                  followProduct: response.follows,
+                  hasMoreFollow: true,
+                  pageFollowProducts: page,
+               }),
+            );
+         } else if (response?.follows.length > 0 && response?.follows.length < LENGTH_PAGE_FOLLOW) {
+            dispatch(
+               fetchFollowProductsSuccess({
+                  followProduct: response.follows,
+                  hasMoreFollow: false,
+                  pageFollowProducts: page,
+               }),
+            );
+         } else if (response?.follows.length <= 0) {
+            dispatch(
+               fetchFollowProductsSuccess({
+                  followProduct: response.follows,
+                  hasMoreFollow: false,
+                  pageFollowProducts: page - 1,
+               }),
+            );
+         }
+      }
+   };
+
    const authContextData = {
       loginUser,
       loginUserWithGoogle,
@@ -122,6 +190,13 @@ const AuthContextProvider = ({ children }) => {
       logout,
       authState,
       verify,
+
+      //follow
+      setSortFromPageFollow,
+      resetFollowProducts,
+      setKeySearchFromPageFollow,
+      beforeLoadFollowProduct,
+      loadFollowProduct,
    };
 
    return <AuthContext.Provider value={authContextData}>{children}</AuthContext.Provider>;
