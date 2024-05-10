@@ -5,7 +5,7 @@ import styles from './Menu.module.scss';
 import { Wrapper as PopperWrapper } from '~/components/Popper';
 import MenuItem from './MenuItem';
 import Header from './Header';
-import { memo, useState, useRef } from 'react';
+import { memo, useState, useRef, useEffect } from 'react';
 
 const cx = classNames.bind(styles);
 const defaultFn = () => {};
@@ -22,16 +22,19 @@ function Menu({
    placement = ['bottom-end'],
    onChange = defaultFn,
    onHideRender = defaultFn,
-   getItems = () => {},
    ...props
 }) {
    const [history, setHistory] = useState([{ data: items }]);
-   const mapStepRef = useRef([]);
-   const tippyRef = useRef();
-   const current = history[history.length - 1];
+   const currentRef = useRef(history[history.length - 1]);
+
+   useEffect(() => {
+      setHistory([{ data: items }]);
+
+      currentRef.current = [{ data: items }][[{ data: items }].length - 1];
+   }, [items]);
 
    const renderItem = () => {
-      return current.data.map((item, index) => {
+      return currentRef.current.data.map((item, index) => {
          const isParent = !!item.children;
          return (
             <MenuItem
@@ -41,16 +44,18 @@ function Menu({
                onClick={() => {
                   if (isParent) {
                      setHistory((prev) => [...prev, item.children]);
-                     mapStepRef.current = mapStepRef.current?.concat(index);
+                     currentRef.current = [...history, item.children][
+                        [...history, item.children].length - 1
+                     ];
                   } else {
                      onChange(item);
-                     mapStepRef.current.pop();
-                     const tempItems = [{ data: getItems() }];
-                     var tempHistory = tempItems;
-                     mapStepRef.current.forEach((element, index) => {
-                        tempHistory = [...tempHistory, tempHistory[element]];
-                     });
-                     setHistory(tempHistory);
+
+                     if (history.length > 1) {
+                        setHistory((prev) => prev.slice(0, prev.length - 1));
+                        currentRef.current = history.slice(0, history.length - 1)[
+                           history.slice(0, history.length - 1).length - 1
+                        ];
+                     }
                   }
                }}
             />
@@ -64,14 +69,14 @@ function Menu({
             {history.length > 1 && (
                <Header
                   titleOnBack={titleOnBack}
-                  title={current.title}
+                  title={currentRef.current.title}
                   darkMode={darkMode}
                   onBack={() => {
                      setHistory((prev) => prev.slice(0, prev.length - 1));
-                     mapStepRef.current = mapStepRef.current.slice(
-                        0,
-                        mapStepRef.current.length - history.length,
-                     );
+
+                     currentRef.current = history.slice(0, history.length - 1)[
+                        history.slice(0, history.length - 1).length - 1
+                     ];
                   }}
                />
             )}
@@ -82,7 +87,7 @@ function Menu({
 
    const handleResetMenu = (e) => {
       setHistory((prev) => prev.slice(0, 1));
-      mapStepRef.current = [];
+      currentRef.current = history.slice(0, 1)[history.slice(0, 1).length - 1];
       onHideRender(e);
    };
 

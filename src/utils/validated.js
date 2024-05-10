@@ -56,9 +56,10 @@ const converterDate = (dateString) => {
 
    return formattedDate;
 };
-
 const sortedEpisodes = (data = []) => {
-   data = data.sort((a, b) => {
+   const copiedData = [...data];
+
+   const sortedData = copiedData.sort((a, b) => {
       const episodeA = parseInt(a.episode);
       const episodeB = parseInt(b.episode);
 
@@ -76,21 +77,24 @@ const sortedEpisodes = (data = []) => {
    });
 
    const maxEpisodes = Math.max(
-      ...data.map((element) => parseInt(element.episode)).filter((element) => !isNaN(element)),
+      ...sortedData
+         .map((element) => parseInt(element.episode))
+         .filter((element) => !isNaN(element)),
    );
 
    const lengthMax = String(maxEpisodes).length;
 
-   data = data.map((element) => {
-      if (!isNaN(parseInt(element.episode)))
+   const modifiedData = sortedData.map((element) => {
+      if (!isNaN(parseInt(element.episode))) {
          if (String(element.episode).length < lengthMax) {
             element.episode = element.episode.padStart(lengthMax, '0');
          }
+      }
 
       return element;
    });
 
-   return data;
+   return modifiedData;
 };
 
 const converterDateTitle = (dateString) => {

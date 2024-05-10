@@ -1,21 +1,20 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import classNames from 'classnames/bind';
 import axios from 'axios';
 
 import { apiUrl, LOCAL_STORAGE_TOKEN_NAME } from '~/config/constants';
 import RegisterForm from '~/views/Auth/components/RegisterForm';
 import LoginForm from '~/views/Auth/components/LoginForm';
-import { AuthContext } from '~/contexts/auth';
 
 import styles from './Auth.module.scss';
 import Button from '~/components/Button';
+import { useSelector } from 'react-redux';
+import { authSelector } from '~/redux/selectors/auth/authSelector';
 
 const cx = classNames.bind(styles);
 
 const Auth = ({ authRoute }) => {
-   const {
-      authState: { isAuthenticated, isVerify, user },
-   } = useContext(AuthContext);
+   const { user, isAuthenticated, isVerify } = useSelector(authSelector);
 
    const [content, setContent] = useState('Vui lòng truy cập gmail để xác nhận email...');
 

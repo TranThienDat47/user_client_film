@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useContext } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames/bind';
@@ -7,33 +7,33 @@ import Button from '~/components/Button';
 import styles from './Product.module.scss';
 import { ProductItem } from '~/components/ProductItem';
 import { Comment } from '~/components/Comment';
-import { GlobalContext } from '~/contexts/global';
 
 import imgs from '~/assets/img';
 
 import { converterDate, converterDateTitle, sortedEpisodes } from '~/utils/validated';
 import LazyLoading from '~/components/loading/LazyLoading';
-import { ProductContext } from '~/contexts/product';
 import FollowService from '~/services/FollowService';
-import { AuthContext } from '~/contexts/auth';
+import { useDispatch, useSelector } from 'react-redux';
+import { recommendProductsSelector } from '~/redux/selectors/products/producRecommendSelector';
+import {
+   beforeLoadProductRecommend,
+   fetchRecommendProducts,
+} from '~/redux/slices/products/productRecommendSlice';
+import { globalSelector } from '~/redux/selectors/globals/globalSelector';
+import { fetchProductCurrent } from '~/redux/slices/globals/globalSlice';
+import { authSelector } from '~/redux/selectors/auth/authSelector';
 
 const cx = classNames.bind(styles);
 
 const Product = () => {
-   const {
-      authState: { user },
-   } = useContext(AuthContext);
+   const { user } = useSelector(authSelector);
 
-   const {
-      globalState: { productCurrent, product_details, loading },
-      setProductCurrent,
-   } = useContext(GlobalContext);
+   const dispatch = useDispatch();
 
-   const {
-      productState: { pageRecommendProducts, hasMore, loadingMore, recommendProducts },
-      beforeLoadReCommendProduct,
-      loadRecommendProduct,
-   } = useContext(ProductContext);
+   const { productCurrent, loading } = useSelector(globalSelector);
+
+   const { pageRecommendProducts, hasMore, loadingMore, recommendProducts } =
+      useSelector(recommendProductsSelector);
 
    const [followState, setFollowState] = useState({ isFollow: false, flagNotify: 1 }); //flag 1: notify, 0: not notify
    const [productCurrentState, setProductCurrentState] = useState({});
@@ -41,8 +41,6 @@ const Product = () => {
    const location = useLocation();
    const params = new URLSearchParams(location.search);
    const parent_id = params.get('id');
-
-   const listEpisodes = new Array(100).fill(0);
 
    const childRefComment = useRef(null);
    const childRefRecommend = useRef(null);
@@ -69,10 +67,15 @@ const Product = () => {
                setFollowState({ ...followState, isFollow: false });
             }
          });
+      // eslint-disable-next-line
    }, [user]);
 
    useEffect(() => {
-      setProductCurrent({ _id: parent_id });
+      // setProductCurrent({ _id: parent_id });
+
+      dispatch(fetchProductCurrent(parent_id));
+
+      // eslint-disable-next-line
    }, [parent_id]);
 
    useEffect(() => {
@@ -416,8 +419,12 @@ const Product = () => {
                            hasMore={hasMore}
                            loadingMore={loadingMore}
                            pageCurrent={pageRecommendProducts}
-                           beforeLoad={beforeLoadReCommendProduct}
-                           loadProductMore={loadRecommendProduct}
+                           beforeLoad={() => {
+                              dispatch(beforeLoadProductRecommend());
+                           }}
+                           loadProductMore={(page) => {
+                              dispatch(fetchRecommendProducts(page));
+                           }}
                         >
                            {recommendProducts.map((element, index) => (
                               <div key={index} className={cx('productTest')}>

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { apiUrl } from '~/config/constants';
 
-import setAuthToken from '~/utils/setAuthToken';
+// import setAuthToken from '~/utils/setAuthToken';
 
 class NotificationServices {
    async fetchNotifications({ user_id }) {

@@ -1,26 +1,33 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './Home.module.scss';
 import { ListProductHome } from '~/components/ListProduct';
-import { ProductContext } from '~/contexts/product';
 import LazyLoading from '~/components/loading/LazyLoading';
+import { useDispatch, useSelector } from 'react-redux';
+import { newProductsSelector } from '~/redux/selectors/products/producHomeNewtSelector';
+import { fetchHomeNew } from '~/redux/slices/products/productHomeNewSlice';
+import {
+   beforeLoadHomeSuggested,
+   fetchHomeSuggested,
+} from '~/redux/slices/products/productHomeSuggestedSlice';
+import { suggestedProductsSelector } from '~/redux/selectors/products/producHomeSuggestedtSelector';
 
 const cx = classNames.bind(styles);
 
 function Home() {
-   const {
-      productState: { suggestedProducts, pageSuggestedProducts, newProducts, hasMore, loadingMore },
-      loadHomeSuggested,
-      loadNewHome,
-      beforeLoadHomeSuggested,
-   } = useContext(ProductContext);
+   const dispatch = useDispatch();
+
+   const newProducts = useSelector(newProductsSelector);
+   const { suggestedProducts, pageSuggestedProducts, hasMore, loadingMore } =
+      useSelector(suggestedProductsSelector);
 
    const childRef = useRef(null);
    const wrapperRef = useRef();
 
    useEffect(() => {
-      loadNewHome();
+      dispatch(fetchHomeNew());
+      // eslint-disable-next-line
    }, []);
 
    useEffect(() => {
@@ -48,8 +55,12 @@ function Home() {
                   hasMore={hasMore}
                   loadingMore={loadingMore}
                   pageCurrent={pageSuggestedProducts}
-                  beforeLoad={beforeLoadHomeSuggested}
-                  loadProductMore={loadHomeSuggested}
+                  beforeLoad={() => {
+                     dispatch(beforeLoadHomeSuggested());
+                  }}
+                  loadProductMore={(page) => {
+                     dispatch(fetchHomeSuggested(page));
+                  }}
                >
                   <ListProductHome
                      data={suggestedProducts.length > 0 ? suggestedProducts : Array(12).fill(0)}

@@ -1,19 +1,12 @@
-import {
-   forwardRef,
-   useEffect,
-   useImperativeHandle,
-   useRef,
-   useState,
-   memo,
-   useContext,
-} from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, memo } from 'react';
 import classNames from 'classnames/bind';
 
 import Button from '../Button';
 
 import styles from './Comment.module.scss';
-import { AuthContext } from '~/contexts/auth';
 import imgs from '~/assets/img';
+import { useSelector } from 'react-redux';
+import { authSelector } from '~/redux/selectors/auth/authSelector';
 
 const cx = classNames.bind(styles);
 
@@ -27,9 +20,7 @@ const CommentWrite = forwardRef(
       },
       ref,
    ) => {
-      const {
-         authState: { user },
-      } = useContext(AuthContext);
+      const { user } = useSelector(authSelector);
 
       const classes = cx('wrapper', {
          modeReply,

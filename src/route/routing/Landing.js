@@ -1,11 +1,9 @@
-import { AuthContext } from '../contexts/auth/AuthContext';
+import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
-import { useContext } from 'react';
+import { authSelector } from '~/redux/selectors/auth/authSelector';
 
 const Landing = () => {
-   const {
-      authState: { isAuthenticated },
-   } = useContext(AuthContext);
+   const { isAuthenticated } = useSelector(authSelector);
 
    if (!isAuthenticated) {
       return <Navigate to="/login" />;

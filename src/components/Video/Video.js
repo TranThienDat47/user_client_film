@@ -23,11 +23,8 @@ const cx = classNames.bind(styles);
 
 const Video = ({
    videoInfo = {
-      videoID: '662a4a22891b7b2fd8f0036d',
-      listVideoSrc: [
-         { videoSrc: '662a4a70891b7b2fd8f0039c', quality: '480p' },
-         { videoSrc: '662a4a44891b7b2fd8f00372', quality: '360p' },
-      ],
+      videoID: '',
+      listVideoSrc: [{ videoSrc: '', quality: '' }],
    },
    width,
    height,
@@ -35,6 +32,67 @@ const Video = ({
    const currentStateOfVideoRef = useRef({ width: 0, height: 0, isPlay: 0 });
    const [currentVideoState, setCurrentVideoState] = useState(videoInfo.listVideoSrc[0]);
    const [autoPlayState, setAutoPlayState] = useState(true);
+
+   useEffect(() => {
+      if (videoInfo.listVideoSrc.length > 0) {
+         setCurrentVideoState(videoInfo.listVideoSrc[0]);
+
+         dataInitQualityRef.current = videoInfo.listVideoSrc.map((element, index) => ({
+            title: element.quality,
+            left_icon: (
+               <div
+                  className={cx(
+                     'menu-setting_icon-quality',
+                     index === 0 && 'menu-setting_icon-quality-active',
+                  )}
+               >
+                  <IoMdCheckmark></IoMdCheckmark>
+               </div>
+            ),
+            onChange: (dataItem) => {
+               handleOnChangeQuality({ index: index, quality: element.quality });
+            },
+         }));
+
+         setDataInitSettingState((prev) =>
+            prev.map((element, index) => {
+               if (index === 1) {
+                  return {
+                     ...element,
+                     children: {
+                        title: (
+                           <div style={{ fontSize: '1.5rem' }} className={cx('menu-setting_title')}>
+                              Chất lượng
+                           </div>
+                        ),
+                        data: dataInitQualityRef.current,
+                     },
+                  };
+               } else {
+                  return element;
+               }
+            }),
+         );
+
+         dataInitSettingRef.current = dataInitSettingState.map((element, index) => {
+            if (index === 1) {
+               return {
+                  ...element,
+                  children: {
+                     title: (
+                        <div style={{ fontSize: '1.5rem' }} className={cx('menu-setting_title')}>
+                           Chất lượng
+                        </div>
+                     ),
+                     data: dataInitQualityRef.current,
+                  },
+               };
+            } else {
+               return element;
+            }
+         });
+      }
+   }, [videoInfo]);
 
    const currentQualityRef = useRef({
       index: 0,
@@ -393,9 +451,9 @@ const Video = ({
       if (!dragVideoRef.current) {
          if (videoRef.current) videoRef.current.currentTime = tempCurrentTimeRef.current;
 
-         if (currentStateOfVideoRef.current.height > 0) {
-            videoRef.current.style.height = currentStateOfVideoRef.current.height + 'px';
-         }
+         // if (currentStateOfVideoRef.current.height > 0) {
+         // videoRef.current.style.height = currentStateOfVideoRef.current.height + 'px';
+         // }
 
          if (currentStateOfVideoRef.current.isPlay === 1) {
             videoRef.current.play();
@@ -910,24 +968,26 @@ const Video = ({
    }, [volume, handleVolumeChange]);
 
    useEffect(() => {
-      videoRef.current.ontimeupdate = () => {
-         if (videoRef.current && videoRef.current.currentTime)
-            timeCurrentRef.current.innerHTML = `${convertTime(videoRef.current.currentTime)}`;
+      if (currentVideoState.videoSrc) {
+         videoRef.current.ontimeupdate = () => {
+            if (videoRef.current && videoRef.current.currentTime)
+               timeCurrentRef.current.innerHTML = `${convertTime(videoRef.current.currentTime)}`;
 
-         if (videoRef.current && !videoRef.current.paused) setPlay(1);
-      };
+            if (videoRef.current && !videoRef.current.paused) setPlay(1);
+         };
 
-      const loadThumbnail = async () => {
-         const response = await axios.get(`${apiUrl}/video/thumbnail/${videoInfo.videoID}`);
+         const loadThumbnail = async () => {
+            const response = await axios.get(`${apiUrl}/video/thumbnail/${videoInfo.videoID}`);
 
-         response.data.thumbnails.forEach((element) => {
-            previewListRef.current = previewListRef.current.concat(element);
-         });
+            response.data.thumbnails.forEach((element) => {
+               previewListRef.current = previewListRef.current.concat(element);
+            });
 
-         previewListRef.current = previewListRef.current.sort((a, b) => a.timemark - b.timemark);
-      };
-      loadThumbnail();
-   }, []);
+            previewListRef.current = previewListRef.current.sort((a, b) => a.timemark - b.timemark);
+         };
+         loadThumbnail();
+      }
+   }, [currentVideoState]);
 
    const handleScreen = (e) => {
       if (screenStateRef.current === 0) {
@@ -941,7 +1001,7 @@ const Video = ({
       if (screenVideo === 1) {
          screenStateRef.current = 1;
 
-         videoRef.current.style.height = 'auto';
+         // videoRef.current.style.height = 'auto';
 
          if (wrapperVideoRef.current.requestFullscreen) {
             wrapperVideoRef.current.requestFullscreen();
@@ -1004,7 +1064,7 @@ const Video = ({
       };
 
       watchRef.current.onclick = () => {
-         if (!videoRef.current.paused) {
+         if (!videoRef.current.paused && showSetting) {
             setShowControl(1);
          } else setShowControl(2);
       };
@@ -1097,7 +1157,7 @@ const Video = ({
       window.onkeydown = (e) => {
          if (e.keyCode === 32) {
             handlePlayAndPaus(e);
-            if (videoRef.current.paused) {
+            if (videoRef.current.paused && showSetting) {
                setShowControl(1);
             } else setShowControl(2);
          }
@@ -1210,7 +1270,7 @@ const Video = ({
       document.onmouseup = (e) => {
          if (dragVideoRef.current || dragVolumeRef.current) {
             setTimeout(() => {
-               if (!watchRef.current.contains(e.target)) {
+               if (!watchRef.current.contains(e.target) && !showSetting) {
                   if (!videoRef.current.paused) setShowControl(0);
                } else setShowControl(1);
             }, 0);
@@ -1253,15 +1313,17 @@ const Video = ({
       <div style={{ position: 'relative' }}>
          <div ref={watchRef} className={cx('wrapper')}>
             <div ref={wrapperVideoRef} className={cx('watch')}>
-               <ReactHlsPlayer
-                  src={`http://localhost:5000/api/video/stream/${currentVideoState.videoSrc}?mode=m3u8`}
-                  autoPlay={autoPlayState}
-                  controls={false}
-                  width="100%"
-                  height="auto"
-                  playerRef={videoRef}
-                  tabIndex="0"
-               />
+               <div className={cx('wrapper-video')}>
+                  <ReactHlsPlayer
+                     src={`http://localhost:5000/api/video/stream/${currentVideoState.videoSrc}?mode=m3u8`}
+                     autoPlay={autoPlayState}
+                     controls={false}
+                     width="100%"
+                     height="auto"
+                     playerRef={videoRef}
+                     tabIndex="0"
+                  />
+               </div>
                <div ref={modalPreviewRef} className={cx('modal-previews')}></div>
                <div
                   ref={modalVideoRef}
@@ -1378,9 +1440,6 @@ const Video = ({
                               offset={[66, 23]}
                               onChange={(e) => {
                                  if (e.onChange) e.onChange();
-                              }}
-                              getItems={() => {
-                                 return dataInitSettingRef.current;
                               }}
                            >
                               <Button

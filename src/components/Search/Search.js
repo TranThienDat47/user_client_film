@@ -1,7 +1,7 @@
 import axios from 'axios';
 import classNames from 'classnames/bind';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { memo, useEffect, useRef, useState, useContext } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 
 import { useDebounce } from '~/hook';
 import styles from './Search.module.scss';
@@ -10,18 +10,21 @@ import { apiUrl } from '~/config/constants';
 import Headless from '~/components/Headless';
 import { MdOutlineClear } from 'react-icons/md';
 import { IoSearchOutline } from 'react-icons/io5';
-import { ProductContext } from '~/contexts/product';
 import { Wrapper as PopperWrapper } from '~/components/Popper';
 import imgs from '~/assets/img';
+import { searchPageSelector } from '~/redux/selectors/searchs/searchPageSelector';
+import {
+   setKeySearchResult,
+   setTempSelectSearchResult,
+} from '~/redux/slices/searchs/searchPageSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const cx = classNames.bind(styles);
 
 function Search() {
-   const {
-      productState: { tempSelectSearchResult, keySearch },
-      loadTempSelectSearchResult,
-      loadKeySearch,
-   } = useContext(ProductContext);
+   const dispatch = useDispatch();
+
+   const { tempSelectSearchResult, keySearch } = useSelector(searchPageSelector);
 
    const navigate = useNavigate();
 
@@ -103,14 +106,14 @@ function Search() {
    const handleChange = (e) => {
       const searchValueTemp = e.target.value;
       if (!searchValueTemp.startsWith(' ')) {
-         loadKeySearch(searchValueTemp);
+         dispatch(setKeySearchResult(searchValueTemp));
       }
    };
 
    const handleClear = () => {
       inputRef.current.focus();
       setSearchResult([]);
-      loadKeySearch('');
+      dispatch(setKeySearchResult(''));
    };
 
    useEffect(() => {
@@ -135,7 +138,7 @@ function Search() {
 
    useEffect(() => {
       if (search_query && search_query.trim().length > 0) {
-         loadKeySearch(search_query);
+         dispatch(setKeySearchResult(search_query));
          setShowResult(false);
       }
    }, []);
@@ -157,7 +160,7 @@ function Search() {
                return;
             } else {
                setShowResult(false);
-               loadTempSelectSearchResult('');
+               dispatch(setTempSelectSearchResult(null));
                inputRef.current.blur();
                blurRef.current = false;
                navigate(`/product?id=${tempSelectSearchResult}`);

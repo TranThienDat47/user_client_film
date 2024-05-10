@@ -1,0 +1,105 @@
+:root {
+   --width-right-inner-page: 443px;
+   --max-width-of-page: 3060px;
+}
+
+.wrapper {
+   position: relative;
+   height: 100%;
+   overflow: auto;
+
+   .header_page {
+      width: 100%;
+      max-width: var(--max-width-of-page);
+      margin: auto;
+      padding: 0 12px 0 16px;
+
+      margin-bottom: 26px;
+      margin-top: 26px;
+   }
+
+   .inner {
+      background-color: var(--white);
+      max-width: var(--max-width-of-page);
+      width: 100%;
+
+      display: flex;
+
+      margin: auto;
+      padding: 0 12px 0 16px;
+      height: 100%;
+   }
+}
+
+.wrapper-categories {
+   -webkit-user-drag: none;
+   user-select: none;
+   & * {
+      -webkit-user-drag: none;
+      user-select: none;
+   }
+   position: relative;
+   border-bottom: 1px solid var(--border-color);
+
+   // padding: 0 46px !important;
+}
+
+.categories-list {
+   z-index: 1;
+   width: 100%;
+   white-space: nowrap;
+   display: block;
+   overflow-x: hidden;
+
+   .categories-item {
+      font-weight: 550;
+
+      user-select: none;
+      display: inline-block;
+      color: var(--text-bland);
+      cursor: pointer;
+      height: 49px;
+      align-content: center;
+
+      &:hover {
+         border-bottom: 2px solid var(--text-bland-down);
+      }
+
+      &:not(:first-child) {
+         margin-left: 16px;
+      }
+   }
+
+   .categories-item-active {
+      border-bottom: 2px solid var(--text-color);
+      color: var(--text-color);
+
+      &:hover {
+         border-bottom: 2px solid var(--text-color);
+      }
+   }
+}
+
+.control-button-categories {
+   .control-button-categories__wrapper-button {
+      .control-button-categories__button {
+         color: var(--text-bland);
+         padding: 6px;
+         box-shadow: none;
+         font-size: 2.6rem;
+      }
+   }
+
+   .control-button-categories__wrapper-button-left {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+   }
+   .control-button-categories__wrapper-button-right {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+   }
+}

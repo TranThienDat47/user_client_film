@@ -9,6 +9,7 @@ const cx = classNames.bind(styles);
 const Button = forwardRef(
    (
       {
+         noBorder = false,
          to,
          href,
          className,
@@ -121,6 +122,7 @@ const Button = forwardRef(
          rounded,
          transparent,
          hover,
+         noBorder,
       });
 
       return (
@@ -153,6 +155,7 @@ Button.propTypes = {
    disable: PropTypes.bool,
    rounded: PropTypes.bool,
    hover: PropTypes.bool,
+   noBorder: PropTypes.bool,
    transparent: PropTypes.bool,
    text: PropTypes.bool,
    small: PropTypes.bool,

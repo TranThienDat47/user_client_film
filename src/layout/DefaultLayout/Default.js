@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Header from '../compoments/Header';
 import styles from './Default.module.scss';
 import SideBar from './Sidebar';
-import { useEffect, useRef, useState, useContext, Fragment } from 'react';
+import { useState } from 'react';
 
 const cx = classNames.bind(styles);
 

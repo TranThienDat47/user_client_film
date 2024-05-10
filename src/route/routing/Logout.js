@@ -1,12 +1,9 @@
-import { useContext } from 'react';
-
-import { AuthContext } from '~/contexts/auth/AuthContext';
+import { LOCAL_STORAGE_TOKEN_NAME } from '../../config/constants';
 
 const Logout = () => {
-   const { logout } = useContext(AuthContext);
-
-   const urlParams = new URLSearchParams(window.location.search);
-   const prevURL = urlParams.get('prevURL') || '';
+   const logout = async () => {
+      localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
+   };
 
    logout().then(() => {
       window.location = '/';

@@ -341,3 +341,39 @@
       margin-left: 6px;
    }
 }
+
+//action video
+
+.wrapper-block-action {
+   padding-bottom: 0 !important;
+}
+
+.action__video-list {
+   display: flex;
+   justify-content: flex-end;
+   padding-top: 13px;
+
+   .action__video-item {
+      margin-left: 9px;
+      .action__video-item-button {
+         background-color: var(--hover-item-color);
+
+         &:hover {
+            background-color: var(--grey-btn);
+         }
+
+         border-color: transparent;
+         padding: 6px 13px;
+         box-shadow: unset;
+
+         .action__video-item-button-icon {
+            font-size: 2.1rem;
+         }
+
+         .action__video-item-button-title {
+            font-size: 1.6rem;
+            line-height: 2.1rem;
+         }
+      }
+   }
+}

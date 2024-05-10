@@ -1,10 +1,8 @@
 import { Link } from 'react-router-dom';
-import { useState, useContext, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './Auth.module.scss';
-import { AuthContext } from '~/contexts/auth';
-import AlertMessage from '~/layout/compoments/AlertMessage';
 import imgs from '~/assets/img';
 import Button from '~/components/Button';
 
@@ -17,8 +15,6 @@ import { LOCAL_STORAGE_TOKEN_NAME, LOCAL_STORAGE_ACCOUNT_LOGIN } from '~/config/
 const cx = classNames.bind(styles);
 
 const LoginForm = () => {
-   const { loginUser } = useContext(AuthContext);
-
    const [loginForm, setLoginForm] = useState({
       username: '',
       password: '',
@@ -28,7 +24,7 @@ const LoginForm = () => {
    const [invalid, setInvalid] = useState(0); //0 valid, 1 invalid email, 2 invalid password
    const [showPassword, setShowPassword] = useState(false);
 
-   const { username, password } = loginForm;
+   // const { username, password } = loginForm;
 
    const onChangeLoginForm = (event) => {
       setLoginForm({ ...loginForm, [event.target.name]: event.target.value });

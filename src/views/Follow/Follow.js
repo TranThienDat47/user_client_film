@@ -1,33 +1,34 @@
 import classNames from 'classnames/bind';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useContext, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 import Button from '~/components/Button';
 import styles from './Follow.module.scss';
 import LazyLoading from '~/components/loading/LazyLoading';
 import { ListProductSearch } from '~/components/ListProduct';
 
-import { AuthContext } from '~/contexts/auth';
-
 import { MdOutlineSort } from 'react-icons/md';
 import { IoSearchOutline } from 'react-icons/io5';
 import { MdOutlineClear } from 'react-icons/md';
 import { AiOutlineCheck } from 'react-icons/ai';
+import { authSelector } from '~/redux/selectors/auth/authSelector';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+   beforeLoadFollowProduct,
+   fetchFollowProducts,
+   resetFollowProducts,
+   setFollowKeySearchFromPageFollow,
+   setFollowSortFromPageFollow,
+} from '~/redux/slices/auth/authSlice';
 
 const cx = classNames.bind(styles);
 
 const Follow = () => {
    const navigate = useNavigate();
 
-   const {
-      authState: { user, followProduct, pageFollowProducts, hasMoreFollow, loadingMoreFollow },
-      beforeLoadFollowProduct,
-      loadFollowProduct,
-      setKeySearchFromPageFollow,
-      resetFollowProducts,
-      setSortFromPageFollow,
-   } = useContext(AuthContext);
+   const dispatch = useDispatch();
+   const { follow, user } = useSelector(authSelector);
 
    const location = useLocation();
    const params = new URLSearchParams(location.search);
@@ -59,19 +60,23 @@ const Follow = () => {
 
    const handleSearch = () => {
       inputSearchRef.current.focus();
-      resetFollowProducts();
-      setKeySearchFromPageFollow({ keySearchFromPageFollow: valueSearchPageState });
+      dispatch(resetFollowProducts());
+
+      dispatch(setFollowKeySearchFromPageFollow(valueSearchPageState));
       navigate('/follow?search_query=' + valueSearchPageState);
    };
 
    useEffect(() => {
-      if (valueSearchPageState.trim().length <= 0) {
+      if (follow.keySearchFromPageFollow.trim().length <= 0) {
          navigate('/follow');
+      } else {
+         setValueSearchPageState(follow.keySearchFromPageFollow);
       }
 
-      if (+pageFollowProducts === -1) {
-         beforeLoadFollowProduct();
+      if (+follow.pageFollowProduct === -1) {
+         dispatch(beforeLoadFollowProduct());
       }
+      // eslint-disable-next-line
    }, [search_query]);
 
    useEffect(() => {
@@ -98,13 +103,17 @@ const Follow = () => {
                <LazyLoading
                   ref={childRef}
                   ableLoading={!!user?._id}
-                  hasMore={hasMoreFollow}
-                  loadingMore={loadingMoreFollow}
-                  pageCurrent={pageFollowProducts}
-                  beforeLoad={beforeLoadFollowProduct}
-                  loadProductMore={loadFollowProduct}
+                  hasMore={follow.hasMore}
+                  loadingMore={follow.loadingMore}
+                  pageCurrent={follow.pageFollowProduct}
+                  beforeLoad={() => {
+                     dispatch(beforeLoadFollowProduct());
+                  }}
+                  loadProductMore={(page) => {
+                     dispatch(fetchFollowProducts(page));
+                  }}
                >
-                  <ListProductSearch data={followProduct} />
+                  <ListProductSearch data={follow.followProduct} />
                </LazyLoading>
             </div>
             <div className={cx('inner__right')}>
@@ -142,10 +151,9 @@ const Follow = () => {
                               setValueSearchPageState('');
                               setShowInputClearState(false);
 
-                              resetFollowProducts();
-                              setKeySearchFromPageFollow({
-                                 keySearchFromPageFollow: '',
-                              });
+                              dispatch(resetFollowProducts());
+
+                              dispatch(setFollowKeySearchFromPageFollow(''));
                            }}
                            transparent
                            hover
@@ -167,7 +175,7 @@ const Follow = () => {
                            <div
                               key={'sort' + index}
                               onClick={() => {
-                                 setSortFromPageFollow({ sortFromPageFollow: element.typeSort });
+                                 dispatch(setFollowSortFromPageFollow(element.typeSort));
                                  setInitListSortState((prev) =>
                                     prev.map((elementTemp, indexTemp) =>
                                        indexTemp === index

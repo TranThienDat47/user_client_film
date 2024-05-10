@@ -1,15 +1,29 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
-import { AuthContext } from '~/contexts/auth/AuthContext';
+import { LOCAL_STORAGE_TOKEN_NAME } from '../../config/constants';
+import { useDispatch, useSelector } from 'react-redux';
+import { loadUser } from '~/redux/slices/auth/authSlice';
+import { authSelector } from '~/redux/selectors/auth/authSelector';
 
 const PassportGoogle = () => {
    const [navigate, setNavigate] = useState(<></>);
 
-   const {
-      loginUserWithGoogle,
-      authState: { isAuthenticated },
-   } = useContext(AuthContext);
+   const dispatch = useDispatch();
+
+   const { isAuthenticated } = useSelector(authSelector);
+
+   const loginUserWithGoogle = async (accessToken) => {
+      if (accessToken) {
+         localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, accessToken);
+
+         dispatch(loadUser());
+
+         return true;
+      } else {
+         return false;
+      }
+   };
 
    const urlParams = new URLSearchParams(window.location.search);
    const token = urlParams.get('accessToken');
@@ -27,6 +41,8 @@ const PassportGoogle = () => {
          .catch(() => {
             setNavigate(<Navigate to="login" />);
          });
+
+      // eslint-disable-next-line
    }, []);
 
    return navigate;

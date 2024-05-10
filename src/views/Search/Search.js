@@ -1,28 +1,25 @@
 import classNames from 'classnames/bind';
 import { useLocation } from 'react-router-dom';
-import { useEffect, useContext, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import styles from './Search.module.scss';
 import { ListProductSearch } from '~/components/ListProduct';
-import { ProductContext } from '~/contexts/product';
 import LazyLoading from '~/components/loading/LazyLoading';
+import { useDispatch, useSelector } from 'react-redux';
+import { searchPageSelector } from '~/redux/selectors/searchs/searchPageSelector';
+import {
+   fetchSearchResultProducts,
+   resetSearchResult,
+   setKeySearchResult,
+   beforeLoadSearchResult,
+} from '~/redux/slices/searchs/searchPageSlice';
 
 const cx = classNames.bind(styles);
 
 const Search = () => {
-   const {
-      productState: {
-         searchResultProducts,
-         pageSearchResultProducts,
-         hasMoreSearch,
-         loadingMoreSearch,
-         keySearch,
-      },
-      beforeLoadSearchResult,
-      loadSearchResult,
-      loadKeySearch,
-      resetSearchResult,
-   } = useContext(ProductContext);
+   const dispatch = useDispatch();
+   const { searchResultProducts, pageSearchResultProducts, hasMore, loadingMore, keySearch } =
+      useSelector(searchPageSelector);
 
    const wrapperRef = useRef(null);
    const childRef = useRef(null);
@@ -32,14 +29,16 @@ const Search = () => {
    const search_query = params.get('search_query');
 
    useEffect(() => {
-      loadKeySearch(search_query);
+      dispatch(setKeySearchResult(search_query));
 
-      resetSearchResult();
+      dispatch(resetSearchResult());
       setTimeout(() => {
          if (keySearch.trim() !== '') {
-            beforeLoadSearchResult();
+            dispatch(beforeLoadSearchResult());
          }
       }, 10);
+
+      // eslint-disable-next-line
    }, [search_query]);
 
    useEffect(() => {
@@ -60,11 +59,15 @@ const Search = () => {
             <div className={cx('result')}>
                <LazyLoading
                   ref={childRef}
-                  hasMore={hasMoreSearch}
-                  loadingMore={loadingMoreSearch}
+                  hasMore={hasMore}
+                  loadingMore={loadingMore}
                   pageCurrent={pageSearchResultProducts}
-                  beforeLoad={beforeLoadSearchResult}
-                  loadProductMore={loadSearchResult}
+                  beforeLoad={() => {
+                     dispatch(beforeLoadSearchResult());
+                  }}
+                  loadProductMore={(page) => {
+                     dispatch(fetchSearchResultProducts(page));
+                  }}
                >
                   <ListProductSearch data={searchResultProducts} />
                </LazyLoading>

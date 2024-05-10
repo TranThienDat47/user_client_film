@@ -3,7 +3,6 @@ import {
    useRef,
    useState,
    useEffect,
-   useContext,
    forwardRef,
    useCallback,
    useImperativeHandle,
@@ -12,16 +11,15 @@ import io from 'socket.io-client';
 import classNames from 'classnames/bind';
 import LazyLoading from '../loading/LazyLoading';
 import styles from './Comment.module.scss';
-import { AuthContext } from '~/contexts/auth';
 import CommentServices from '~/services/CommentServices';
 import { CommentLists, CommentWrite } from '~/components/Comment';
+import { useSelector } from 'react-redux';
+import { authSelector } from '~/redux/selectors/auth/authSelector';
 
 const cx = classNames.bind(styles);
 
 const Comment = forwardRef(({ parent_id = null }, ref) => {
-   const {
-      authState: { user },
-   } = useContext(AuthContext);
+   const { user } = useSelector(authSelector);
 
    const [suggestedComments, setSuggestedComments] = useState([]);
    const [pageSuggestedComments, setPageSuggestedComments] = useState(-1);

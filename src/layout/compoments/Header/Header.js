@@ -1,8 +1,5 @@
-import { useEffect, useRef, useState, useContext, Fragment } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames/bind';
-
-import { AuthContext } from '~/contexts/auth';
 
 import config from '~/config';
 import imgs from '~/assets/img';
@@ -26,14 +23,15 @@ import {
 } from 'react-icons/ai';
 import { IoLanguageOutline } from 'react-icons/io5';
 import { RiSettingsLine } from 'react-icons/ri';
+import { useSelector } from 'react-redux';
+import { authSelector } from '~/redux/selectors/auth/authSelector';
 
 const cx = classNames.bind(styles);
 
 function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () => {} }) {
-   const {
-      authState: { isAuthenticated, isVerify, user },
-   } = useContext(AuthContext);
+   const { user, isAuthenticated } = useSelector(authSelector);
 
+   // eslint-disable-next-line
    const [ableHeaderSidebarState, setAbleHeaderSidebarState] = useState(false);
    const [canClickSideBarState, setCanClickSideBarState] = useState(true);
    const [navbarCollapsedState, setNavbarCollapsedState] = useState(collapseDefault);

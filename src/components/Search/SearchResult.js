@@ -1,20 +1,16 @@
-import { memo, useCallback, useEffect, useRef, useState, useContext } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { ProductItemSmall } from '~/components/ProductItem';
-import { ProductContext } from '~/contexts/product';
-
-import imgs from '~/assets/img';
 
 import classNames from 'classnames/bind';
 import styles from './Search.module.scss';
+import { useDispatch } from 'react-redux';
+import { setTempSelectSearchResult } from '~/redux/slices/searchs/searchPageSlice';
 
 const cx = classNames.bind(styles);
 
 function SearchResult({ result = [], ...passProp }) {
-   const {
-      productState: { tempSelectSearchResult, keySearch },
-      loadTempSelectSearchResult,
-      loadKeySearch,
-   } = useContext(ProductContext);
+   const dispatch = useDispatch();
+
    const [hover, setHover] = useState(-1);
    const [tempHoverState, setTempHoverState] = useState(-1);
    let resultRef = useRef();
@@ -132,9 +128,11 @@ function SearchResult({ result = [], ...passProp }) {
 
    useEffect(() => {
       if (hover > -1) {
-         loadTempSelectSearchResult(document.getElementById(hover).href.split('id=')[1]);
+         dispatch(setTempSelectSearchResult(document.getElementById(hover).href.split('id=')[1]));
+         // loadTempSelectSearchResult(document.getElementById(hover).href.split('id=')[1]);
       } else {
-         loadTempSelectSearchResult(null);
+         dispatch(setTempSelectSearchResult(null));
+         // loadTempSelectSearchResult(null);
       }
    }, [hover]);
 

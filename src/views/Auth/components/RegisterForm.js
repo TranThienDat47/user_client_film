@@ -1,7 +1,5 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import classNames from 'classnames/bind';
-
-import { AuthContext } from '~/contexts/auth/AuthContext';
 
 import imgs from '~/assets/img';
 import Button from '~/components/Button';
@@ -11,13 +9,11 @@ import { SiFacebook } from 'react-icons/si';
 import styles from './Auth.module.scss';
 import { Link } from 'react-router-dom';
 import AuthServices from '~/services/AuthServices';
-import { LOCAL_STORAGE_TOKEN_NAME, LOCAL_STORAGE_ACCOUNT_LOGIN } from '~/config/constants';
+import { LOCAL_STORAGE_TOKEN_NAME } from '~/config/constants';
 
 const cx = classNames.bind(styles);
 
 const RegisterForm = () => {
-   const { registerUser } = useContext(AuthContext);
-
    const [registerForm, setRegisterForm] = useState({
       first_name: '',
       last_name: '',
@@ -30,7 +26,7 @@ const RegisterForm = () => {
    const [invalid, setInvalid] = useState(0); //0 valid, 1 invalid duplicate email, 2 invalid password
    const [showPassword, setShowPassword] = useState(false);
 
-   const { username, password, confirm_password, last_name, first_name } = registerForm;
+   // const { username, password, confirm_password, last_name, first_name } = registerForm;
 
    const onChangeRegisterForm = (event) => {
       setRegisterForm({ ...registerForm, [event.target.name]: event.target.value });

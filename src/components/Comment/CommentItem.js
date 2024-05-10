@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
 import classNames from 'classnames/bind';
-import { useState, useEffect, useRef, memo, useContext, useCallback } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { AiOutlineLike, AiOutlineDown, AiOutlineUp, AiFillLike } from 'react-icons/ai';
 
 import Button from '../Button';
@@ -8,10 +8,11 @@ import imgs from '~/assets/img';
 import CommentLists from './CommentList';
 import CommentWrite from './CommentWrite';
 import styles from './Comment.module.scss';
-import { AuthContext } from '~/contexts/auth';
 import { validateTime } from '~/utils/validated';
 import MoreLoading from '../loading/MoreLoading';
 import CommentServices from '~/services/CommentServices';
+import { useSelector } from 'react-redux';
+import { authSelector } from '~/redux/selectors/auth/authSelector';
 
 const cx = classNames.bind(styles);
 
@@ -28,9 +29,7 @@ function CommentItem({
       ...passProp,
    });
 
-   const {
-      authState: { user },
-   } = useContext(AuthContext);
+   const { user } = useSelector(authSelector);
 
    const socket = io('http://localhost:3001');
 

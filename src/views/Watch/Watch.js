@@ -1,32 +1,37 @@
-import { useState, useEffect, useCallback, useRef, useContext } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Button from '~/components/Button';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Comment } from '~/components/Comment';
 
 import classNames from 'classnames/bind';
 import styles from './Watch.module.scss';
-import { GlobalContext } from '~/contexts/global';
 
 import Video from '~/components/Video/index';
-import imgs from '~/assets/img';
 import { converterDate, converterDateTitle, sortedEpisodes } from '~/utils/validated';
-import { ProductContext } from '~/contexts/product';
-import { ProductItem } from '~/components/ProductItem';
 import LazyLoading from '~/components/loading/LazyLoading';
+
+import { MdOutlinePlaylistAdd } from 'react-icons/md';
+import { AiOutlineLike } from 'react-icons/ai';
+import { RiShareForwardLine } from 'react-icons/ri';
+import { useDispatch, useSelector } from 'react-redux';
+import { recommendProductsSelector } from '~/redux/selectors/products/producRecommendSelector';
+import {
+   beforeLoadProductRecommend,
+   fetchRecommendProducts,
+} from '~/redux/slices/products/productRecommendSlice';
+import { ProductItem } from '~/components/ProductItem';
+import { globalSelector } from '~/redux/selectors/globals/globalSelector';
+import { fetchProductCurrent } from '~/redux/slices/globals/globalSlice';
 
 const cx = classNames.bind(styles);
 
 const Watch = () => {
-   const {
-      globalState: { productCurrent, loading },
-      setProductCurrent,
-   } = useContext(GlobalContext);
+   const dispatch = useDispatch();
 
-   const {
-      productState: { pageRecommendProducts, hasMore, loadingMore, recommendProducts },
-      beforeLoadReCommendProduct,
-      loadRecommendProduct,
-   } = useContext(ProductContext);
+   const { productCurrent, loading } = useSelector(globalSelector);
+
+   const { pageRecommendProducts, hasMore, loadingMore, recommendProducts } =
+      useSelector(recommendProductsSelector);
 
    const navigate = useNavigate();
 
@@ -35,6 +40,10 @@ const Watch = () => {
    const parent_id = params.get('parent_id');
    const episodeCurrent = params.get('episodes');
 
+   const [videoInfoState, setVideoInfoState] = useState({
+      videoID: '',
+      listVideoSrc: [{ videoSrc: '', quality: '' }],
+   });
    const [productCurrentState, setProductCurrentState] = useState({});
    const [productDetailCurrentState, setProductDetailCurrentState] = useState({});
    const wrapperRef = useRef(null);
@@ -43,7 +52,7 @@ const Watch = () => {
    const tempDetailRef = useRef({ _id: null, episode: null });
 
    useEffect(() => {
-      setProductCurrent({ _id: parent_id });
+      dispatch(fetchProductCurrent(parent_id));
       // eslint-disable-next-line
    }, [parent_id]);
    useEffect(() => {
@@ -59,7 +68,11 @@ const Watch = () => {
          );
 
          tempDetailRef.current = { _id: tempDetail?._id, episode: tempDetail?.episode };
-         setProductDetailCurrentState({ _id: tempDetail?._id, episode: tempDetail?.episode });
+         setProductDetailCurrentState({
+            _id: tempDetail?._id,
+            episode: tempDetail?.episode,
+            videoRef: tempDetail.video_ref,
+         });
       }
       if (wrapperRef.current) wrapperRef.current.scrollTo({ top: 0, behavior: 'smooth' });
    }, [productCurrent, episodeCurrent]);
@@ -98,6 +111,20 @@ const Watch = () => {
    }, [productCurrent, parent_id]);
 
    useEffect(() => {
+      if (productDetailCurrentState.videoRef) {
+         setVideoInfoState({
+            videoID: productDetailCurrentState._id,
+            listVideoSrc: productDetailCurrentState?.videoRef
+               .map((element) => ({
+                  videoSrc: element._id,
+                  quality: element.quality,
+               }))
+               .sort((a, b) => parseInt(b.quality) - parseInt(a.quality)),
+         });
+      }
+   }, [productDetailCurrentState]);
+
+   useEffect(() => {
       if (wrapperRef.current) {
          wrapperRef.current.onscroll = () => {
             childRef.current?.handleScroll(wrapperRef.current);
@@ -116,7 +143,7 @@ const Watch = () => {
                   <div className={cx('inner')}>
                      <div className={cx('wrapper_of_block', 'top')}>
                         <div className={cx('wrapper_video')}>
-                           <Video></Video>
+                           <Video videoInfo={videoInfoState}></Video>
                         </div>
                      </div>
                      <div className={cx('page-body')}>
@@ -134,6 +161,66 @@ const Watch = () => {
                                    ' - Tập ' +
                                    productDetailCurrentState.episode}
                            </div>
+
+                           <div className={cx('wrapper_of_block', 'wrapper-block-action')}>
+                              <div className={cx('sperator')}></div>
+                              <div className={cx('action__video-list')}>
+                                 <div className={cx('action__video-item')}>
+                                    <Button
+                                       className={cx('action__video-item-button')}
+                                       rounded
+                                       transparent
+                                       hover
+                                       leftIcon={
+                                          <AiOutlineLike
+                                             className={cx('action__video-item-button-icon')}
+                                          />
+                                       }
+                                    >
+                                       <div className={cx('action__video-item-button-title')}>
+                                          30 N
+                                       </div>
+                                    </Button>
+                                 </div>
+
+                                 <div className={cx('action__video-item')}>
+                                    <Button
+                                       className={cx('action__video-item-button')}
+                                       rounded
+                                       transparent
+                                       hover
+                                       leftIcon={
+                                          <RiShareForwardLine
+                                             className={cx('action__video-item-button-icon')}
+                                          />
+                                       }
+                                    >
+                                       <div className={cx('action__video-item-button-title')}>
+                                          Chia sẻ
+                                       </div>
+                                    </Button>
+                                 </div>
+
+                                 <div className={cx('action__video-item')}>
+                                    <Button
+                                       className={cx('action__video-item-button')}
+                                       rounded
+                                       transparent
+                                       hover
+                                       leftIcon={
+                                          <MdOutlinePlaylistAdd
+                                             className={cx('action__video-item-button-icon')}
+                                          />
+                                       }
+                                    >
+                                       <div className={cx('action__video-item-button-title')}>
+                                          Lưu
+                                       </div>
+                                    </Button>
+                                 </div>
+                              </div>
+                           </div>
+
                            <div>
                               <div
                                  className={cx('wrapper_of_block', 'container', 'wrapper_detail')}
@@ -304,8 +391,12 @@ const Watch = () => {
                                     hasMore={hasMore}
                                     loadingMore={loadingMore}
                                     pageCurrent={pageRecommendProducts}
-                                    beforeLoad={beforeLoadReCommendProduct}
-                                    loadProductMore={loadRecommendProduct}
+                                    beforeLoad={() => {
+                                       dispatch(beforeLoadProductRecommend());
+                                    }}
+                                    loadProductMore={(page) => {
+                                       dispatch(fetchRecommendProducts(page));
+                                    }}
                                     loadingComponent={<></>}
                                  >
                                     {recommendProducts.map((element, index) => (
