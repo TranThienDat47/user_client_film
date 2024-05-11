@@ -316,7 +316,7 @@ const Product = () => {
                                     'text-align-justify',
                                  )}
                               >
-                                 {productCurrentState.country_Of_Origin}
+                                 {productCurrentState.country_Of_Origin || ''}
                               </div>
                            </div>
 

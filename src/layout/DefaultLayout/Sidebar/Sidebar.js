@@ -39,7 +39,12 @@ function Sidebar({ collaped = false }) {
          active: false,
          to: '/',
       },
-      { icon: <BiCategory className={cx('icon')} />, title: 'Thể loại', active: false, to: '#' },
+      {
+         icon: <BiCategory className={cx('icon')} />,
+         title: 'Thể loại',
+         active: false,
+         to: '/category',
+      },
       {
          icon: <AiOutlineBarChart className={cx('icon')} />,
          title: 'Xếp hạng',
@@ -136,7 +141,12 @@ function Sidebar({ collaped = false }) {
          active: false,
          to: '/',
       },
-      { icon: <BiCategory className={cx('icon')} />, title: 'Thể loại', active: false, to: '#' },
+      {
+         icon: <BiCategory className={cx('icon')} />,
+         title: 'Thể loại',
+         active: false,
+         to: '/category',
+      },
 
       {
          icon: <AiOutlineCheck className={cx('icon')} />,

@@ -31,7 +31,7 @@ const Video = ({
 }) => {
    const currentStateOfVideoRef = useRef({ width: 0, height: 0, isPlay: 0 });
    const [currentVideoState, setCurrentVideoState] = useState(videoInfo.listVideoSrc[0]);
-   const [autoPlayState, setAutoPlayState] = useState(true);
+   const [autoPlayState, setAutoPlayState] = useState(false);
 
    useEffect(() => {
       if (videoInfo.listVideoSrc.length > 0) {
@@ -530,6 +530,8 @@ const Video = ({
    const screenStateRef = useRef(0);
    const screenRef = useRef();
 
+   const [canPlayState, setCanPlayState] = useState(false);
+
    const [volume, setVolume] = useState(2);
    const [screenVideo, setScreenVideo] = useState(0);
    const [showEffectRef, setShowEffectRef] = useState(0);
@@ -579,6 +581,7 @@ const Video = ({
          setTimeout(() => {
             curIntervalRef.current = setInterval(() => {
                let moveProgress = videoRef.current.currentTime / videoRef.current.duration;
+               console.log(moveProgress);
 
                if (moveProgress > 1) {
                   moveProgress = 1;
@@ -1075,6 +1078,22 @@ const Video = ({
    }, [showControl, play]);
 
    useEffect(() => {
+      videoRef.current.oncanplay = () => {
+         setAutoPlayState(true);
+      };
+
+      videoRef.current.onloadeddata = () => {
+         videoRef.current.play();
+      };
+
+      videoRef.current.onplay = () => {
+         setPlay(1);
+         handleAutoProgress();
+         isEndedRef.current = false;
+      };
+   }, [canPlayState]);
+
+   useEffect(() => {
       play_pause_Ref.current.onclick = (e) => {
          handlePlayAndPaus(e);
       };
@@ -1113,13 +1132,6 @@ const Video = ({
          })`;
       };
 
-      videoRef.current.onplay = () => {
-         setPlay(1);
-
-         handleAutoProgress();
-         isEndedRef.current = false;
-      };
-
       videoRef.current.onpause = (e) => {
          isEndedRef.current = false;
       };
@@ -1129,9 +1141,6 @@ const Video = ({
 
          isEndedRef.current = true;
 
-         // if (dragVideoRef.current) {
-         // videoRef.current.autoplay = false;
-         // }
          setShowControl(2);
       };
 

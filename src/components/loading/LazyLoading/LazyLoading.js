@@ -15,6 +15,7 @@ const LazyLoading = forwardRef(
          beforeLoad = () => {},
          loadProductMore = () => {},
          loadingComponent = '',
+         emptyData = false,
          children,
       },
       ref,
@@ -50,7 +51,20 @@ const LazyLoading = forwardRef(
                   <div className={cx('loading-more')}>Đang tải thêm dữ liệu...</div>
                )
             ) : (
-               <></>
+               <>
+                  {emptyData && (
+                     <div
+                        style={{
+                           color: 'var(--text-bland)',
+                           fontSize: '1.6rem',
+                           fontWeight: '550',
+                           margin: '3px 0 0 16px',
+                        }}
+                     >
+                        Chưa có dữ liệu nào
+                     </div>
+                  )}
+               </>
             )}
             <div className={cx('footer_pseudo')}></div>
          </div>

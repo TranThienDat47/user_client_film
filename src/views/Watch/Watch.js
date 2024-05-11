@@ -273,11 +273,11 @@ const Watch = () => {
                                        <div
                                           className={cx(
                                              'string-formatted',
-                                             'content-empty w-100 h-20',
+                                             !loading ? '' : 'content-empty w-100 h-20',
                                              'text-align-justify',
                                           )}
                                        >
-                                          {loading ? '' : productCurrentState.country_Of_Origin}
+                                          {productCurrentState.country_Of_Origin}
                                        </div>
                                     </div>
 
