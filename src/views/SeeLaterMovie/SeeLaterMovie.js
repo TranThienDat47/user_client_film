@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 
 import Button from '~/components/Button';
-import styles from './Follow.module.scss';
+import styles from './SeeLaterMovie.module.scss';
 import LazyLoading from '~/components/loading/LazyLoading';
 import { ListProductSearch } from '~/components/ListProduct';
 
@@ -15,20 +15,20 @@ import { AiOutlineCheck } from 'react-icons/ai';
 import { authSelector } from '~/redux/selectors/auth/authSelector';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-   beforeLoadFollowProduct,
-   fetchFollowProducts,
-   resetFollowProducts,
-   setFollowKeySearchFromPageFollow,
-   setFollowSortFromPageFollow,
+   beforeLoadSeeLaterMovieProduct,
+   fetchSeeLaterMovieProducts,
+   resetSeeLaterMovieProducts,
+   setSeeLaterMovieKeySearchFromPageSeeLaterMovie,
+   setSeeLaterMovieSortFromPageSeeLaterMovie,
 } from '~/redux/slices/auth/authSlice';
 
 const cx = classNames.bind(styles);
 
-const Follow = () => {
+const SeeLaterMovie = () => {
    const navigate = useNavigate();
 
    const dispatch = useDispatch();
-   const { follow, user } = useSelector(authSelector);
+   const { seeLaterMovie, user } = useSelector(authSelector);
 
    const location = useLocation();
    const params = new URLSearchParams(location.search);
@@ -44,14 +44,14 @@ const Follow = () => {
    const [initListSortState, setInitListSortState] = useState([
       {
          id: 0,
-         title: 'Ngày theo dõi (mới nhất)',
+         title: 'Ngày thêm (mới nhất)',
          icon: <AiOutlineCheck className={cx('sort-from-page__content-row-icon')} />,
          typeSort: 1,
          checked: true,
       },
       {
          id: 1,
-         title: 'Ngày theo dõi (cũ nhất)',
+         title: 'Ngày thêm (cũ nhất)',
          icon: <AiOutlineCheck className={cx('sort-from-page__content-row-icon')} />,
          typeSort: -1,
          checked: false,
@@ -60,23 +60,21 @@ const Follow = () => {
 
    const handleSearch = () => {
       inputSearchRef.current.focus();
-      dispatch(resetFollowProducts());
+      dispatch(resetSeeLaterMovieProducts());
 
-      dispatch(setFollowKeySearchFromPageFollow(valueSearchPageState));
-      navigate('/follow?search_query=' + valueSearchPageState);
+      dispatch(setSeeLaterMovieKeySearchFromPageSeeLaterMovie(valueSearchPageState));
+      navigate('/seeLaterMovie?search_query=' + valueSearchPageState);
    };
 
    useEffect(() => {
-      if (search_query) {
-         if (follow.keySearchFromPageFollow.trim().length <= 0) {
-            navigate('/follow');
-         } else {
-            setValueSearchPageState(follow.keySearchFromPageFollow);
-         }
+      if (seeLaterMovie.keySearchFromPageSeeLaterMovie.trim().length <= 0) {
+         navigate('/seeLaterMovie');
+      } else {
+         setValueSearchPageState(seeLaterMovie.keySearchFromPageSeeLaterMovie);
+      }
 
-         if (+follow.pageFollowProduct === -1) {
-            dispatch(beforeLoadFollowProduct());
-         }
+      if (+seeLaterMovie.pageSeeLaterMovieProduct === -1) {
+         dispatch(beforeLoadSeeLaterMovieProduct());
       }
       // eslint-disable-next-line
    }, [search_query]);
@@ -87,7 +85,7 @@ const Follow = () => {
       };
 
       return () => {
-         dispatch(resetFollowProducts());
+         dispatch(resetSeeLaterMovieProducts());
       };
    }, []);
 
@@ -109,18 +107,18 @@ const Follow = () => {
                <LazyLoading
                   ref={childRef}
                   ableLoading={!!user?._id}
-                  hasMore={follow.hasMore}
-                  loadingMore={follow.loadingMore}
-                  pageCurrent={follow.pageFollowProduct}
+                  hasMore={seeLaterMovie.hasMore}
+                  loadingMore={seeLaterMovie.loadingMore}
+                  pageCurrent={seeLaterMovie.pageSeeLaterMovieProduct}
                   beforeLoad={() => {
-                     dispatch(beforeLoadFollowProduct());
+                     dispatch(beforeLoadSeeLaterMovieProduct());
                   }}
                   loadProductMore={(page) => {
-                     dispatch(fetchFollowProducts(page));
+                     dispatch(fetchSeeLaterMovieProducts(page));
                   }}
-                  emptyData={!!!follow.followProduct.length}
+                  emptyData={!!!seeLaterMovie.seeLaterMovieProduct.length}
                >
-                  <ListProductSearch data={follow.followProduct} />
+                  <ListProductSearch data={seeLaterMovie.seeLaterMovieProduct} />
                </LazyLoading>
             </div>
             <div className={cx('inner__right')}>
@@ -158,11 +156,11 @@ const Follow = () => {
                               setValueSearchPageState('');
                               setShowInputClearState(false);
 
-                              dispatch(resetFollowProducts());
+                              dispatch(resetSeeLaterMovieProducts());
 
-                              dispatch(setFollowKeySearchFromPageFollow(''));
+                              dispatch(setSeeLaterMovieKeySearchFromPageSeeLaterMovie(''));
 
-                              dispatch(beforeLoadFollowProduct());
+                              dispatch(beforeLoadSeeLaterMovieProduct());
                            }}
                            transparent
                            hover
@@ -184,7 +182,9 @@ const Follow = () => {
                            <div
                               key={'sort' + index}
                               onClick={() => {
-                                 dispatch(setFollowSortFromPageFollow(element.typeSort));
+                                 dispatch(
+                                    setSeeLaterMovieSortFromPageSeeLaterMovie(element.typeSort),
+                                 );
                                  setInitListSortState((prev) =>
                                     prev.map((elementTemp, indexTemp) =>
                                        indexTemp === index
@@ -211,4 +211,4 @@ const Follow = () => {
    );
 };
 
-export default Follow;
+export default SeeLaterMovie;

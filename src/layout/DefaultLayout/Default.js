@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Header from '../compoments/Header';
 import styles from './Default.module.scss';
 import SideBar from './Sidebar';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 
 const cx = classNames.bind(styles);
 
@@ -22,8 +22,12 @@ function DefaultLayout({ children }) {
             }}
          />
          <div className={cx('container')}>
-            <SideBar collaped={navbarCollapsedState} />
-            <div className={cx('content')}>{children}</div>
+            <Suspense>
+               <SideBar collaped={navbarCollapsedState} />
+            </Suspense>
+            <Suspense>
+               <div className={cx('content')}>{children}</div>
+            </Suspense>
          </div>
       </div>
    );

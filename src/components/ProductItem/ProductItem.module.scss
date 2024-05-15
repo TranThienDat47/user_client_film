@@ -1,6 +1,7 @@
 :root {
    --width-image-item: 29%;
    --width-image-item-search: 19%;
+   --max-width-option-menu: 236px;
 }
 
 .modeSearchPage {
@@ -328,6 +329,7 @@
    min-width: 189px;
    width: 189px;
 
+   max-width: var(--max-width-option-menu);
    width: fit-content;
    background-color: var(--white);
    border-radius: 9px;

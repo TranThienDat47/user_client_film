@@ -11,7 +11,9 @@ import { converterDate, converterDateTitle, sortedEpisodes } from '~/utils/valid
 import LazyLoading from '~/components/loading/LazyLoading';
 
 import { MdOutlinePlaylistAdd } from 'react-icons/md';
-import { AiOutlineLike } from 'react-icons/ai';
+import { AiOutlineLike, AiFillLike } from 'react-icons/ai';
+import { IoMdClose } from 'react-icons/io';
+
 import { RiShareForwardLine } from 'react-icons/ri';
 import { useDispatch, useSelector } from 'react-redux';
 import { recommendProductsSelector } from '~/redux/selectors/products/producRecommendSelector';
@@ -22,11 +24,19 @@ import {
 import { ProductItem } from '~/components/ProductItem';
 import { globalSelector } from '~/redux/selectors/globals/globalSelector';
 import { fetchProductCurrent } from '~/redux/slices/globals/globalSlice';
+import SeenMovieService from '~/services/SeenMovieService';
+import { authSelector } from '~/redux/selectors/auth/authSelector';
+import CommentServices from '~/services/CommentServices';
+import formatFollowCount from '~/utils/formatFollowCount';
+import ProductServices from '~/services/ProductServices';
+import ShareFacebook from './components/ShareFacebook';
 
 const cx = classNames.bind(styles);
 
 const Watch = () => {
    const dispatch = useDispatch();
+
+   const { user } = useSelector(authSelector);
 
    const { productCurrent, loading } = useSelector(globalSelector);
 
@@ -44,35 +54,63 @@ const Watch = () => {
       videoID: '',
       listVideoSrc: [{ videoSrc: '', quality: '' }],
    });
+
+   const inputClipboardRef = useRef(null);
+   const [valueUrlState, setValueUrlState] = useState(window.location.href);
+   const [showShareState, setShowShareState] = useState(false);
+
+   const [likeState, setLikeState] = useState(false);
+   const [countLikeState, setCountLikeState] = useState(0);
+
    const [productCurrentState, setProductCurrentState] = useState({});
-   const [productDetailCurrentState, setProductDetailCurrentState] = useState({});
+   const [productDetailCurrentState, setProductDetailCurrentState] = useState({ reacts: 0 });
    const wrapperRef = useRef(null);
    const childRef = useRef(null);
    const childRefRecommend = useRef(null);
    const tempDetailRef = useRef({ _id: null, episode: null });
 
+   const handleclipboard = (value) => {
+      console.log('ok ma');
+      if (inputClipboardRef.current) {
+         inputClipboardRef.current.select();
+         inputClipboardRef.current.setSelectionRange(0, inputClipboardRef.current.value.length);
+
+         navigator.clipboard.writeText(inputClipboardRef.current.value);
+      }
+   };
+
    useEffect(() => {
       dispatch(fetchProductCurrent(parent_id));
       // eslint-disable-next-line
    }, [parent_id]);
+
    useEffect(() => {
       if (!parent_id || !episodeCurrent) {
          navigate(`/`);
       }
       // eslint-disable-next-line
    }, []);
+
    useEffect(() => {
       if (productCurrent.product_details && productCurrent.product_details.length > 0) {
          const tempDetail = sortedEpisodes(productCurrent.product_details).find(
             (element, index) => element._id === episodeCurrent,
          );
 
-         tempDetailRef.current = { _id: tempDetail?._id, episode: tempDetail?.episode };
+         tempDetailRef.current = {
+            _id: tempDetail?._id,
+            episode: tempDetail?.episode,
+            views: tempDetail.views,
+         };
          setProductDetailCurrentState({
             _id: tempDetail?._id,
             episode: tempDetail?.episode,
             videoRef: tempDetail.video_ref,
+            views: tempDetail.views,
+            reacts: tempDetail.reacts,
          });
+
+         setCountLikeState(tempDetail.reacts);
       }
       if (wrapperRef.current) wrapperRef.current.scrollTo({ top: 0, behavior: 'smooth' });
    }, [productCurrent, episodeCurrent]);
@@ -87,7 +125,7 @@ const Watch = () => {
          currentState.img = productCurrent.product.img;
          currentState.episodes = productCurrent.product.episodes;
          currentState.currentEpisodes = productCurrent.product.currentEpisodes;
-         currentState.view = productCurrent.product.view;
+         currentState.views = productCurrent.product.views;
          currentState.releaseDate = converterDate(productCurrent.product.releaseDate);
          currentState.news = productCurrent.product.news;
          currentState.reacts = productCurrent.product.reacts;
@@ -107,8 +145,15 @@ const Watch = () => {
       ) {
          navigate(`/product?id=${parent_id}`);
       }
+
       // eslint-disable-next-line
    }, [productCurrent, parent_id]);
+
+   useEffect(() => {
+      if (productCurrent.product && user?._id) {
+         SeenMovieService.seenMovie({ user_id: user._id, ref_id: productCurrent.product._id });
+      }
+   }, [productCurrent]);
 
    useEffect(() => {
       if (productDetailCurrentState.videoRef) {
@@ -120,6 +165,14 @@ const Watch = () => {
                   quality: element.quality,
                }))
                .sort((a, b) => parseInt(b.quality) - parseInt(a.quality)),
+         });
+
+         ProductServices.checkUserLike({
+            product_id: productDetailCurrentState._id,
+            user_id: user._id,
+         }).then((res) => {
+            if (res.isLike) setLikeState(true);
+            else setLikeState(false);
          });
       }
    }, [productDetailCurrentState]);
@@ -166,21 +219,59 @@ const Watch = () => {
                               <div className={cx('sperator')}></div>
                               <div className={cx('action__video-list')}>
                                  <div className={cx('action__video-item')}>
-                                    <Button
-                                       className={cx('action__video-item-button')}
-                                       rounded
-                                       transparent
-                                       hover
-                                       leftIcon={
-                                          <AiOutlineLike
-                                             className={cx('action__video-item-button-icon')}
-                                          />
-                                       }
-                                    >
-                                       <div className={cx('action__video-item-button-title')}>
-                                          30 N
-                                       </div>
-                                    </Button>
+                                    {likeState ? (
+                                       <>
+                                          <Button
+                                             className={cx('action__video-item-button')}
+                                             rounded
+                                             transparent
+                                             hover
+                                             leftIcon={
+                                                <AiFillLike
+                                                   className={cx('action__video-item-button-icon')}
+                                                />
+                                             }
+                                             onClick={() => {
+                                                ProductServices.dislike({
+                                                   product_id: productDetailCurrentState._id,
+                                                   user_id: user._id,
+                                                });
+                                                setLikeState(false);
+                                                setCountLikeState((prev) => --prev);
+                                             }}
+                                          >
+                                             <div className={cx('action__video-item-button-title')}>
+                                                {formatFollowCount(countLikeState)}
+                                             </div>
+                                          </Button>
+                                       </>
+                                    ) : (
+                                       <>
+                                          <Button
+                                             className={cx('action__video-item-button')}
+                                             rounded
+                                             transparent
+                                             hover
+                                             leftIcon={
+                                                <AiOutlineLike
+                                                   className={cx('action__video-item-button-icon')}
+                                                />
+                                             }
+                                             onClick={() => {
+                                                ProductServices.like({
+                                                   product_id: productDetailCurrentState._id,
+                                                   user_id: user._id,
+                                                });
+                                                setLikeState(true);
+                                                setCountLikeState((prev) => ++prev);
+                                             }}
+                                          >
+                                             <div className={cx('action__video-item-button-title')}>
+                                                {formatFollowCount(countLikeState)}
+                                             </div>
+                                          </Button>
+                                       </>
+                                    )}
                                  </div>
 
                                  <div className={cx('action__video-item')}>
@@ -194,11 +285,63 @@ const Watch = () => {
                                              className={cx('action__video-item-button-icon')}
                                           />
                                        }
+                                       onClick={() => {
+                                          setShowShareState(true);
+                                       }}
                                     >
                                        <div className={cx('action__video-item-button-title')}>
                                           Chia sẻ
                                        </div>
                                     </Button>
+
+                                    {showShareState && (
+                                       <div className={cx('share-wrapper')}>
+                                          <div className={cx('share-inner')}>
+                                             <div className={cx('share-header')}>
+                                                <div className={cx('share-header-left')}>
+                                                   <h3>Chia sẻ</h3>
+                                                </div>
+                                                <div className={cx('share-header-right')}>
+                                                   <Button
+                                                      onClick={() => {
+                                                         setShowShareState(false);
+                                                      }}
+                                                      hover
+                                                      transparent
+                                                      className={cx('btn-share-close')}
+                                                   >
+                                                      <IoMdClose />
+                                                   </Button>
+                                                </div>
+                                             </div>
+                                             <div className={cx('share-inner-top')}>
+                                                <div className={cx('share-list')}>
+                                                   <div className={cx('share-item')}>
+                                                      <ShareFacebook
+                                                         valueUrlState={valueUrlState}
+                                                      ></ShareFacebook>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                             <div className={cx('share-inner-bottom')}>
+                                                <input
+                                                   ref={inputClipboardRef}
+                                                   type="text"
+                                                   readOnly
+                                                   value={valueUrlState}
+                                                />
+
+                                                <Button
+                                                   onClick={handleclipboard}
+                                                   primary
+                                                   className={cx('btn-coppy-share')}
+                                                >
+                                                   <div>Sao chép</div>
+                                                </Button>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    )}
                                  </div>
 
                                  <div className={cx('action__video-item')}>
@@ -227,7 +370,10 @@ const Watch = () => {
                               >
                                  <div className={cx('detail')}>
                                     <div className={cx('inf__header')}>
-                                       <span className={cx('string-formatted')}>132N lượt xem</span>
+                                       <span className={cx('string-formatted')}>
+                                          {formatFollowCount(productDetailCurrentState.views)} lượt
+                                          xem
+                                       </span>
                                        <span className={cx('string-formatted')}> - </span>
                                        <span className={cx('string-formatted')}>
                                           {converterDateTitle(productCurrentState.createdAt)}
@@ -373,11 +519,13 @@ const Watch = () => {
                               </div>
                            </div>
 
-                           <Comment
-                              key={tempDetailRef.current._id}
-                              ref={childRef}
-                              parent_id={tempDetailRef.current._id}
-                           />
+                           {!!productCurrentState && (
+                              <Comment
+                                 key={tempDetailRef.current._id}
+                                 ref={childRef}
+                                 parent_id={tempDetailRef.current._id}
+                              />
+                           )}
                         </div>
                         <div className={cx('body-right')}>
                            <div className={cx('heading_of_block')}>

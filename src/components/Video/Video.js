@@ -18,6 +18,8 @@ import { IoMdCheckmark } from 'react-icons/io';
 
 import Menu from '../Popper/Menu';
 import Button from '../Button';
+import viewsCounter from '~/utils/viewsCounter';
+import ProductServices from '~/services/ProductServices';
 
 const cx = classNames.bind(styles);
 
@@ -29,7 +31,9 @@ const Video = ({
    width,
    height,
 }) => {
-   const currentStateOfVideoRef = useRef({ width: 0, height: 0, isPlay: 0 });
+   const [loadingVideoState, setLoadingVideoState] = useState(true);
+
+   const currentStateOfVideoRef = useRef({ width: '100%', height: 'auto', isPlay: 1 });
    const [currentVideoState, setCurrentVideoState] = useState(videoInfo.listVideoSrc[0]);
    const [autoPlayState, setAutoPlayState] = useState(false);
 
@@ -171,6 +175,9 @@ const Video = ({
 
    const handleOnChangeQuality = ({ index = 3, quality = 'Tự động' }) => {
       if (index !== currentQualityRef.current.index) {
+         handleClearInterVal();
+
+         setLoadingVideoState(true);
          currentQualityRef.current = {
             index,
             quality,
@@ -451,18 +458,17 @@ const Video = ({
       if (!dragVideoRef.current) {
          if (videoRef.current) videoRef.current.currentTime = tempCurrentTimeRef.current;
 
-         // if (currentStateOfVideoRef.current.height > 0) {
-         // videoRef.current.style.height = currentStateOfVideoRef.current.height + 'px';
-         // }
-
          if (currentStateOfVideoRef.current.isPlay === 1) {
             videoRef.current.play();
+            setPlay(1);
          }
       }
 
-      return () => {
-         clearInterval(curIntervalRef.current);
-      };
+      if (videoRef.current.paused) {
+         setPlay(0);
+      } else if (videoRef.current.ended) {
+         setPlay(2);
+      }
    }, [currentVideoState, autoPlayState]);
 
    const dataInitSettingRef = useRef(dataInitSettingState);
@@ -530,7 +536,7 @@ const Video = ({
    const screenStateRef = useRef(0);
    const screenRef = useRef();
 
-   const [canPlayState, setCanPlayState] = useState(false);
+   const [durationVideo, setDurationVideo] = useState(0);
 
    const [volume, setVolume] = useState(2);
    const [screenVideo, setScreenVideo] = useState(0);
@@ -539,6 +545,11 @@ const Video = ({
    const [play, setPlay] = useState(0); // 1 is play; 2 is ended; 0 is pause
 
    const [showSetting, setShowSetting] = useState(false);
+
+   const handleClearInterVal = () => {
+      clearInterval(curIntervalRef.current);
+      curIntervalRef.current = null;
+   };
 
    const convertTime = (time) => {
       if (!isNaN(+time)) {
@@ -575,32 +586,29 @@ const Video = ({
    };
 
    const handleAutoProgress = () => {
-      if (videoRef.current) {
+      if (videoRef.current && play === 1) {
          const widthProgress = progressRefRef.current.getBoundingClientRect().width;
 
-         setTimeout(() => {
-            curIntervalRef.current = setInterval(() => {
-               let moveProgress = videoRef.current.currentTime / videoRef.current.duration;
-               console.log(moveProgress);
+         curIntervalRef.current = setInterval(() => {
+            let moveProgress = videoRef.current.currentTime / videoRef.current.duration;
 
-               if (moveProgress > 1) {
-                  moveProgress = 1;
-               } else if (moveProgress < 0) {
-                  moveProgress = 0;
-               }
+            if (moveProgress > 1) {
+               moveProgress = 1;
+            } else if (moveProgress < 0) {
+               moveProgress = 0;
+            }
 
-               tempCurrentTimeRef.current = videoRef.current.currentTime;
+            tempCurrentTimeRef.current = videoRef.current.currentTime;
 
-               progressCurrent.current.style.transform = `scaleX(${moveProgress})`;
-               progressBall.current.style.transform = `translateX(calc(${
-                  moveProgress * 100
-               }% - var(--size-ball-progress) / 2))`;
-            }, (videoRef.current.duration * 650) / widthProgress);
-         });
+            progressCurrent.current.style.transform = `scaleX(${moveProgress})`;
+            progressBall.current.style.transform = `translateX(calc(${
+               moveProgress * 100
+            }% - var(--size-ball-progress) / 2))`;
+         }, (videoRef.current.duration * 650) / widthProgress);
       }
    };
 
-   const handleMoveProgress = useCallback((e) => {
+   const handleMoveProgress = (e) => {
       const leftProgress = progressRefRef.current.getBoundingClientRect().left;
       const widthProgress = progressRefRef.current.getBoundingClientRect().width;
 
@@ -625,6 +633,7 @@ const Video = ({
       }
 
       tempCurrentTimeRef.current = moveProgress * videoRef.current.duration;
+
       timeCurrentRef.current.innerHTML = `${convertTime(tempCurrentTimeRef.current)}`;
       curTimeImgRef.current.innerHTML = `${convertTime(tempCurrentTimeRef.current)}`;
 
@@ -632,7 +641,7 @@ const Video = ({
       progressBall.current.style.transform = `translateX(calc(${
          moveProgress * 100
       }% - var(--size-ball-progress) / 2))`;
-   }, []);
+   };
 
    const handlePreviewVideo = useCallback((e) => {
       curImgWrapperRef.current.style.display = 'block';
@@ -681,23 +690,18 @@ const Video = ({
       curTimeImgRef.current.innerHTML = `${convertTime(videoPreviewRef.current)}`;
    }, []);
 
-   const handleMousUpProgress = () => {
+   const handleMouseUpProgress = () => {
       if (dragVideoRef.current) {
+         if (curIntervalRef.current) handleClearInterVal();
          curImgWrapperRef.current.style.display = 'none';
+         videoRef.current.currentTime = tempCurrentTimeRef.current;
 
          if (cur_play_pause_Ref.current || isEndedRef.current) {
             setPlay(1);
-            videoRef.current.play();
          }
 
          modalPreviewRef.current.style.visibility = 'hidden';
 
-         videoRef.current.currentTime = tempCurrentTimeRef.current;
-
-         // if (
-         //    videoRef.current.buffered.end(tempBufferedRef.current) < videoRef.current.currentTime ||
-         //    videoRef.current.buffered.start(tempBufferedRef.current) > videoRef.current.currentTime
-         // ) {
          if (videoRef.current.buffered && videoRef.current.buffered.length > 0) {
             for (let i = 0; i < videoRef.current.buffered.length; i++) {
                if (
@@ -712,7 +716,6 @@ const Video = ({
                }
             }
          }
-         // }
 
          if (!hoverProgress.current) {
             mainProgressfRef.current.style.transform = 'scaleY(0.5)';
@@ -1004,8 +1007,6 @@ const Video = ({
       if (screenVideo === 1) {
          screenStateRef.current = 1;
 
-         // videoRef.current.style.height = 'auto';
-
          if (wrapperVideoRef.current.requestFullscreen) {
             wrapperVideoRef.current.requestFullscreen();
          } else if (wrapperVideoRef.current.webkitRequestFullscreen) {
@@ -1031,10 +1032,6 @@ const Video = ({
          }
       }
    }, [screenVideo]);
-
-   useEffect(() => {
-      screenRef.current.onclick = (e) => handleScreen(e);
-   }, []);
 
    useEffect(() => {
       let uniqueTime;
@@ -1079,19 +1076,35 @@ const Video = ({
 
    useEffect(() => {
       videoRef.current.oncanplay = () => {
-         setAutoPlayState(true);
+         if (currentStateOfVideoRef.current.isPlay) setAutoPlayState(true);
       };
 
       videoRef.current.onloadeddata = () => {
-         videoRef.current.play();
+         if (videoRef.current.readyState > 3) {
+            setLoadingVideoState(false);
+
+            if (autoPlayState && currentStateOfVideoRef.current.isPlay) {
+               // videoRef.current.play();
+               setPlay(1);
+            }
+         } else if (videoRef.current.readyState <= 3) {
+            setLoadingVideoState(true);
+         }
       };
 
       videoRef.current.onplay = () => {
-         setPlay(1);
-         handleAutoProgress();
+         // setPlay(1);
          isEndedRef.current = false;
+
+         if (videoRef.current.duration > 0 && durationVideo === 0) {
+            setDurationVideo(videoRef.current.duration);
+         }
       };
-   }, [canPlayState]);
+
+      return () => {
+         if (curIntervalRef.current) handleClearInterVal();
+      };
+   }, [autoPlayState, durationVideo]);
 
    useEffect(() => {
       play_pause_Ref.current.onclick = (e) => {
@@ -1132,10 +1145,6 @@ const Video = ({
          })`;
       };
 
-      videoRef.current.onpause = (e) => {
-         isEndedRef.current = false;
-      };
-
       videoRef.current.onended = (e) => {
          setPlay(2);
 
@@ -1146,14 +1155,10 @@ const Video = ({
 
       if (play === 1) {
          videoRef.current.play();
+         handleAutoProgress();
       } else if (play === 0) {
          videoRef.current.pause();
-         clearInterval(curIntervalRef.current);
       }
-
-      return () => {
-         clearInterval(curIntervalRef.current);
-      };
 
       // eslint-disable-next-line
    }, [play]);
@@ -1230,15 +1235,14 @@ const Video = ({
       progressRefRef.current.onmousedown = (e) => {
          dragVideoRef.current = true;
 
-         clearTimeout(curIntervalRef.current);
-
          progressCurrent.current.style.transition = `none`;
          progressBall.current.style.transition = `none`;
 
          if (!videoRef.current.paused) cur_play_pause_Ref.current = true;
          else cur_play_pause_Ref.current = false;
 
-         videoRef.current.pause();
+         // videoRef.current.pause();
+         setPlay(0);
 
          handleMoveProgress(e);
          handlePreviewVideo(e);
@@ -1250,13 +1254,10 @@ const Video = ({
       };
 
       videoRef.current.onprogress = () => {
+         if (!curIntervalRef.current) {
+            handleAutoProgress();
+         }
          if (videoRef.current.buffered.length > tempBufferedRef.current) {
-            // if (
-            //    videoRef.current.buffered.end(tempBufferedRef.current) <
-            //       videoRef.current.currentTime ||
-            //    videoRef.current.buffered.start(tempBufferedRef.current) >
-            //       videoRef.current.currentTime
-            // ) {
             if (videoRef.current.buffered && videoRef.current.buffered.length > 0) {
                for (let i = 0; i < videoRef.current.buffered.length; i++) {
                   if (
@@ -1271,8 +1272,6 @@ const Video = ({
                   }
                }
             }
-
-            // }
          }
       };
 
@@ -1286,7 +1285,7 @@ const Video = ({
          }
 
          handleMouseUpVolume();
-         handleMousUpProgress();
+         handleMouseUpProgress();
 
          if (watchRef.current && watchRef.current.contains(e.target)) {
             focusVideoRef.current = true;
@@ -1318,10 +1317,30 @@ const Video = ({
       }
    }, [showSetting]);
 
+   useEffect(() => {
+      screenRef.current.onclick = (e) => handleScreen(e);
+
+      videoRef.current.onpause = (e) => {
+         // setPlay(0);
+         isEndedRef.current = false;
+         if (curIntervalRef.current) handleClearInterVal();
+      };
+   }, [curIntervalRef.current]);
+
+   useEffect(() => {
+      if (durationVideo > 0) {
+         viewsCounter(durationVideo, () => {
+            ProductServices.increaseView({ product_id: videoInfo.videoID });
+         });
+      }
+   }, [durationVideo]);
+
    return (
       <div style={{ position: 'relative' }}>
          <div ref={watchRef} className={cx('wrapper')}>
             <div ref={wrapperVideoRef} className={cx('watch')}>
+               {loadingVideoState && <div className={cx('loading-state')}></div>}
+
                <div className={cx('wrapper-video')}>
                   <ReactHlsPlayer
                      src={`http://localhost:5000/api/video/stream/${currentVideoState.videoSrc}?mode=m3u8`}

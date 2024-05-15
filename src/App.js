@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Fragment } from 'react';
+import { Fragment, Suspense } from 'react';
 
 import { publicRoutes, privateRoutes } from '~/route/routes';
 import PassportGoogle from '~/route/routing/PassportGoogle';

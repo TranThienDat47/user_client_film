@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Suspense, lazy } from 'react';
 import classNames from 'classnames/bind';
 
 import config from '~/config';
 import imgs from '~/assets/img';
-import Search from '~/components/Search';
+// import Search from '~/components/Search';
+
 import Button from '~/components/Button';
 import styles from './Header.module.scss';
 import HeaderSidebar from './HeaderSidebar';
@@ -26,6 +27,8 @@ import { RiSettingsLine } from 'react-icons/ri';
 import { useSelector } from 'react-redux';
 import { authSelector } from '~/redux/selectors/auth/authSelector';
 
+const SearchLayzy = lazy(() => import('~/components/Search'));
+
 const cx = classNames.bind(styles);
 
 function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () => {} }) {
@@ -36,7 +39,6 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
    const [canClickSideBarState, setCanClickSideBarState] = useState(true);
    const [navbarCollapsedState, setNavbarCollapsedState] = useState(collapseDefault);
 
-   const [showNotification, setShowNotification] = useState(false);
    const [dataInit, setDataInit] = useState([
       {
          title: <div className={cx('title')}>Cài đặt</div>,
@@ -167,8 +169,6 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
    //       },
    //   ]);
 
-   const notificationResultRef = useRef();
-
    const childRef = useRef(null);
 
    useEffect(() => {
@@ -255,23 +255,6 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
       }
    }, [user]);
 
-   useEffect(() => {
-      const handleClickOutside = (e) => {
-         if (
-            notificationResultRef.current &&
-            !notificationResultRef.current.parentNode.contains(e.target)
-         ) {
-            setShowNotification(false);
-         }
-      };
-
-      document.addEventListener('click', handleClickOutside);
-
-      return () => {
-         document.removeEventListener('click', handleClickOutside);
-      };
-   }, [notificationResultRef]);
-
    const handleClickMenuSidebar = () => {
       if (ableHeaderSidebarState) {
          if (canClickSideBarState) {
@@ -303,28 +286,16 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
             </div>
 
             <div className={cx('search')}>
-               <Search />
+               <Suspense fallback={<div></div>}>
+                  <SearchLayzy />
+               </Suspense>
             </div>
 
             <div className={cx('infor')}>
                <div className={cx('infor-icon')}>
                   {isAuthenticated ? (
                      <>
-                        <Button
-                           key="notification1"
-                           transparent
-                           className={cx('header__icon', 'notification', 'tooltip')}
-                           name-tooltip="Thông báo"
-                           hover
-                           onClick={() => {
-                              setShowNotification((prev) => !prev);
-                           }}
-                        >
-                           <AiOutlineBell />
-                        </Button>
-                        {showNotification && (
-                           <Notification ref={notificationResultRef} user_id={user._id} />
-                        )}
+                        <Notification user_id={user._id} />
                      </>
                   ) : (
                      <>

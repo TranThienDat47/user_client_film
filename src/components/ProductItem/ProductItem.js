@@ -14,6 +14,8 @@ import Headless from '../Headless';
 
 const cx = classNames.bind(styles);
 
+const WIDTH_MENU_OPTION = 236;
+
 function ProductItem({
    onClick,
    extraLarge = false,
@@ -23,12 +25,12 @@ function ProductItem({
 }) {
    const animationRef = useRef();
    const itemRef = useRef();
-   const hoverOption = useRef(false);
    const itemWrapperRef = useRef();
    const optionRef = useRef();
    const clickOptionRef = useRef(false);
    const menuRef = useRef(null);
 
+   const [hoverMenuOption, setHoverMenuOption] = useState(false);
    const [showMenuOption, setShowMenuOption] = useState(false);
    const [optionOfset, setOptionOffset] = useState([33, 159]);
 
@@ -40,14 +42,14 @@ function ProductItem({
    const handleMouseEnter = () => {
       if (optionRef.current && !clickOptionRef.current) {
          optionRef.current.style.display = 'block';
-         hoverOption.current = true;
+         setHoverMenuOption(true);
       }
    };
 
    const handleMouseOut = () => {
       if (optionRef.current && !clickOptionRef.current) {
          optionRef.current.style.display = 'none';
-         hoverOption.current = false;
+         setHoverMenuOption(false);
       }
    };
 
@@ -128,21 +130,13 @@ function ProductItem({
    };
 
    useEffect(() => {
-      if (menuRef.current) {
-         const element = menuRef.current;
-
-         if (element) {
-            const rect = element.getBoundingClientRect();
-
-            if (rect.right >= window.innerWidth) {
-               setOptionOffset([33, -13]);
-            }
-
-            console.log('Element position:', rect.right);
-            console.log('Window position:', window.innerWidth);
-         }
+      if (
+         WIDTH_MENU_OPTION >=
+         window.innerWidth - optionRef.current.getBoundingClientRect().right
+      ) {
+         setOptionOffset([33, -13]);
       }
-   }, [showMenuOption]);
+   }, [hoverMenuOption]);
 
    const classes = cx('wrapper', {
       extraLarge,

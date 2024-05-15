@@ -1,15 +1,18 @@
 const routes = {
    home: '/',
-   product: '/product',
+   login: '/login',
+   watch: '/watch',
+   search: '/search',
    follow: '/follow',
+   product: '/product',
+   register: '/register',
+   passprort: '/passport',
+   seenMovie: '/seenMovie',
+   seeLaterMovie: '/seeLaterMovie',
+
    category: {
       route: '/category',
    },
-   watch: '/watch',
-   login: '/login',
-   register: '/register',
-   search: '/search',
-   passprort: '/passport',
 };
 
 export default routes;

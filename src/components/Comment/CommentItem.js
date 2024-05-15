@@ -2,6 +2,7 @@ import io from 'socket.io-client';
 import classNames from 'classnames/bind';
 import { useState, useEffect, useRef, memo } from 'react';
 import { AiOutlineLike, AiOutlineDown, AiOutlineUp, AiFillLike } from 'react-icons/ai';
+import { HiOutlineDotsVertical } from 'react-icons/hi';
 
 import Button from '../Button';
 import imgs from '~/assets/img';
@@ -13,25 +14,43 @@ import MoreLoading from '../loading/MoreLoading';
 import CommentServices from '~/services/CommentServices';
 import { useSelector } from 'react-redux';
 import { authSelector } from '~/redux/selectors/auth/authSelector';
+import { Wrapper } from '~/components/Popper';
+
+import Headless from '../Headless';
+import MenuItem from '../Popper/Menu/MenuItem';
 
 const cx = classNames.bind(styles);
+
+const WIDTH_MENU_OPTION = 196;
 
 const LENGTH_PAGE = 1;
 
 function CommentItem({
    parentId = null,
-   data = { _id: '', _name: '', img: '', content: '', likes: 0, replies: 0, createdAt: 'vừa xong' },
+   data = {
+      _id: '',
+      user_id: '',
+      _name: '',
+      img: '',
+      content: '',
+      likes: 0,
+      replies: 0,
+      createdAt: 'vừa xong',
+   },
    modeReply = false,
    ...passProp
 }) {
-   const classes = cx('wrapper', {
+   const classes = cx('wrapper', 'wrapperCommentItem', {
       modeReply,
       ...passProp,
    });
 
    const { user } = useSelector(authSelector);
 
-   const socket = io('http://localhost:3001');
+   const [widthWindowState, setWidthWindowState] = useState(window.innerWidth);
+   const [hoverMenuOption, setHoverMenuOption] = useState(false);
+   const [optionOfset, setOptionOffset] = useState([0, 0]);
+   const [showMenuOption, setShowMenuOption] = useState(false);
 
    const [showReplies, setShowReplies] = useState(false);
    const [likeComment, setLikeComment] = useState(false);
@@ -47,11 +66,36 @@ function CommentItem({
    const [suggestedComments, setSuggestedComments] = useState([]);
    const [pageSuggestedComments, setPageSuggestedComments] = useState(-1);
 
+   const menuRef = useRef(null);
+   const optionRef = useRef();
+   const clickOptionRef = useRef(false);
+
    const timeRef = useRef(0);
    const btnReplyRef = useRef();
    const btnShowReplyRef = useRef();
 
    const childRef = useRef(null);
+   const socketRef = useRef(null);
+
+   const handleMouseEnter = () => {
+      if (optionRef.current && !clickOptionRef.current) {
+         optionRef.current.style.display = 'block';
+         setHoverMenuOption(true);
+      }
+   };
+
+   const handleMouseOut = () => {
+      if (optionRef.current && !clickOptionRef.current) {
+         optionRef.current.style.display = 'none';
+         setHoverMenuOption(false);
+      }
+   };
+
+   const renderOptionItem = (
+      items = [{ title: 'Chỉnh sửa' }, { title: 'Trả lời' }, { title: 'Xóa', separate: true }],
+   ) => {
+      return items.map((item, index) => <MenuItem small key={index} data={item}></MenuItem>);
+   };
 
    const beforeLoadCommentSuggested = () => {
       setHasMore(true);
@@ -97,11 +141,12 @@ function CommentItem({
    };
 
    const handleComment = async (text) => {
-      await CommentServices.addComment({
+      await CommentServices.addCommentReply({
          parent_id: modeReply ? parentId : data._id,
          user_id: user._id,
          content: text || ' ',
          isReply: true,
+         user_receiver_id: data.user_id,
          reply_with: modeReply ? { parentId, _name: data._name } : undefined,
       })
          .then((response) => {
@@ -111,7 +156,7 @@ function CommentItem({
             comment._name = user._name;
             comment.img = user.img;
 
-            socket.emit('comment_reply', comment);
+            socketRef.current.emit('comment_reply', comment);
 
             data.replies++;
          })
@@ -119,7 +164,7 @@ function CommentItem({
    };
 
    const fetchNumLikes = async (e) => {
-      const fetchDislikeComment = await CommentServices.getNumLikeComment({
+      await CommentServices.getNumLikeComment({
          comment_detail_id: data._id,
       }).then((response) => {
          if (response.success) {
@@ -135,32 +180,49 @@ function CommentItem({
             if (prev - 1 < 0) return 0;
             else return prev - 1;
          });
-         const fetchDislikeComment = await CommentServices.disLikeComment({
+         await CommentServices.disLikeComment({
             comment_id: data._id,
             user_id: user._id,
          }).then((response) => {
-            // if (response.success) setLikeComment(false);
+            if (!response.success) setLikeComment(true);
          });
       } else {
          setLikeComment(true);
          setNumLikeComment((prev) => prev + 1);
-         const fetchLikeComment = await CommentServices.likeComment({
+
+         await CommentServices.likeComment({
             comment_id: data._id,
-            user_id: user._id,
+            user_id: data.user_id,
+            user_send_id: user._id,
             content: data.content,
          }).then((response) => {
-            // if (response.success) setLikeComment(true);
+            if (!response.success) setLikeComment(false);
          });
       }
 
       // await fetchNumLikes();
    };
 
-   useEffect(() => {}, [likeComment]);
+   useEffect(() => {
+      if (
+         WIDTH_MENU_OPTION >=
+         window.innerWidth - optionRef.current.getBoundingClientRect().right
+      ) {
+         setOptionOffset([3, -156]);
+      } else {
+         setOptionOffset([3, -16]);
+      }
+
+      window.onresize = () => {
+         setWidthWindowState(window.innerWidth);
+      };
+   }, [hoverMenuOption, widthWindowState]);
+
+   // useEffect(() => {}, [likeComment]);
 
    useEffect(() => {
       if (user) {
-         const fetchCheckUserLikeComment = CommentServices.checkUserLikeComment({
+         CommentServices.checkUserLikeComment({
             comment_id: data._id,
             user_id: user._id,
          }).then((result) => {
@@ -204,17 +266,29 @@ function CommentItem({
    }, [suggestedComments]);
 
    useEffect(() => {
+      const socket = io('http://localhost:3001');
+
+      socket.connect();
+
       socket.on('comment_reply', (comment) => {
          setCommentReplies((prev) => [...prev, comment]);
       });
 
+      socketRef.current = socket;
+
       return () => {
          socket.disconnect();
       };
-   }, [socket, data._id, suggestedComments]);
+   }, []);
+   // }, [suggestedComments, commentReplies]);
 
    return (
-      <div className={classes} {...passProp}>
+      <div
+         className={classes}
+         {...passProp}
+         onMouseMove={handleMouseEnter}
+         onMouseLeave={handleMouseOut}
+      >
          <div className={cx('inner-top')}>
             <div className={cx('comment-left')}>
                <div className={cx('avata')}>
@@ -250,6 +324,41 @@ function CommentItem({
                   ) : (
                      data?.content
                   )}
+               </div>
+
+               <div className={cx('comment-option')}>
+                  <div ref={optionRef} className={cx('comment-option__inner')}>
+                     <Headless
+                        visible={showMenuOption}
+                        offset={optionOfset}
+                        className={cx('option-menu')}
+                        onClickOutside={() => {
+                           clickOptionRef.current = false;
+
+                           optionRef.current.style.display = 'none';
+                           setShowMenuOption(false);
+                        }}
+                        render={() => {
+                           return (
+                              <Wrapper ref={menuRef} className={cx('option-menu')}>
+                                 {renderOptionItem()}
+                              </Wrapper>
+                           );
+                        }}
+                     >
+                        <Button
+                           className={cx('option', 'menu')}
+                           transparent
+                           backgroundColor="rgba(255, 255, 255, 0.94)"
+                           onClick={() => {
+                              clickOptionRef.current = true;
+                              setShowMenuOption((prev) => !prev);
+                           }}
+                        >
+                           <HiOutlineDotsVertical />
+                        </Button>
+                     </Headless>
+                  </div>
                </div>
             </div>
          </div>

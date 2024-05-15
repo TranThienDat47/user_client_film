@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames/bind';
 
@@ -9,6 +9,8 @@ import { ProductItem } from '~/components/ProductItem';
 import { Comment } from '~/components/Comment';
 
 import imgs from '~/assets/img';
+
+import formatFollowCount from '~/utils/formatFollowCount';
 
 import { converterDate, converterDateTitle, sortedEpisodes } from '~/utils/validated';
 import LazyLoading from '~/components/loading/LazyLoading';
@@ -22,10 +24,14 @@ import {
 import { globalSelector } from '~/redux/selectors/globals/globalSelector';
 import { fetchProductCurrent } from '~/redux/slices/globals/globalSlice';
 import { authSelector } from '~/redux/selectors/auth/authSelector';
+import SeeLaterMovieService from '~/services/SeeLaterMovieService';
+import { endLoading } from '~/utils/nprogress';
 
 const cx = classNames.bind(styles);
 
 const Product = () => {
+   const navigate = useNavigate();
+
    const { user } = useSelector(authSelector);
 
    const dispatch = useDispatch();
@@ -35,6 +41,9 @@ const Product = () => {
    const { pageRecommendProducts, hasMore, loadingMore, recommendProducts } =
       useSelector(recommendProductsSelector);
 
+   const [seeLaterState, setSeeLaterState] = useState(false);
+
+   const [countFollowState, setCountFollowState] = useState(false);
    const [followState, setFollowState] = useState({ isFollow: false, flagNotify: 1 }); //flag 1: notify, 0: not notify
    const [productCurrentState, setProductCurrentState] = useState({});
 
@@ -47,19 +56,34 @@ const Product = () => {
    const wrapperRef = useRef(null);
    const tempWatchRef = useRef(null);
 
+   const handleSeeLater = async () => {
+      SeeLaterMovieService.seeLaterMovie({ user_id: user?._id, ref_id: parent_id }).then((res) => {
+         setSeeLaterState(true);
+      });
+   };
+   const handleSeeLaterAfter = async () => {
+      SeeLaterMovieService.unseeLaterMovie({ user_id: user?._id, ref_id: parent_id }).then(
+         (res) => {
+            setSeeLaterState(false);
+         },
+      );
+   };
+
    const handleFollow = async () => {
       FollowService.follow({ user_id: user?._id, ref_id: parent_id }).then((res) => {
          setFollowState({ ...followState, isFollow: true });
+         setCountFollowState((prev) => ++prev);
       });
    };
    const handleFollowAfter = async () => {
       FollowService.unfollow({ user_id: user?._id, ref_id: parent_id }).then((res) => {
          setFollowState({ ...followState, isFollow: false });
+         setCountFollowState((prev) => --prev);
       });
    };
 
    useEffect(() => {
-      if (user)
+      if (user && parent_id) {
          FollowService.checkIsFollow({ user_id: user?._id, ref_id: parent_id }).then((res) => {
             if (res.isFollow) {
                setFollowState({ ...followState, isFollow: true });
@@ -67,36 +91,56 @@ const Product = () => {
                setFollowState({ ...followState, isFollow: false });
             }
          });
+
+         SeeLaterMovieService.checkIsSeeLaterMovie({ user_id: user?._id, ref_id: parent_id }).then(
+            (res) => {
+               if (res.isSeeLaterMovie) {
+                  setSeeLaterState(true);
+               } else {
+                  setSeeLaterState(false);
+               }
+            },
+         );
+      }
+
       // eslint-disable-next-line
-   }, [user]);
+   }, [user, parent_id]);
 
    useEffect(() => {
-      // setProductCurrent({ _id: parent_id });
+      if (parent_id) {
+         FollowService.getCountFollowOfProduct({ product_id: parent_id }).then((res) => {
+            setCountFollowState(res.count);
+         });
+      }
+   }, [parent_id]);
 
-      dispatch(fetchProductCurrent(parent_id));
+   useEffect(() => {
+      if (!parent_id) {
+         navigate('/');
+      } else dispatch(fetchProductCurrent(parent_id));
 
       // eslint-disable-next-line
    }, [parent_id]);
 
    useEffect(() => {
-      if (productCurrent.product) {
+      if (productCurrent?.product && parent_id) {
          let currentState = {};
 
-         currentState._name = productCurrent.product._name;
-         currentState.anotherName = productCurrent.product.anotherName;
-         currentState.description = productCurrent.product.description;
-         currentState.img = productCurrent.product.img;
-         currentState.episodes = productCurrent.product.episodes;
-         currentState.currentEpisodes = productCurrent.product.currentEpisodes;
-         currentState.view = productCurrent.product.view;
-         currentState.releaseDate = converterDate(productCurrent.product.releaseDate);
-         currentState.news = productCurrent.product.news;
-         currentState.reacts = productCurrent.product.reacts;
-         currentState.categories = productCurrent.product.reacts;
-         currentState.background = productCurrent.product.background;
-         currentState.country_Of_Origin = productCurrent.product.country_Of_Origin;
-         currentState.createdAt = productCurrent.product.createdAt;
-         currentState.categories = productCurrent.product.categories;
+         currentState._name = productCurrent?.product._name;
+         currentState.anotherName = productCurrent?.product.anotherName;
+         currentState.description = productCurrent?.product.description;
+         currentState.img = productCurrent?.product.img;
+         currentState.episodes = productCurrent?.product.episodes;
+         currentState.currentEpisodes = productCurrent?.product.currentEpisodes;
+         currentState.view = productCurrent?.product.view;
+         currentState.releaseDate = converterDate(productCurrent?.product.releaseDate);
+         currentState.news = productCurrent?.product.news;
+         currentState.reacts = productCurrent?.product.reacts;
+         currentState.categories = productCurrent?.product.reacts;
+         currentState.background = productCurrent?.product.background;
+         currentState.country_Of_Origin = productCurrent?.product.country_Of_Origin;
+         currentState.createdAt = productCurrent?.product.createdAt;
+         currentState.categories = productCurrent?.product.categories;
 
          setProductCurrentState(currentState);
          wrapperRef.current.scrollTo({ top: 0, behavior: 'smooth' });
@@ -185,7 +229,7 @@ const Product = () => {
                               </div>
                            </div>
                            <div className={cx('wrapper-count', 'count-views')}>
-                              <span>Số người theo dõi:</span>
+                              <span>Lượt theo dõi:</span>
                               <div
                                  className={cx(
                                     'content-empty w-100 h-20',
@@ -193,7 +237,7 @@ const Product = () => {
                                     'strong',
                                  )}
                               >
-                                 123N
+                                 {!!countFollowState ? formatFollowCount(countFollowState) : 0}
                               </div>
                            </div>
                         </div>
@@ -208,17 +252,34 @@ const Product = () => {
                                     rounded
                                     className={cx('btn_follow')}
                                     disable={
-                                       productCurrent.product_details &&
-                                       productCurrent.product_details.length <= 0
+                                       productCurrent?.product_details &&
+                                       productCurrent?.product_details.length <= 0
                                           ? true
                                           : false
                                     }
                                  >
                                     Xem phim
                                  </Button>
-                                 <Button grey rounded className={cx('btn_follow')}>
-                                    Xem sau
-                                 </Button>
+
+                                 {seeLaterState ? (
+                                    <Button
+                                       onClick={handleSeeLaterAfter}
+                                       grey
+                                       rounded
+                                       className={cx('btn_follow')}
+                                    >
+                                       Bỏ xem sau
+                                    </Button>
+                                 ) : (
+                                    <Button
+                                       onClick={handleSeeLater}
+                                       grey
+                                       rounded
+                                       className={cx('btn_follow')}
+                                    >
+                                       Xem sau
+                                    </Button>
+                                 )}
 
                                  {followState.isFollow ? (
                                     <Button
@@ -251,7 +312,10 @@ const Product = () => {
                         <div className={cx('categories-list')}>
                            {productCurrentState.categories &&
                               productCurrentState.categories.map((element, index) => (
-                                 <Link to={'#'} key={element._id ? element._id : index}>
+                                 <Link
+                                    to={'/category/' + element._id}
+                                    key={element._id ? element._id : index}
+                                 >
                                     {element.title}
                                  </Link>
                               ))}
@@ -266,8 +330,11 @@ const Product = () => {
                      <div className={cx('wrapper_of_block', 'container', 'wrapper_detail')}>
                         <div className={cx('detail')}>
                            <div className={cx('inf__header')}>
-                              <span className={cx('string-formatted')}>132N lượt xem</span>
-                              <span className={cx('string-formatted')}> - </span>
+                              {/* <span className={cx('string-formatted')}>
+                                 {formatFollowCount(productDetailCurrentState.views)}
+                                 lượt xem
+                              </span> */}
+                              {/* <span className={cx('string-formatted')}> - </span> */}
                               <span className={cx('string-formatted')}>
                                  {converterDateTitle(productCurrentState.createdAt)}
                               </span>
@@ -383,10 +450,10 @@ const Product = () => {
                         <span className={cx('string-formatted strong')}>Chọn tập</span>
                      </div>
                      <div className={cx('list-episodes')}>
-                        {productCurrent.product_details?.length > 0 ? (
-                           sortedEpisodes(productCurrent.product_details).map((element, index) => {
-                              if (index === productCurrent.product_details.length - 1) {
-                                 tempWatchRef.current = `/watch?parent_id=${parent_id}&episodes=${productCurrent.product_details[index]._id}`;
+                        {productCurrent?.product_details?.length > 0 ? (
+                           sortedEpisodes(productCurrent?.product_details).map((element, index) => {
+                              if (index === productCurrent?.product_details.length - 1) {
+                                 tempWatchRef.current = `/watch?parent_id=${parent_id}&episodes=${productCurrent?.product_details[index]._id}`;
                               }
 
                               return (

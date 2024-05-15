@@ -1,19 +1,19 @@
 import { configureStore } from '@reduxjs/toolkit';
-import productHomeNewSlice from './slices/products/productHomeNewSlice';
-import productHomeSuggestedSlice from './slices/products/productHomeSuggestedSlice';
-import productRecommendSlice from './slices/products/productRecommendSlice';
-import searchPageSlice from './slices/searchs/searchPageSlice';
 import globalSlice from './slices/globals/globalSlice';
 import authSlice, { loadUser } from './slices/auth/authSlice';
+import searchPageSlice from './slices/searchs/searchPageSlice';
+import productHomeNewSlice from './slices/products/productHomeNewSlice';
+import productRecommendSlice from './slices/products/productRecommendSlice';
+import productHomeSuggestedSlice from './slices/products/productHomeSuggestedSlice';
 
 const store = configureStore({
    reducer: {
-      global: globalSlice,
-      productHomeNew: productHomeNewSlice,
-      productHomeSuggested: productHomeSuggestedSlice,
-      productRecommend: productRecommendSlice,
-      searchPage: searchPageSlice,
       auth: authSlice,
+      global: globalSlice,
+      searchPage: searchPageSlice,
+      productHomeNew: productHomeNewSlice,
+      productRecommend: productRecommendSlice,
+      productHomeSuggested: productHomeSuggestedSlice,
    },
 });
 

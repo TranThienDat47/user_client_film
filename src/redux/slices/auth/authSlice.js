@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import AuthServices from '~/services/AuthServices';
 import FollowService from '~/services/FollowService';
+import SeeLaterMovieService from '~/services/SeeLaterMovieService';
+import SeenMovieService from '~/services/SeenMovieService';
 
 const LENGTH_PAGE_FOLLOW = 9;
 
@@ -12,10 +14,30 @@ const initialState = {
    follow: {
       followProduct: [],
       keySearchFromPageFollow: '',
-      sortFromPageFollow: 1,
-      hasMore: false,
       pageFollowProduct: -1,
+      sortFromPageFollow: 1,
       loadingMore: false,
+      hasMore: false,
+      error: null,
+   },
+
+   seenMovie: {
+      keySearchFromPageSeenMovie: '',
+      sortFromPageSeenMovie: 1,
+      pageSeenMovieProduct: -1,
+      seenMovieProduct: [],
+      loadingMore: false,
+      hasMore: false,
+      error: null,
+   },
+
+   seeLaterMovie: {
+      keySearchFromPageSeeLaterMovie: '',
+      sortFromPageSeeLaterMovie: 1,
+      pageSeeLaterMovieProduct: -1,
+      seeLaterMovieProduct: [],
+      loadingMore: false,
+      hasMore: false,
       error: null,
    },
 };
@@ -100,6 +122,114 @@ export const fetchFollowProducts = createAsyncThunk(
    },
 );
 
+export const fetchSeenMovieProducts = createAsyncThunk(
+   'auth/fetchSeenMovieProducts',
+   async (page, { getState, rejectWithValue }) => {
+      const state = getState().auth;
+      const { _id: user_id } = state.user;
+      const { seenMovie } = state;
+
+      try {
+         const response = await SeenMovieService.getListSeenMovie({
+            skip: page * LENGTH_PAGE_FOLLOW,
+            limit: LENGTH_PAGE_FOLLOW,
+            user_id,
+            keySearch: seenMovie.keySearchFromPageSeenMovie,
+            sort: seenMovie.sortFromPageSeenMovie,
+         });
+
+         if (response.success) {
+            if (response.seenMovies.length >= LENGTH_PAGE_FOLLOW) {
+               return {
+                  seenMovieProduct: response.seenMovies,
+                  hasMore: true,
+                  pageSeenMovieProduct: page,
+               };
+            } else if (
+               response.seenMovies.length > 0 &&
+               response.seenMovies.length < LENGTH_PAGE_FOLLOW
+            ) {
+               return {
+                  seenMovieProduct: response.seenMovies,
+                  hasMore: false,
+                  pageSeenMovieProduct: page,
+               };
+            } else if (response.seenMovies.length <= 0) {
+               return {
+                  seenMovieProduct: response.seenMovies,
+                  hasMore: false,
+                  pageSeenMovieProduct: page - 1,
+               };
+            }
+         } else {
+            return rejectWithValue({
+               hasMore: false,
+               error: response?.message,
+            });
+         }
+      } catch (err) {
+         return rejectWithValue({
+            hasMore: false,
+            error: err.message,
+         });
+      }
+   },
+);
+
+export const fetchSeeLaterMovieProducts = createAsyncThunk(
+   'auth/fetchSeeLaterMovieProducts',
+   async (page, { getState, rejectWithValue }) => {
+      const state = getState().auth;
+      const { _id: user_id } = state.user;
+      const { seeLaterMovie } = state;
+
+      try {
+         const response = await SeeLaterMovieService.getListSeeLaterMovie({
+            skip: page * LENGTH_PAGE_FOLLOW,
+            limit: LENGTH_PAGE_FOLLOW,
+            user_id,
+            keySearch: seeLaterMovie.keySearchFromPageSeeLaterMovie,
+            sort: seeLaterMovie.sortFromPageSeeLaterMovie,
+         });
+
+         if (response.success) {
+            if (response.seeLaterMovies.length >= LENGTH_PAGE_FOLLOW) {
+               return {
+                  seeLaterMovieProduct: response.seeLaterMovies,
+                  hasMore: true,
+                  pageSeeLaterMovieProduct: page,
+               };
+            } else if (
+               response.seeLaterMovies.length > 0 &&
+               response.seeLaterMovies.length < LENGTH_PAGE_FOLLOW
+            ) {
+               return {
+                  seeLaterMovieProduct: response.seeLaterMovies,
+                  hasMore: false,
+                  pageSeeLaterMovieProduct: page,
+               };
+            } else if (response.seeLaterMovies.length <= 0) {
+               return {
+                  seeLaterMovieProduct: response.seeLaterMovies,
+                  hasMore: false,
+                  pageSeeLaterMovieProduct: page - 1,
+               };
+            }
+         } else {
+            return rejectWithValue({
+               hasMore: false,
+               error: response?.message,
+            });
+         }
+      } catch (err) {
+         return rejectWithValue({
+            hasMore: false,
+            error: err.message,
+         });
+      }
+   },
+);
+
 const authSlice = createSlice({
    name: 'auth',
    initialState,
@@ -126,6 +256,55 @@ const authSlice = createSlice({
          state.follow.pageFollowProduct = -1;
          state.follow.loadingMore = false;
          state.follow.hasMore = false;
+      },
+      //seenMovie
+      beforeLoadSeenMovieProduct: (state, action) => {
+         state.seenMovie.hasMore = true;
+         state.seenMovie.loadingMore = true;
+      },
+      setSeenMovieKeySearchFromPageSeenMovie: (state, action) => {
+         state.seenMovie.keySearchFromPageSeenMovie = action.payload;
+         state.seenMovie.pageSeenMovieProduct = -1;
+         state.seenMovie.loadingMore = false;
+         state.seenMovie.hasMore = false;
+      },
+      setSeenMovieSortFromPageSeenMovie: (state, action) => {
+         state.seenMovie.sortFromPageSeenMovie = action.payload;
+         state.seenMovie.seenMovieProduct = [];
+         state.seenMovie.pageSeenMovieProduct = -1;
+         state.seenMovie.loadingMore = false;
+         state.seenMovie.hasMore = false;
+      },
+      resetSeenMovieProducts: (state) => {
+         state.seenMovie.seenMovieProduct = [];
+         state.seenMovie.pageSeenMovieProduct = -1;
+         state.seenMovie.loadingMore = false;
+         state.seenMovie.hasMore = false;
+      },
+
+      //see later movie
+      beforeLoadSeeLaterMovieProduct: (state, action) => {
+         state.seeLaterMovie.hasMore = true;
+         state.seeLaterMovie.loadingMore = true;
+      },
+      setSeeLaterMovieKeySearchFromPageSeeLaterMovie: (state, action) => {
+         state.seeLaterMovie.keySearchFromPageSeeLaterMovie = action.payload;
+         state.seeLaterMovie.pageSeeLaterMovieProduct = -1;
+         state.seeLaterMovie.loadingMore = false;
+         state.seeLaterMovie.hasMore = false;
+      },
+      setSeeLaterMovieSortFromPageSeeLaterMovie: (state, action) => {
+         state.seeLaterMovie.sortFromPageSeeLaterMovie = action.payload;
+         state.seeLaterMovie.seeLaterMovieProduct = [];
+         state.seeLaterMovie.pageSeeLaterMovieProduct = -1;
+         state.seeLaterMovie.loadingMore = false;
+         state.seeLaterMovie.hasMore = false;
+      },
+      resetSeeLaterMovieProducts: (state) => {
+         state.seeLaterMovie.seeLaterMovieProduct = [];
+         state.seeLaterMovie.pageSeeLaterMovieProduct = -1;
+         state.seeLaterMovie.loadingMore = false;
+         state.seeLaterMovie.hasMore = false;
       },
    },
    extraReducers: (builder) => {
@@ -154,14 +333,67 @@ const authSlice = createSlice({
             state.follow.hasMore = false;
             state.follow.error = action.error.message;
          });
+
+      builder
+         .addCase(fetchSeenMovieProducts.pending, (state) => {
+            state.seenMovie.hasMore = true;
+            state.seenMovie.loadingMore = true;
+         })
+         .addCase(fetchSeenMovieProducts.fulfilled, (state, action) => {
+            state.seenMovie.loadingMore = false;
+            state.seenMovie.hasMore = action.payload.hasMore;
+            state.seenMovie.seenMovieProduct = [
+               ...state.seenMovie.seenMovieProduct,
+               ...action.payload.seenMovieProduct,
+            ];
+            state.seenMovie.pageSeenMovieProduct = action.payload.pageSeenMovieProduct;
+         })
+         .addCase(fetchSeenMovieProducts.rejected, (state, action) => {
+            state.seenMovie.loadingMore = false;
+            state.seenMovie.hasMore = false;
+            state.seenMovie.error = action.error.message;
+         });
+
+      builder
+         .addCase(fetchSeeLaterMovieProducts.pending, (state) => {
+            state.seeLaterMovie.hasMore = true;
+            state.seeLaterMovie.loadingMore = true;
+         })
+         .addCase(fetchSeeLaterMovieProducts.fulfilled, (state, action) => {
+            state.seeLaterMovie.loadingMore = false;
+            state.seeLaterMovie.hasMore = action.payload.hasMore;
+            state.seeLaterMovie.seeLaterMovieProduct = [
+               ...state.seeLaterMovie.seeLaterMovieProduct,
+               ...action.payload.seeLaterMovieProduct,
+            ];
+            state.seeLaterMovie.pageSeeLaterMovieProduct = action.payload.pageSeeLaterMovieProduct;
+         })
+         .addCase(fetchSeeLaterMovieProducts.rejected, (state, action) => {
+            state.seeLaterMovie.loadingMore = false;
+            state.seeLaterMovie.hasMore = false;
+            state.seeLaterMovie.error = action.error.message;
+         });
    },
 });
 
 export const {
-   setFollowKeySearchFromPageFollow,
-   setFollowSortFromPageFollow,
+   //follow
    resetFollowProducts,
    beforeLoadFollowProduct,
+   setFollowSortFromPageFollow,
+   setFollowKeySearchFromPageFollow,
+
+   //seen Movie
+   resetSeenMovieProducts,
+   beforeLoadSeenMovieProduct,
+   setSeenMovieSortFromPageSeenMovie,
+   setSeenMovieKeySearchFromPageSeenMovie,
+
+   //see later movie
+   resetSeeLaterMovieProducts,
+   beforeLoadSeeLaterMovieProduct,
+   setSeeLaterMovieSortFromPageSeeLaterMovie,
+   setSeeLaterMovieKeySearchFromPageSeeLaterMovie,
 } = authSlice.actions;
 
 export default authSlice.reducer;

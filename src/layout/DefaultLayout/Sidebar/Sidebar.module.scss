@@ -26,6 +26,8 @@
       border-radius: 13px;
       overflow: hidden;
 
+      -webkit-user-drag: none;
+
       .content {
          margin-left: 16px;
       }
@@ -63,9 +65,11 @@
          right: 0;
          background-color: var(--hover-item-color);
       }
-      .img-item {
+
+      .wrapper-img-item {
          position: relative;
          width: 23px;
+         max-width: 23px;
          border-radius: 3px;
          overflow: hidden;
 
@@ -74,6 +78,17 @@
             display: block;
             padding-top: 135.3333%;
             background-color: aliceblue;
+         }
+
+         .img-item {
+            width: 100%;
+            height: 100%;
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
          }
       }
    }

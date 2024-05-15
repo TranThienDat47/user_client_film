@@ -1,5 +1,6 @@
 :root {
    --border-color-with-background-grey: rgba(22, 24, 35, 0.33);
+   --max-width-option-menu-comment: 196px;
 }
 
 .container {
@@ -7,7 +8,12 @@
    margin-top: 13px;
 }
 
+.wrapperCommentItem {
+   padding-right: 36px;
+}
+
 .wrapper {
+   position: relative;
    color: var(--black);
    margin-bottom: 19px;
 
@@ -36,13 +42,14 @@
    }
 
    .comment-right {
+      position: relative;
       display: inline-block;
       vertical-align: top;
 
       margin-left: 6px;
 
       border-radius: 9px;
-      padding: 6px 9px;
+      padding: 16px;
 
       background-color: var(--aria-color);
 
@@ -56,7 +63,11 @@
 
 .comment-right {
    .content {
-      white-space: normal;
+      margin-top: 13px;
+      white-space: pre-wrap;
+
+      unicode-bidi: isolate;
+      word-break: break-word;
    }
 
    & > .comment-content {
@@ -174,6 +185,27 @@ img.avt {
       margin-bottom: 9px;
       & .comment-right {
          padding-top: 9px !important;
+      }
+   }
+}
+
+.comment-option {
+   position: absolute;
+   right: -3px;
+   top: 50%;
+   transform: translate(100%, -50%);
+   z-index: 1;
+
+   .comment-option__inner {
+      display: none;
+      .option-menu {
+         max-width: var(--max-width-option-menu-comment);
+         width: var(--max-width-option-menu-comment);
+         min-width: var(--max-width-option-menu-comment);
+      }
+      .option {
+         padding: 6px;
+         font-size: 2.1rem;
       }
    }
 }

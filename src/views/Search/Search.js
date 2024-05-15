@@ -13,6 +13,7 @@ import {
    setKeySearchResult,
    beforeLoadSearchResult,
 } from '~/redux/slices/searchs/searchPageSlice';
+import { endLoading } from '~/utils/nprogress';
 
 const cx = classNames.bind(styles);
 

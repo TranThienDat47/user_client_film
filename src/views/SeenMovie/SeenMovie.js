@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 
 import Button from '~/components/Button';
-import styles from './Follow.module.scss';
+import styles from './SeenMovie.module.scss';
 import LazyLoading from '~/components/loading/LazyLoading';
 import { ListProductSearch } from '~/components/ListProduct';
 
@@ -15,20 +15,20 @@ import { AiOutlineCheck } from 'react-icons/ai';
 import { authSelector } from '~/redux/selectors/auth/authSelector';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-   beforeLoadFollowProduct,
-   fetchFollowProducts,
-   resetFollowProducts,
-   setFollowKeySearchFromPageFollow,
-   setFollowSortFromPageFollow,
+   beforeLoadSeenMovieProduct,
+   fetchSeenMovieProducts,
+   resetSeenMovieProducts,
+   setSeenMovieKeySearchFromPageSeenMovie,
+   setSeenMovieSortFromPageSeenMovie,
 } from '~/redux/slices/auth/authSlice';
 
 const cx = classNames.bind(styles);
 
-const Follow = () => {
+const SeenMovie = () => {
    const navigate = useNavigate();
 
    const dispatch = useDispatch();
-   const { follow, user } = useSelector(authSelector);
+   const { seenMovie, user } = useSelector(authSelector);
 
    const location = useLocation();
    const params = new URLSearchParams(location.search);
@@ -44,14 +44,14 @@ const Follow = () => {
    const [initListSortState, setInitListSortState] = useState([
       {
          id: 0,
-         title: 'Ngày theo dõi (mới nhất)',
+         title: 'Phim đã xem (mới nhất)',
          icon: <AiOutlineCheck className={cx('sort-from-page__content-row-icon')} />,
          typeSort: 1,
          checked: true,
       },
       {
          id: 1,
-         title: 'Ngày theo dõi (cũ nhất)',
+         title: 'Phim đã xem (cũ nhất)',
          icon: <AiOutlineCheck className={cx('sort-from-page__content-row-icon')} />,
          typeSort: -1,
          checked: false,
@@ -60,23 +60,21 @@ const Follow = () => {
 
    const handleSearch = () => {
       inputSearchRef.current.focus();
-      dispatch(resetFollowProducts());
+      dispatch(resetSeenMovieProducts());
 
-      dispatch(setFollowKeySearchFromPageFollow(valueSearchPageState));
-      navigate('/follow?search_query=' + valueSearchPageState);
+      dispatch(setSeenMovieKeySearchFromPageSeenMovie(valueSearchPageState));
+      navigate('/seenMovie?search_query=' + valueSearchPageState);
    };
 
    useEffect(() => {
-      if (search_query) {
-         if (follow.keySearchFromPageFollow.trim().length <= 0) {
-            navigate('/follow');
-         } else {
-            setValueSearchPageState(follow.keySearchFromPageFollow);
-         }
+      if (seenMovie.keySearchFromPageSeenMovie.trim().length <= 0) {
+         navigate('/seenMovie');
+      } else {
+         setValueSearchPageState(seenMovie.keySearchFromPageSeenMovie);
+      }
 
-         if (+follow.pageFollowProduct === -1) {
-            dispatch(beforeLoadFollowProduct());
-         }
+      if (+seenMovie.pageSeenMovieProduct === -1) {
+         dispatch(beforeLoadSeenMovieProduct());
       }
       // eslint-disable-next-line
    }, [search_query]);
@@ -87,7 +85,7 @@ const Follow = () => {
       };
 
       return () => {
-         dispatch(resetFollowProducts());
+         dispatch(resetSeenMovieProducts());
       };
    }, []);
 
@@ -102,25 +100,25 @@ const Follow = () => {
    return (
       <div ref={wrapperRef} className={cx('wrapper')}>
          <div className={cx('header_page')}>
-            <h1 className={cx('string-formatted')}>Đang theo dõi</h1>
+            <h1 className={cx('string-formatted')}>Phim đã xem</h1>
          </div>
          <div className={cx('inner')}>
             <div className={cx('inner__left')}>
                <LazyLoading
                   ref={childRef}
                   ableLoading={!!user?._id}
-                  hasMore={follow.hasMore}
-                  loadingMore={follow.loadingMore}
-                  pageCurrent={follow.pageFollowProduct}
+                  hasMore={seenMovie.hasMore}
+                  loadingMore={seenMovie.loadingMore}
+                  pageCurrent={seenMovie.pageSeenMovieProduct}
                   beforeLoad={() => {
-                     dispatch(beforeLoadFollowProduct());
+                     dispatch(beforeLoadSeenMovieProduct());
                   }}
                   loadProductMore={(page) => {
-                     dispatch(fetchFollowProducts(page));
+                     dispatch(fetchSeenMovieProducts(page));
                   }}
-                  emptyData={!!!follow.followProduct.length}
+                  emptyData={!!!seenMovie.seenMovieProduct.length}
                >
-                  <ListProductSearch data={follow.followProduct} />
+                  <ListProductSearch data={seenMovie.seenMovieProduct} />
                </LazyLoading>
             </div>
             <div className={cx('inner__right')}>
@@ -158,11 +156,11 @@ const Follow = () => {
                               setValueSearchPageState('');
                               setShowInputClearState(false);
 
-                              dispatch(resetFollowProducts());
+                              dispatch(resetSeenMovieProducts());
 
-                              dispatch(setFollowKeySearchFromPageFollow(''));
+                              dispatch(setSeenMovieKeySearchFromPageSeenMovie(''));
 
-                              dispatch(beforeLoadFollowProduct());
+                              dispatch(beforeLoadSeenMovieProduct());
                            }}
                            transparent
                            hover
@@ -184,7 +182,7 @@ const Follow = () => {
                            <div
                               key={'sort' + index}
                               onClick={() => {
-                                 dispatch(setFollowSortFromPageFollow(element.typeSort));
+                                 dispatch(setSeenMovieSortFromPageSeenMovie(element.typeSort));
                                  setInitListSortState((prev) =>
                                     prev.map((elementTemp, indexTemp) =>
                                        indexTemp === index
@@ -211,4 +209,4 @@ const Follow = () => {
    );
 };
 
-export default Follow;
+export default SeenMovie;

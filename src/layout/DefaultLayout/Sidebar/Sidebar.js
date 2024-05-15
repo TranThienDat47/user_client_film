@@ -6,32 +6,29 @@ import { useEffect, useState, useRef } from 'react';
 import { RiSettingsLine } from 'react-icons/ri';
 import {
    AiOutlineDownload,
-   AiOutlineFire,
    AiOutlineBarChart,
    AiOutlineHome,
    AiOutlineCheck,
 } from 'react-icons/ai';
 
-import {
-   AiOutlineLogout,
-   AiOutlineExclamationCircle,
-   AiOutlineQuestionCircle,
-   AiOutlineThunderbolt,
-   AiOutlineRight,
-   AiOutlineMenu,
-   AiOutlineBell,
-} from 'react-icons/ai';
+import { AiOutlineQuestionCircle } from 'react-icons/ai';
 import { AiOutlineLike } from 'react-icons/ai';
 import { BsClock } from 'react-icons/bs';
 import { BsClockHistory } from 'react-icons/bs';
+import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 
 import { BiCategory } from 'react-icons/bi';
 
 import Button from '~/components/Button';
+import FollowService from '~/services/FollowService';
+import { useSelector } from 'react-redux';
+import { authSelector } from '~/redux/selectors/auth/authSelector';
 
 const cx = classNames.bind(styles);
 
 function Sidebar({ collaped = false }) {
+   const { user, isAuthenticated } = useSelector(authSelector);
+
    const dataItemCollapsed = [
       {
          icon: <AiOutlineHome className={cx('icon')} />,
@@ -51,197 +48,253 @@ function Sidebar({ collaped = false }) {
          active: false,
          to: '#',
       },
-      {
-         icon: <AiOutlineCheck className={cx('icon')} />,
-         title: 'Theo dõi',
-         active: false,
-         to: '#',
-      },
-      {
-         icon: <AiOutlineDownload className={cx('icon')} />,
-         title: 'Đã lưu',
-         active: false,
-         to: '#',
-      },
+      // {
+      //    icon: <AiOutlineCheck className={cx('icon')} />,
+      //    title: 'Theo dõi',
+      //    active: false,
+      //    to: '/follow',
+      // },
+      // {
+      //    icon: <AiOutlineDownload className={cx('icon')} />,
+      //    title: 'Đã lưu',
+      //    active: false,
+      //    to: '#',
+      // },
    ];
 
-   const followItemExpand = [
-      {
-         icon: (
-            <img
-               className={cx('img-item')}
-               src="https://i.pinimg.com/200x/95/5d/47/955d474243bdcaad4a40c9bdd6dca4a8.jpg"
-            />
-         ),
-         title: 'Đấu la đại lục',
-         active: false,
-         to: '#',
-      },
-      {
-         icon: (
-            <img
-               className={cx('img-item')}
-               src="https://i.pinimg.com/200x/95/5d/47/955d474243bdcaad4a40c9bdd6dca4a8.jpg"
-            />
-         ),
-         title: 'Đấu la đại lục',
-         active: false,
-         to: '#',
-      },
-      {
-         icon: (
-            <img
-               className={cx('img-item')}
-               src="https://i.pinimg.com/200x/95/5d/47/955d474243bdcaad4a40c9bdd6dca4a8.jpg"
-            />
-         ),
-         title: 'Đấu la đại lục',
-         active: false,
-         to: '#',
-      },
-      {
-         icon: (
-            <img
-               className={cx('img-item')}
-               src="https://i.pinimg.com/200x/95/5d/47/955d474243bdcaad4a40c9bdd6dca4a8.jpg"
-            />
-         ),
-         title: 'Đấu la đại lục',
-         active: false,
-         to: '#',
-      },
-      {
-         icon: (
-            <img
-               className={cx('img-item')}
-               src="https://i.pinimg.com/200x/95/5d/47/955d474243bdcaad4a40c9bdd6dca4a8.jpg"
-            />
-         ),
-         title: 'Đấu la đại lục',
-         active: false,
-         to: '#',
-      },
-      {
-         icon: (
-            <img
-               className={cx('img-item')}
-               src="https://i.pinimg.com/200x/95/5d/47/955d474243bdcaad4a40c9bdd6dca4a8.jpg"
-            />
-         ),
-         title: 'Đấu la đại lục',
-         active: false,
-         to: '#',
-      },
-   ];
+   const followItemExpandRef = useRef([]);
 
-   const dataItemExpand = [
-      {
-         icon: <AiOutlineHome className={cx('icon')} />,
-         title: 'Trang chủ',
-         active: false,
-         to: '/',
-      },
-      {
-         icon: <BiCategory className={cx('icon')} />,
-         title: 'Thể loại',
-         active: false,
-         to: '/category',
-      },
+   const [followItemExpandState, setFollowItemExpandState] = useState([]);
 
-      {
-         icon: <AiOutlineCheck className={cx('icon')} />,
-         title: 'Theo dõi',
-         active: false,
-         to: '/follow',
-      },
-      {
-         icon: null,
-         title: null,
-         sperator: true,
-         header_title: 'Cá nhân',
-      },
-      {
-         icon: <BsClockHistory className={cx('icon')} />,
-         title: 'Phim đã xem',
-         active: false,
-         to: '#',
-      },
-      {
-         icon: <AiOutlineDownload className={cx('icon')} />,
-         title: 'Phim đã lưu',
-         active: false,
-         to: '#',
-      },
-      { icon: <BsClock className={cx('icon')} />, title: 'Xem sau', active: false, to: '#' },
-      {
-         icon: <AiOutlineLike className={cx('icon')} />,
-         title: 'Phim đã thích',
-         active: false,
-         to: '#',
-      },
-      {
-         icon: null,
-         title: null,
-         sperator: true,
-         header_title: 'Theo dõi',
-      },
-      ...followItemExpand,
-      {
-         icon: null,
-         title: null,
-         sperator: true,
-         header_title: 'Khám phá',
-      },
-      {
-         icon: <AiOutlineBarChart className={cx('icon')} />,
-         title: 'Xếp hạng',
-         active: false,
-         to: '#',
-      },
-      {
-         icon: null,
-         title: null,
-         sperator: true,
-         header_title: '',
-      },
-      {
-         icon: <RiSettingsLine className={cx('icon')} />,
-         title: 'Cài đặt',
-         active: false,
-         to: '#',
-      },
-      {
-         icon: <AiOutlineQuestionCircle className={cx('icon')} />,
-         title: 'Trợ giúp',
-         active: false,
-         to: '#',
-      },
-      {
-         icon: <RiSettingsLine className={cx('icon')} />,
-         title: 'Cài đặt',
-         active: false,
-         to: '#',
-      },
-      {
-         icon: <AiOutlineQuestionCircle className={cx('icon')} />,
-         title: 'Trợ giúp',
-         active: false,
-         to: '#',
-      },
-   ];
+   const filterDataItemExpandState = (listData) => {
+      var listCheck = [
+         {
+            icon: <AiOutlineCheck className={cx('icon')} />,
+            title: 'Theo dõi',
+            active: false,
+            to: '/follow',
+         },
+         {
+            icon: null,
+            title: null,
+            sperator: true,
+            header_title: 'Cá nhân',
+         },
+         {
+            icon: <BsClockHistory className={cx('icon')} />,
+            title: 'Phim đã xem',
+            active: false,
+            to: '/seenMovie',
+         },
+         {
+            icon: <AiOutlineDownload className={cx('icon')} />,
+            title: 'Phim đã lưu',
+            active: false,
+            to: '/',
+         },
+         {
+            icon: <BsClock className={cx('icon')} />,
+            title: 'Xem sau',
+            active: false,
+            to: '/seeLaterMovie',
+         },
+         ...listData,
+      ];
 
-   const [dataItemState, setDataItemState] = useState(
-      collaped ? dataItemCollapsed : dataItemExpand,
+      if (!isAuthenticated) {
+         listCheck = [];
+      }
+
+      return [
+         {
+            icon: <AiOutlineHome className={cx('icon')} />,
+            title: 'Trang chủ',
+            active: false,
+            to: '/',
+         },
+         {
+            icon: <BiCategory className={cx('icon')} />,
+            title: 'Thể loại',
+            active: false,
+            to: '/category',
+         },
+         ...listCheck,
+         {
+            icon: null,
+            title: null,
+            sperator: true,
+            header_title: 'Khám phá',
+         },
+         {
+            icon: <AiOutlineBarChart className={cx('icon')} />,
+            title: 'Xếp hạng',
+            active: false,
+            to: '#',
+         },
+         {
+            icon: null,
+            title: null,
+            sperator: true,
+            header_title: '',
+         },
+         {
+            icon: <RiSettingsLine className={cx('icon')} />,
+            title: 'Cài đặt',
+            active: false,
+            to: '#',
+         },
+         {
+            icon: <AiOutlineQuestionCircle className={cx('icon')} />,
+            title: 'Trợ giúp',
+            active: false,
+            to: '#',
+         },
+      ];
+   };
+
+   const [dataItemExpandState, setDataItemExpandState] = useState(
+      filterDataItemExpandState(followItemExpandState),
    );
 
+   const [dataItemState, setDataItemState] = useState(
+      collaped ? dataItemCollapsed : dataItemExpandState,
+   );
+
+   const handleShowMoreFollow = () => {
+      if (isAuthenticated) {
+         FollowService.getListFollow({
+            skip: 8,
+            limit: 13,
+            user_id: user._id,
+            keySearch: '',
+            sort: 1,
+         }).then((res) => {
+            updateFollowList([...followItemExpandRef.current, ...res.follows], true);
+         });
+      }
+   };
+
+   const handleCollapseFollowList = () => {
+      if (isAuthenticated) {
+         FollowService.getListFollow({
+            skip: 0,
+            limit: 8,
+            user_id: user._id,
+            keySearch: '',
+            sort: 1,
+         }).then((res) => {
+            updateFollowList(res.follows);
+         });
+      }
+   };
+
+   const updateFollowList = (followList, showMore = false) => {
+      followItemExpandRef.current = followList;
+
+      const beforeArray = [...followList];
+
+      if (!showMore) {
+         if (followList > 7) beforeArray.pop();
+         else {
+            const tempUpdateFollowItemExpand = [
+               {
+                  icon: null,
+                  title: null,
+                  sperator: true,
+                  header_title: 'Theo dõi',
+               },
+            ].concat(
+               beforeArray
+                  .map((element) => ({
+                     icon: (
+                        <div className={cx('wrapper-img-item')}>
+                           <img className={cx('img-item')} src={element.img} />
+                        </div>
+                     ),
+                     title: element._name,
+                     active: false,
+                     to: '/product?id=' + element.ref_id,
+                  }))
+                  .concat({
+                     icon: <IoIosArrowDown className={cx('icon')} />,
+                     title: 'Xem thêm',
+                     active: false,
+                     onClick: handleShowMoreFollow,
+                     to: '#',
+                  }),
+            );
+
+            setFollowItemExpandState(tempUpdateFollowItemExpand);
+
+            setDataItemExpandState(filterDataItemExpandState(tempUpdateFollowItemExpand));
+
+            setDataItemState(
+               collaped ? dataItemCollapsed : filterDataItemExpandState(tempUpdateFollowItemExpand),
+            );
+         }
+      } else {
+         const tempUpdateFollowItemExpand = [
+            {
+               icon: null,
+               title: null,
+               sperator: true,
+               header_title: 'Theo dõi',
+            },
+         ].concat(
+            beforeArray
+               .map((element) => ({
+                  icon: (
+                     <div className={cx('wrapper-img-item')}>
+                        <img className={cx('img-item')} src={element.img} />
+                     </div>
+                  ),
+                  title: element._name,
+                  active: false,
+                  to: '/product?id=' + element.ref_id,
+               }))
+               .concat({
+                  icon: <IoIosArrowUp className={cx('icon')} />,
+                  title: 'Thu gọn',
+                  active: false,
+                  onClick: handleCollapseFollowList,
+                  to: '#',
+               }),
+         );
+
+         setFollowItemExpandState(tempUpdateFollowItemExpand);
+
+         setDataItemExpandState(filterDataItemExpandState(tempUpdateFollowItemExpand));
+
+         setDataItemState(
+            collaped ? dataItemCollapsed : filterDataItemExpandState(tempUpdateFollowItemExpand),
+         );
+      }
+   };
+
    const wrapperRef = useRef();
+
+   useEffect(() => {
+      if (isAuthenticated) {
+         FollowService.getListFollow({
+            skip: 0,
+            limit: 8,
+            user_id: user._id,
+            keySearch: '',
+            sort: 1,
+         }).then((res) => {
+            updateFollowList(res.follows);
+         });
+
+         console.log('ok ma');
+      }
+   }, [isAuthenticated]);
 
    useEffect(() => {
       if (collaped) {
          document.documentElement.style.setProperty('--width-default-sidebar', '75px');
          setDataItemState(dataItemCollapsed);
       } else {
-         setDataItemState(dataItemExpand);
+         setDataItemState(dataItemExpandState);
          document.documentElement.style.setProperty('--width-default-sidebar', '240px');
       }
    }, [collaped]);
@@ -264,6 +317,7 @@ function Sidebar({ collaped = false }) {
                      leftIcon={!collaped ? elment.icon : false}
                      className={cx('button', elment.active ? 'active' : '')}
                      to={elment?.to ? elment.to : false}
+                     onClick={elment?.onClick && elment.onClick}
                   >
                      {!collaped ? (
                         <div className={cx('content')}>

@@ -2,22 +2,10 @@ import axios from 'axios';
 
 import { apiUrl } from '~/config/constants';
 
-class FollowService {
-   async getCountFollowOfProduct({ product_id }) {
+class SeenMovieService {
+   async getListSeenMovie({ skip = null, limit = null, user_id = null, keySearch = '', sort = 1 }) {
       try {
-         const response = await axios.get(`${apiUrl}/follow/count_follow/${product_id}`);
-
-         return response.data;
-      } catch (error) {
-         if (error.response) return { success: false, message: error.response };
-
-         return { success: false, message: error.message };
-      }
-   }
-
-   async getListFollow({ skip = null, limit = null, user_id = null, keySearch = '', sort = 1 }) {
-      try {
-         const response = await axios.post(`${apiUrl}/follow/list_follow`, {
+         const response = await axios.post(`${apiUrl}/seenMovie/list_seenMovie`, {
             user_id,
             limit,
             skip,
@@ -33,9 +21,9 @@ class FollowService {
       }
    }
 
-   async checkIsFollow({ user_id, ref_id }) {
+   async checkIsSeenMovie({ user_id, ref_id }) {
       try {
-         const response = await axios.post(`${apiUrl}/follow/check_follow`, {
+         const response = await axios.post(`${apiUrl}/seenMovie/check_seenMovie`, {
             user_id,
             ref_id,
          });
@@ -48,9 +36,9 @@ class FollowService {
       }
    }
 
-   async follow({ user_id, ref_id }) {
+   async seenMovie({ user_id, ref_id }) {
       try {
-         const response = await axios.post(`${apiUrl}/follow/follow`, {
+         const response = await axios.post(`${apiUrl}/seenMovie/seenMovie`, {
             user_id,
             ref_id,
          });
@@ -63,9 +51,9 @@ class FollowService {
       }
    }
 
-   async unfollow({ user_id, ref_id }) {
+   async unseenMovie({ user_id, ref_id }) {
       try {
-         const response = await axios.delete(`${apiUrl}/follow/unfollow`, {
+         const response = await axios.delete(`${apiUrl}/seenMovie/unseenMovie`, {
             params: {
                user_id,
                ref_id,
@@ -81,4 +69,4 @@ class FollowService {
    }
 }
 
-export default new FollowService();
+export default new SeenMovieService();

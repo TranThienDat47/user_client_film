@@ -1,4 +1,37 @@
 .wrapper {
+   .wrapper-icon {
+      position: relative;
+
+      .count-notification {
+         position: absolute;
+
+         top: 6px;
+         left: calc(50% - 1px);
+         padding: 2px 5px;
+
+         border-radius: 999px;
+
+         font-size: 1.16rem;
+         font-weight: 550;
+         line-height: 13px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         background-color: var(--invalid-color);
+         color: var(--white);
+
+         z-index: 10;
+      }
+   }
+
+   .header__icon {
+      font-size: 2.6rem;
+      width: 40px;
+      height: 40px;
+   }
+}
+
+.wrapper-result {
    position: absolute;
    background-color: var(--white);
    border-radius: 9px;
@@ -63,6 +96,17 @@
    margin-left: 13px;
    margin-top: 6px;
 
+   .notification-item__title {
+      white-space: pre-wrap;
+      unicode-bidi: isolate;
+      word-break: break-word;
+
+      overflow: hidden;
+      -webkit-line-clamp: 3;
+      text-overflow: ellipsis;
+      -webkit-box-orient: vertical;
+      display: -webkit-box;
+   }
    & .notification-item__time {
       margin-top: 6px;
       color: var(--text-bland);

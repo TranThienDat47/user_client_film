@@ -82,7 +82,11 @@
 
    &:hover {
       border-color: var(--primary-second);
-      background: linear-gradient(0deg, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.06)), var(--btn-submit);
+      background-color: var(--btn-submit-hover);
+   }
+
+   &:active {
+      background-color: var(--btn-submit-active);
    }
 
    &.transparent {

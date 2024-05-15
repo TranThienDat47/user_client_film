@@ -17,6 +17,8 @@
    --box-shadow-color: rgba(23, 26, 39, 0.26);
    --hover-item-color: rgba(23, 26, 39, 0.06);
 
+   --modal-color: rgba(13, 13, 13, 0.3);
+
    --hover-dark-color: rgba(255, 255, 255, 0.19);
 
    --took-tip-color: rgba(23, 26, 39, 0.59);
@@ -55,6 +57,7 @@
    //btn
    --btn-submit: #1a73e8;
    --btn-submit-hover: #1268da;
+   --btn-submit-active: #397ed9;
 
    //link
    --link-color: #1a73e8;
@@ -68,6 +71,19 @@
 
    @media (min-width: 0px) and (max-width: 640px) {
       --ytd-rich-grid-items-per-row: 3;
+   }
+}
+
+#nprogress {
+   position: fixed;
+   z-index: 999;
+   width: 100%;
+
+   .peg {
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
+      background-color: red;
+      height: 3px;
    }
 }
 
