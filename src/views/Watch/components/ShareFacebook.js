@@ -14,7 +14,7 @@ function ShareFacebook({
       videoDescription: '',
    },
 }) {
-   const url = new URL(currentVideoState.videoSrc);
+   const url = new URL(valueUrlState);
    const searchParams = new URLSearchParams(url.search);
    const episodes = searchParams.get('episodes');
 
