@@ -7,6 +7,7 @@ import styles from './Comment.module.scss';
 import imgs from '~/assets/img';
 import { useSelector } from 'react-redux';
 import { authSelector } from '~/redux/selectors/auth/authSelector';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -26,6 +27,7 @@ const CommentWrite = forwardRef(
          modeReply,
          ...passProp,
       });
+      const navigate = useNavigate();
 
       const [possibleComment, setPossibleComment] = useState(false);
       const [commentValue, setCommentValue] = useState('');
@@ -97,6 +99,11 @@ const CommentWrite = forwardRef(
                   <div
                      ref={ariaCommentRef}
                      contentEditable="true"
+                     onFocus={() => {
+                        if (!user?._id) {
+                           navigate('/login');
+                        }
+                     }}
                      className={cx('comment-content')}
                      onKeyDown={(e) => {
                         e.stopPropagation();

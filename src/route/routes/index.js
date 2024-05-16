@@ -15,14 +15,15 @@ const SeeLaterMovie = lazy(() => import('~/views/SeeLaterMovie'));
 const publicRoutes = [
    { path: config.routes.home, component: Home },
    { path: config.routes.search, component: Search },
-   { path: config.routes.follow, component: Follow },
    { path: config.routes.product, component: Product },
-   { path: config.routes.seenMovie, component: SeenMovie },
    { path: config.routes.category.route, component: Categories },
-   { path: config.routes.seeLaterMovie, component: SeeLaterMovie },
    { path: config.routes.watch, component: Watch, layout: NoSidebarLayout },
 ];
 
-const privateRoutes = [{ path: null, component: Fragment, layout: null }];
+const privateRoutes = [
+   { path: config.routes.seenMovie, component: SeenMovie },
+   { path: config.routes.follow, component: Follow },
+   { path: config.routes.seeLaterMovie, component: SeeLaterMovie },
+];
 
 export { publicRoutes, privateRoutes };

@@ -70,7 +70,6 @@ const Watch = () => {
    const tempDetailRef = useRef({ _id: null, episode: null });
 
    const handleclipboard = (value) => {
-      console.log('ok ma');
       if (inputClipboardRef.current) {
          inputClipboardRef.current.select();
          inputClipboardRef.current.setSelectionRange(0, inputClipboardRef.current.value.length);
@@ -151,7 +150,7 @@ const Watch = () => {
 
    useEffect(() => {
       if (productCurrent.product && user?._id) {
-         SeenMovieService.seenMovie({ user_id: user._id, ref_id: productCurrent.product._id });
+         SeenMovieService.seenMovie({ user_id: user?._id, ref_id: productCurrent.product._id });
       }
    }, [productCurrent]);
 
@@ -167,15 +166,31 @@ const Watch = () => {
                .sort((a, b) => parseInt(b.quality) - parseInt(a.quality)),
          });
 
-         ProductServices.checkUserLike({
-            product_id: productDetailCurrentState._id,
-            user_id: user._id,
-         }).then((res) => {
-            if (res.isLike) setLikeState(true);
-            else setLikeState(false);
-         });
+         if (user?._id) {
+            ProductServices.checkUserLike({
+               product_id: productDetailCurrentState._id,
+               user_id: user?._id,
+            }).then((res) => {
+               if (res.isLike) setLikeState(true);
+               else setLikeState(false);
+            });
+         }
       }
    }, [productDetailCurrentState]);
+
+   useEffect(() => {
+      if (productDetailCurrentState.videoRef) {
+         if (user?._id) {
+            ProductServices.checkUserLike({
+               product_id: productDetailCurrentState._id,
+               user_id: user?._id,
+            }).then((res) => {
+               if (res.isLike) setLikeState(true);
+               else setLikeState(false);
+            });
+         }
+      }
+   }, [productDetailCurrentState, user]);
 
    useEffect(() => {
       if (wrapperRef.current) {
@@ -232,12 +247,16 @@ const Watch = () => {
                                                 />
                                              }
                                              onClick={() => {
-                                                ProductServices.dislike({
-                                                   product_id: productDetailCurrentState._id,
-                                                   user_id: user._id,
-                                                });
-                                                setLikeState(false);
-                                                setCountLikeState((prev) => --prev);
+                                                if (user?._id) {
+                                                   ProductServices.dislike({
+                                                      product_id: productDetailCurrentState._id,
+                                                      user_id: user?._id,
+                                                   });
+                                                   setLikeState(false);
+                                                   setCountLikeState((prev) => --prev);
+                                                } else {
+                                                   navigate('/login');
+                                                }
                                              }}
                                           >
                                              <div className={cx('action__video-item-button-title')}>
@@ -258,12 +277,16 @@ const Watch = () => {
                                                 />
                                              }
                                              onClick={() => {
-                                                ProductServices.like({
-                                                   product_id: productDetailCurrentState._id,
-                                                   user_id: user._id,
-                                                });
-                                                setLikeState(true);
-                                                setCountLikeState((prev) => ++prev);
+                                                if (user?._id) {
+                                                   ProductServices.like({
+                                                      product_id: productDetailCurrentState._id,
+                                                      user_id: user?._id,
+                                                   });
+                                                   setLikeState(true);
+                                                   setCountLikeState((prev) => ++prev);
+                                                } else {
+                                                   navigate('/login');
+                                                }
                                              }}
                                           >
                                              <div className={cx('action__video-item-button-title')}>
@@ -319,7 +342,16 @@ const Watch = () => {
                                                    <div className={cx('share-item')}>
                                                       <ShareFacebook
                                                          valueUrlState={valueUrlState}
-                                                      ></ShareFacebook>
+                                                         videoInf={{
+                                                            videoTitle:
+                                                               productCurrentState._name +
+                                                               ' - Tập' +
+                                                               productDetailCurrentState.episode,
+                                                            videoDescription:
+                                                               productCurrentState.description,
+                                                            videoImage: productCurrentState.img,
+                                                         }}
+                                                      />
                                                    </div>
                                                 </div>
                                              </div>

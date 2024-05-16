@@ -10,7 +10,8 @@ import { FcGoogle } from 'react-icons/fc';
 import { SiFacebook } from 'react-icons/si';
 import AuthServices from '~/services/AuthServices';
 
-import { LOCAL_STORAGE_TOKEN_NAME, LOCAL_STORAGE_ACCOUNT_LOGIN } from '~/config/constants';
+import { LOCAL_STORAGE_TOKEN_NAME, LOCAL_STORAGE_ACCOUNT_LOGIN, apiUrl } from '~/config/constants';
+import { endLoading, startLoading } from '~/utils/nprogress';
 
 const cx = classNames.bind(styles);
 
@@ -31,11 +32,15 @@ const LoginForm = () => {
    };
 
    const handleLogin = async (event) => {
+      startLoading();
       const login = await AuthServices.loginUser(loginForm);
 
-      if (login.success) {
-         localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, login.accessToken);
-         window.location.href = '/';
+      if (login) {
+         endLoading();
+         if (login.success) {
+            localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, login.accessToken);
+            window.location.href = '/';
+         }
       }
    };
 
@@ -105,6 +110,12 @@ const LoginForm = () => {
                      type="email"
                      name="username"
                      placeholder="Email hoặc số điện thoại"
+                     onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                           e.preventDefault();
+                           checkUsernameExist();
+                        }
+                     }}
                   />
                </div>
             ) : (
@@ -119,6 +130,12 @@ const LoginForm = () => {
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Nhập mật khẩu của bạn"
                         name="password"
+                        onKeyDown={(e) => {
+                           if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleLogin();
+                           }
+                        }}
                      />
                   </div>
 
@@ -169,7 +186,7 @@ const LoginForm = () => {
                <Button
                   leftIcon={<FcGoogle className={cx('icon')} />}
                   large
-                  href={'http://localhost:5000/api/auth/google/'}
+                  href={apiUrl + '/auth/google/'}
                   className={cx('item-with', 'with-google')}
                >
                   Đăng nhập với Google

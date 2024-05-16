@@ -165,7 +165,7 @@ function Sidebar({ collaped = false }) {
          FollowService.getListFollow({
             skip: 8,
             limit: 13,
-            user_id: user._id,
+            user_id: user?._id,
             keySearch: '',
             sort: 1,
          }).then((res) => {
@@ -179,7 +179,7 @@ function Sidebar({ collaped = false }) {
          FollowService.getListFollow({
             skip: 0,
             limit: 8,
-            user_id: user._id,
+            user_id: user?._id,
             keySearch: '',
             sort: 1,
          }).then((res) => {
@@ -278,7 +278,7 @@ function Sidebar({ collaped = false }) {
          FollowService.getListFollow({
             skip: 0,
             limit: 8,
-            user_id: user._id,
+            user_id: user?._id,
             keySearch: '',
             sort: 1,
          }).then((res) => {

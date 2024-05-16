@@ -16,6 +16,7 @@ import { CommentLists, CommentWrite } from '~/components/Comment';
 import { useSelector } from 'react-redux';
 import { authSelector } from '~/redux/selectors/auth/authSelector';
 import formatFollowCount from '~/utils/formatFollowCount';
+import { socketURL } from '~/config/constants';
 
 const cx = classNames.bind(styles);
 
@@ -63,7 +64,7 @@ const Comment = forwardRef(({ parent_id = null }, ref) => {
             setPageSuggestedComments(page - 1);
          }
       } else {
-         console.log('nug');
+         // console.log('nug');
       }
    };
 
@@ -72,7 +73,7 @@ const Comment = forwardRef(({ parent_id = null }, ref) => {
    }, [suggestedComments]);
 
    useEffect(() => {
-      const socket = io('http://localhost:3001');
+      const socket = io(socketURL);
 
       socket.on('comment', (comment) => {
          setComments((prev) => [comment, ...prev]);
@@ -88,7 +89,7 @@ const Comment = forwardRef(({ parent_id = null }, ref) => {
    const handleComment = useCallback(async (text) => {
       await CommentServices.addComment({
          parent_id,
-         user_id: user._id,
+         user_id: user?._id,
          content: text || ' ',
       })
          .then((response) => {

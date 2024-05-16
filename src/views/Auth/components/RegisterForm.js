@@ -9,7 +9,8 @@ import { SiFacebook } from 'react-icons/si';
 import styles from './Auth.module.scss';
 import { Link } from 'react-router-dom';
 import AuthServices from '~/services/AuthServices';
-import { LOCAL_STORAGE_TOKEN_NAME } from '~/config/constants';
+import { apiUrl, LOCAL_STORAGE_TOKEN_NAME } from '~/config/constants';
+import { endLoading, startLoading } from '~/utils/nprogress';
 
 const cx = classNames.bind(styles);
 
@@ -37,6 +38,7 @@ const RegisterForm = () => {
    };
 
    const handleRegister = async (event) => {
+      startLoading();
       if (registerForm.confirm_password !== registerForm.password) {
          console.log(registerForm.confirm_password, registerForm.password);
          setInvalid(2);
@@ -44,9 +46,12 @@ const RegisterForm = () => {
       } else {
          const register = await AuthServices.register(registerForm);
 
-         if (register.success) {
-            localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, register.accessToken);
-            window.location.href = '/';
+         if (register) {
+            endLoading();
+            if (register.success) {
+               localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, register.accessToken);
+               window.location.href = '/';
+            }
          }
       }
    };
@@ -101,6 +106,12 @@ const RegisterForm = () => {
                         type="email"
                         placeholder="Email hoặc số điện thoại"
                         name="username"
+                        onKeyDown={(e) => {
+                           if (e.key === 'Enter') {
+                              e.preventDefault();
+                              checkUsernameExist();
+                           }
+                        }}
                      />
                   </div>
                </>
@@ -128,6 +139,12 @@ const RegisterForm = () => {
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Nhập lại mật khẩu"
                         name="confirm_password"
+                        onKeyDown={(e) => {
+                           if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleRegister();
+                           }
+                        }}
                      />
                   </div>
 
@@ -172,7 +189,7 @@ const RegisterForm = () => {
                <Button
                   leftIcon={<FcGoogle className={cx('icon')} />}
                   large
-                  href={'http://localhost:5000/api/auth/google/'}
+                  href={apiUrl + '/auth/google/'}
                   className={cx('item-with', 'with-google')}
                >
                   Đăng nhập với Google

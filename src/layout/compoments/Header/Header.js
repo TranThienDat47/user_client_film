@@ -56,10 +56,10 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
                   title: <div className={cx('title')}>Giao diện sáng</div>,
                   left_icon: <AiOutlineCheck className={cx('icon')} />,
                },
-               {
-                  title: <div className={cx('title')}>Giao diện tối</div>,
-                  left_icon: <div className={cx('icon')}></div>,
-               },
+               // {
+               //    title: <div className={cx('title')}>Giao diện tối</div>,
+               //    left_icon: <div className={cx('icon')}></div>,
+               // },
             ],
          },
          separate: true,
@@ -214,10 +214,10 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
                         title: <div className={cx('title')}>Giao diện sáng</div>,
                         left_icon: <AiOutlineCheck className={cx('icon')} />,
                      },
-                     {
-                        title: <div className={cx('title')}>Giao diện tối</div>,
-                        left_icon: <div className={cx('icon')}></div>,
-                     },
+                     // {
+                     //    title: <div className={cx('title')}>Giao diện tối</div>,
+                     //    left_icon: <div className={cx('icon')}></div>,
+                     // },
                   ],
                },
                separate: true,
@@ -295,7 +295,7 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
                <div className={cx('infor-icon')}>
                   {isAuthenticated ? (
                      <>
-                        <Notification user_id={user._id} />
+                        <Notification user_id={user?._id} />
                      </>
                   ) : (
                      <>

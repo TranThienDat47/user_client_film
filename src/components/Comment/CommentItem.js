@@ -18,6 +18,8 @@ import { Wrapper } from '~/components/Popper';
 
 import Headless from '../Headless';
 import MenuItem from '../Popper/Menu/MenuItem';
+import { socketURL } from '~/config/constants';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -46,6 +48,8 @@ function CommentItem({
    });
 
    const { user } = useSelector(authSelector);
+
+   const navigate = useNavigate();
 
    const [widthWindowState, setWidthWindowState] = useState(window.innerWidth);
    const [hoverMenuOption, setHoverMenuOption] = useState(false);
@@ -143,7 +147,7 @@ function CommentItem({
    const handleComment = async (text) => {
       await CommentServices.addCommentReply({
          parent_id: modeReply ? parentId : data._id,
-         user_id: user._id,
+         user_id: user?._id,
          content: text || ' ',
          isReply: true,
          user_receiver_id: data.user_id,
@@ -174,30 +178,34 @@ function CommentItem({
    };
 
    const handleLikeComment = async (e) => {
-      if (likeComment) {
-         setLikeComment(false);
-         setNumLikeComment((prev) => {
-            if (prev - 1 < 0) return 0;
-            else return prev - 1;
-         });
-         await CommentServices.disLikeComment({
-            comment_id: data._id,
-            user_id: user._id,
-         }).then((response) => {
-            if (!response.success) setLikeComment(true);
-         });
-      } else {
-         setLikeComment(true);
-         setNumLikeComment((prev) => prev + 1);
+      if (user?._id) {
+         if (likeComment) {
+            setLikeComment(false);
+            setNumLikeComment((prev) => {
+               if (prev - 1 < 0) return 0;
+               else return prev - 1;
+            });
+            await CommentServices.disLikeComment({
+               comment_id: data._id,
+               user_id: user?._id,
+            }).then((response) => {
+               if (!response.success) setLikeComment(true);
+            });
+         } else {
+            setLikeComment(true);
+            setNumLikeComment((prev) => prev + 1);
 
-         await CommentServices.likeComment({
-            comment_id: data._id,
-            user_id: data.user_id,
-            user_send_id: user._id,
-            content: data.content,
-         }).then((response) => {
-            if (!response.success) setLikeComment(false);
-         });
+            await CommentServices.likeComment({
+               comment_id: data._id,
+               user_id: data.user_id,
+               user_send_id: user?._id,
+               content: data.content,
+            }).then((response) => {
+               if (!response.success) setLikeComment(false);
+            });
+         }
+      } else {
+         navigate('/login');
       }
 
       // await fetchNumLikes();
@@ -224,7 +232,7 @@ function CommentItem({
       if (user) {
          CommentServices.checkUserLikeComment({
             comment_id: data._id,
-            user_id: user._id,
+            user_id: user?._id,
          }).then((result) => {
             if (result.success && result.likeComment) {
                setLikeComment(true);
@@ -266,7 +274,7 @@ function CommentItem({
    }, [suggestedComments]);
 
    useEffect(() => {
-      const socket = io('http://localhost:3001');
+      const socket = io(socketURL);
 
       socket.connect();
 

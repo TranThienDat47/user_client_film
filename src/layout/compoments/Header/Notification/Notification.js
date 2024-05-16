@@ -137,6 +137,6 @@ export default memo(Notification);
                            <AiOutlineBell />
                         </Button>
                         {showNotification && (
-                           <Notification ref={notificationResultRef} user_id={user._id} />
+                           <Notification ref={notificationResultRef} user_id={user?._id} />
                         )} */
 }

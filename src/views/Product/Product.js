@@ -57,29 +57,47 @@ const Product = () => {
    const tempWatchRef = useRef(null);
 
    const handleSeeLater = async () => {
-      SeeLaterMovieService.seeLaterMovie({ user_id: user?._id, ref_id: parent_id }).then((res) => {
-         setSeeLaterState(true);
-      });
+      if (user?._id) {
+         SeeLaterMovieService.seeLaterMovie({ user_id: user?._id, ref_id: parent_id }).then(
+            (res) => {
+               setSeeLaterState(true);
+            },
+         );
+      } else {
+         navigate('/login');
+      }
    };
    const handleSeeLaterAfter = async () => {
-      SeeLaterMovieService.unseeLaterMovie({ user_id: user?._id, ref_id: parent_id }).then(
-         (res) => {
-            setSeeLaterState(false);
-         },
-      );
+      if (user?._id) {
+         SeeLaterMovieService.unseeLaterMovie({ user_id: user?._id, ref_id: parent_id }).then(
+            (res) => {
+               setSeeLaterState(false);
+            },
+         );
+      } else {
+         navigate('/login');
+      }
    };
 
    const handleFollow = async () => {
-      FollowService.follow({ user_id: user?._id, ref_id: parent_id }).then((res) => {
-         setFollowState({ ...followState, isFollow: true });
-         setCountFollowState((prev) => ++prev);
-      });
+      if (user?._id) {
+         FollowService.follow({ user_id: user?._id, ref_id: parent_id }).then((res) => {
+            setFollowState({ ...followState, isFollow: true });
+            setCountFollowState((prev) => ++prev);
+         });
+      } else {
+         navigate('/login');
+      }
    };
    const handleFollowAfter = async () => {
-      FollowService.unfollow({ user_id: user?._id, ref_id: parent_id }).then((res) => {
-         setFollowState({ ...followState, isFollow: false });
-         setCountFollowState((prev) => --prev);
-      });
+      if (user?._id) {
+         FollowService.unfollow({ user_id: user?._id, ref_id: parent_id }).then((res) => {
+            setFollowState({ ...followState, isFollow: false });
+            setCountFollowState((prev) => --prev);
+         });
+      } else {
+         navigate('/login');
+      }
    };
 
    useEffect(() => {

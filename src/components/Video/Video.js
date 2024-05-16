@@ -466,7 +466,9 @@ const Video = ({
 
       if (videoRef.current.paused) {
          setPlay(0);
+         setShowControl(2);
       } else if (videoRef.current.ended) {
+         setShowControl(2);
          setPlay(2);
       }
    }, [currentVideoState, autoPlayState]);
@@ -1322,6 +1324,7 @@ const Video = ({
 
       videoRef.current.onpause = (e) => {
          // setPlay(0);
+         setShowControl(2);
          isEndedRef.current = false;
          if (curIntervalRef.current) handleClearInterVal();
       };
@@ -1343,7 +1346,7 @@ const Video = ({
 
                <div className={cx('wrapper-video')}>
                   <ReactHlsPlayer
-                     src={`http://localhost:5000/api/video/stream/${currentVideoState.videoSrc}?mode=m3u8`}
+                     src={apiUrl + `/video/stream/${currentVideoState.videoSrc}?mode=m3u8`}
                      autoPlay={autoPlayState}
                      controls={false}
                      width="100%"

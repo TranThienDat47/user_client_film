@@ -11,7 +11,6 @@ function ShareFacebook({
    videoInf = {
       videoTitle: '',
       videoDescription: '',
-      videoUrl: '',
    },
 }) {
    const handleShareFacebook = () => {
@@ -36,12 +35,12 @@ function ShareFacebook({
             <meta property="og:title" content={videoInf.videoTitle} />
             <meta property="og:description" content={videoInf.videoDescription} />
             <meta property="og:image" content={videoInf.videoImage} />
-            <meta property="og:url" content={videoInf.videoUrl} />
-            <meta property="og:video" content={videoInf.videoUrl} />
-            <meta property="og:video:secure_url" content={videoInf.videoUrl} />
+            <meta property="og:url" content={valueUrlState} />
+            <meta property="og:video" content={valueUrlState} />
+            <meta property="og:video:secure_url" content={valueUrlState} />
             <meta property="og:video:type" content="video/mp4" />
-            <meta property="og:video:width" content="1280" />
-            <meta property="og:video:height" content="720" />
+            <meta property="og:video:width" content="960" />
+            <meta property="og:video:height" content="480" />
          </Helmet>
       </>
    );
