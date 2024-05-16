@@ -73,7 +73,7 @@ const Comment = forwardRef(({ parent_id = null }, ref) => {
    }, [suggestedComments]);
 
    useEffect(() => {
-      const socket = io(socketURL);
+      const socket = io(socketURL, { transports: ['websocket'] });
 
       socket.on('comment', (comment) => {
          setComments((prev) => [comment, ...prev]);

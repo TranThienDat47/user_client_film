@@ -274,7 +274,7 @@ function CommentItem({
    }, [suggestedComments]);
 
    useEffect(() => {
-      const socket = io(socketURL);
+      const socket = io(socketURL, { transports: ['websocket'] });
 
       socket.connect();
 
@@ -334,12 +334,15 @@ function CommentItem({
                   )}
                </div>
 
-               <div className={cx('comment-option')}>
+               <div
+                  className={cx('comment-option')}
+                  style={{ zIndex: showMenuOption ? '100' : '' }}
+               >
                   <div ref={optionRef} className={cx('comment-option__inner')}>
                      <Headless
                         visible={showMenuOption}
                         offset={optionOfset}
-                        className={cx('option-menu')}
+                        className={cx('option-menu-wrapper')}
                         onClickOutside={() => {
                            clickOptionRef.current = false;
 

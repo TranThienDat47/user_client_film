@@ -194,7 +194,6 @@ img.avt {
    right: -3px;
    top: 50%;
    transform: translate(100%, -50%);
-   z-index: 1;
 
    .comment-option__inner {
       display: none;
@@ -204,6 +203,7 @@ img.avt {
          min-width: var(--max-width-option-menu-comment);
       }
       .option {
+         position: relative;
          padding: 6px;
          font-size: 2.1rem;
       }
