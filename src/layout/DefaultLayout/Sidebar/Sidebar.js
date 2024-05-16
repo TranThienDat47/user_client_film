@@ -90,7 +90,7 @@ function Sidebar({ collaped = false }) {
             icon: <AiOutlineDownload className={cx('icon')} />,
             title: 'Phim đã lưu',
             active: false,
-            to: '/',
+            to: false,
          },
          {
             icon: <BsClock className={cx('icon')} />,
@@ -129,7 +129,7 @@ function Sidebar({ collaped = false }) {
             icon: <AiOutlineBarChart className={cx('icon')} />,
             title: 'Xếp hạng',
             active: false,
-            to: '#',
+            to: false,
          },
          {
             icon: null,
@@ -204,24 +204,35 @@ function Sidebar({ collaped = false }) {
                   header_title: 'Theo dõi',
                },
             ].concat(
-               beforeArray
-                  .map((element) => ({
-                     icon: (
-                        <div className={cx('wrapper-img-item')}>
-                           <img className={cx('img-item')} src={element.img} />
-                        </div>
-                     ),
-                     title: element._name,
-                     active: false,
-                     to: '/product?id=' + element.ref_id,
-                  }))
-                  .concat({
-                     icon: <IoIosArrowDown className={cx('icon')} />,
-                     title: 'Xem thêm',
-                     active: false,
-                     onClick: handleShowMoreFollow,
-                     to: '#',
-                  }),
+               beforeArray.length <= 0
+                  ? {
+                       icon: false,
+                       title: 'Chưa theo dõi bộ phim nào',
+                       active: false,
+                       to: false,
+                    }
+                  : beforeArray
+                       .map((element) => ({
+                          icon: (
+                             <div className={cx('wrapper-img-item')}>
+                                <img className={cx('img-item')} src={element.img} />
+                             </div>
+                          ),
+                          title: element._name,
+                          active: false,
+                          to: '/product?id=' + element.ref_id,
+                       }))
+                       .concat(
+                          beforeArray.length >= 7
+                             ? {
+                                  icon: <IoIosArrowDown className={cx('icon')} />,
+                                  title: 'Xem thêm',
+                                  active: false,
+                                  onClick: handleShowMoreFollow,
+                                  to: '#',
+                               }
+                             : [],
+                       ),
             );
 
             setFollowItemExpandState(tempUpdateFollowItemExpand);
@@ -314,13 +325,16 @@ function Sidebar({ collaped = false }) {
                   <Button
                      transparent
                      key={'item' + index}
-                     leftIcon={!collaped ? elment.icon : false}
+                     leftIcon={!collaped ? (!!elment.icon ? elment.icon : false) : false}
                      className={cx('button', elment.active ? 'active' : '')}
                      to={elment?.to ? elment.to : false}
                      onClick={elment?.onClick && elment.onClick}
                   >
                      {!collaped ? (
-                        <div className={cx('content')}>
+                        <div
+                           className={cx('content')}
+                           style={{ marginLeft: !!elment.icon ? '16px' : '0px' }}
+                        >
                            <div>{elment.title}</div>
                         </div>
                      ) : (
