@@ -19,6 +19,8 @@ function ShareFacebook({
       )}`;
       window.open(facebookShareUrl, '_blank');
    };
+
+   console.log({ videoInf });
    return (
       <>
          <Button
