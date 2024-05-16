@@ -645,7 +645,7 @@ const Video = ({
       }% - var(--size-ball-progress) / 2))`;
    };
 
-   const handlePreviewVideo = useCallback((e) => {
+   const handlePreviewVideo = (e) => {
       curImgWrapperRef.current.style.display = 'block';
 
       const leftProgress = progressRefRef.current.getBoundingClientRect().left;
@@ -678,7 +678,8 @@ const Video = ({
       }
 
       previewListRef.current.find((element) => {
-         if (element.timemark >= videoPreviewRef.current) {
+         console.log(+element.timemark, +videoPreviewRef.current);
+         if (+element.timemark >= +videoPreviewRef.current) {
             curImgRef.current.style.backgroundImage = `url('data:image/jpeg;base64,${element.image}')`;
             if (dragVideoRef.current) {
                modalPreviewRef.current.style.visibility = 'visible';
@@ -690,7 +691,7 @@ const Video = ({
       });
 
       curTimeImgRef.current.innerHTML = `${convertTime(videoPreviewRef.current)}`;
-   }, []);
+   };
 
    const handleMouseUpProgress = () => {
       if (dragVideoRef.current) {
@@ -987,11 +988,14 @@ const Video = ({
          const loadThumbnail = async () => {
             const response = await axios.get(`${apiUrl}/video/thumbnail/${videoInfo.videoID}`);
 
+            previewListRef.current = [];
             response.data.thumbnails.forEach((element) => {
                previewListRef.current = previewListRef.current.concat(element);
             });
 
-            previewListRef.current = previewListRef.current.sort((a, b) => a.timemark - b.timemark);
+            previewListRef.current = previewListRef.current.sort(
+               (a, b) => +a.timemark - +b.timemark,
+            );
          };
          loadThumbnail();
       }

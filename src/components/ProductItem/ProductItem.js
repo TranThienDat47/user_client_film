@@ -20,7 +20,15 @@ function ProductItem({
    onClick,
    extraLarge = false,
    modeSearchPage = false,
-   data = { _id: '', img: '', _name: '', anotherName: '', view: '', episodes: '' },
+   data = {
+      _id: '',
+      img: '',
+      _name: '',
+      anotherName: '',
+      view: '',
+      episodes: '',
+      currentEpisodes: '??',
+   },
    ...passProp
 }) {
    const animationRef = useRef();
@@ -158,8 +166,8 @@ function ProductItem({
                />
                {data.episodes ? (
                   <div className={cx('episode')}>
-                     <span className={cx('current')}>12</span> /
-                     <span className={cx('episodes')}>12</span>
+                     <span className={cx('current')}>{data.currentEpisodes}</span> /
+                     <span className={cx('episodes')}>{data.episodes}</span>
                   </div>
                ) : (
                   <></>
