@@ -11,6 +11,8 @@ import Button from '~/components/Button';
 import { Wrapper as PopperWrapper } from '~/components/Popper';
 import MenuItem from '~/components/Popper/Menu/MenuItem';
 import Headless from '../Headless';
+import formatFollowCount from '~/utils/formatFollowCount';
+import FollowService from '~/services/FollowService';
 
 const cx = classNames.bind(styles);
 
@@ -26,6 +28,7 @@ function ProductItem({
       _name: '',
       anotherName: '',
       view: '',
+      news: false,
       episodes: '',
       currentEpisodes: '??',
    },
@@ -37,6 +40,8 @@ function ProductItem({
    const optionRef = useRef();
    const clickOptionRef = useRef(false);
    const menuRef = useRef(null);
+
+   const [followState, setFollowState] = useState(0);
 
    const [hoverMenuOption, setHoverMenuOption] = useState(false);
    const [showMenuOption, setShowMenuOption] = useState(false);
@@ -65,6 +70,10 @@ function ProductItem({
       itemWrapperRef.current.addEventListener('mousemove', handleMouseEnter);
 
       itemWrapperRef.current.addEventListener('mouseleave', handleMouseOut);
+
+      FollowService.getCountFollowOfProduct({ product_id: data._id }).then((res) => {
+         setFollowState(res.count);
+      });
    }, []);
 
    useEffect(() => {
@@ -185,9 +194,11 @@ function ProductItem({
                      <></>
                   )}
                   <div className={cx('view')}>
-                     {data.view && (
+                     {!!data.view || (
                         <>
-                           <div className={cx('quantity')}>142.6N lượt xem</div>
+                           <div className={cx('quantity')}>
+                              {formatFollowCount(followState) + ' lượt theo dõi'}
+                           </div>
                            {extraLarge || <span className={cx('sperator')}>|</span>}
                            <div className={cx('date')}>2 tháng trước</div>
                         </>
