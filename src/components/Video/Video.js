@@ -678,7 +678,6 @@ const Video = ({
       }
 
       previewListRef.current.find((element) => {
-         console.log(+element.timemark, +videoPreviewRef.current);
          if (+element.timemark >= +videoPreviewRef.current) {
             curImgRef.current.style.backgroundImage = `url('data:image/jpeg;base64,${element.image}')`;
             if (dragVideoRef.current) {
