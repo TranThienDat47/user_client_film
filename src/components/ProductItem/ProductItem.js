@@ -13,6 +13,7 @@ import MenuItem from '~/components/Popper/Menu/MenuItem';
 import Headless from '../Headless';
 import formatFollowCount from '~/utils/formatFollowCount';
 import FollowService from '~/services/FollowService';
+import { validateTime } from '~/utils/validated';
 
 const cx = classNames.bind(styles);
 
@@ -31,6 +32,7 @@ function ProductItem({
       news: false,
       episodes: '',
       currentEpisodes: '??',
+      createdAt: '',
    },
    ...passProp
 }) {
@@ -200,7 +202,12 @@ function ProductItem({
                               {formatFollowCount(followState) + ' lượt theo dõi'}
                            </div>
                            {extraLarge || <span className={cx('sperator')}>|</span>}
-                           <div className={cx('date')}>2 tháng trước</div>
+                           <div className={cx('date')}>
+                              {(validateTime(data.createdAt).value || '') +
+                                 ' ' +
+                                 validateTime(data.createdAt).unit +
+                                 ' trước'}
+                           </div>
                         </>
                      )}
                   </div>
