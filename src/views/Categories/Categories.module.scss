@@ -8,14 +8,22 @@
    height: 100%;
    overflow: auto;
 
+   .header_page-pesudo {
+      padding-bottom: 100px;
+   }
+
    .header_page {
-      width: 100%;
+      z-index: 200;
+      background-color: var(--white);
+      position: fixed;
+      top: var(--height-default-header);
+      left: var(--width-navbar-default);
+      width: calc(100% - var(--width-navbar-default) - 16px);
       max-width: var(--max-width-of-page);
       margin: auto;
-      padding: 0 12px 0 16px;
+      padding: 0 0px 0 16px;
 
       margin-bottom: 26px;
-      margin-top: 6px;
    }
 
    .inner {

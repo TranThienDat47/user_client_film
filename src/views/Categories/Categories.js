@@ -194,88 +194,91 @@ const Categories = () => {
 
    return (
       <div ref={wrapperRef} className={cx('wrapper')}>
-         <div className={cx('header_page')}>
-            <h1 className={cx('string-formatted')}>Thể loại</h1>
-            <div
-               className={cx('wrapper-categories')}
-               style={{
-                  paddingLeft: showButtonCategoryState.showLeft && '46px',
-                  paddingRight: showButtonCategoryState.showRight && '46px',
-               }}
-            >
-               <div ref={wrapperListCategoryRef} className={cx('categories-list')}>
-                  {dataInitCategoriesState.map((element, index) => (
-                     <div
-                        key={'category' + index}
-                        ref={
-                           index === 0
-                              ? firstItemCategoryRef
-                              : index === dataInitCategoriesState.length - 1
-                              ? lastItemCategoryRef
-                              : null
-                        }
-                        className={cx(
-                           'categories-item',
-                           element.active && 'categories-item-active',
-                        )}
-                        onClick={(e) => {
-                           if (!isMoveRef.current) {
-                              e.preventDefault();
-                              setDataInitCategoriesState(
-                                 dataInitCategoriesState.map((elementTemp, indexTemp) =>
-                                    indexTemp === index
-                                       ? { ...elementTemp, active: true }
-                                       : { ...elementTemp, active: false },
-                                 ),
-                              );
+         <div className={cx('header_page-wrapper')}>
+            <div className={cx('header_page-pesudo')}></div>
+            <div className={cx('header_page')}>
+               <h1 className={cx('string-formatted')}>Thể loại</h1>
+               <div
+                  className={cx('wrapper-categories')}
+                  style={{
+                     paddingLeft: showButtonCategoryState.showLeft && '46px',
+                     paddingRight: showButtonCategoryState.showRight && '46px',
+                  }}
+               >
+                  <div ref={wrapperListCategoryRef} className={cx('categories-list')}>
+                     {dataInitCategoriesState.map((element, index) => (
+                        <div
+                           key={'category' + index}
+                           ref={
+                              index === 0
+                                 ? firstItemCategoryRef
+                                 : index === dataInitCategoriesState.length - 1
+                                 ? lastItemCategoryRef
+                                 : null
                            }
+                           className={cx(
+                              'categories-item',
+                              element.active && 'categories-item-active',
+                           )}
+                           onClick={(e) => {
+                              if (!isMoveRef.current) {
+                                 e.preventDefault();
+                                 setDataInitCategoriesState(
+                                    dataInitCategoriesState.map((elementTemp, indexTemp) =>
+                                       indexTemp === index
+                                          ? { ...elementTemp, active: true }
+                                          : { ...elementTemp, active: false },
+                                    ),
+                                 );
+                              }
 
-                           if (index !== 0) {
-                              navigate(`/category/` + element.id);
-                           } else {
-                              navigate(`/category`);
-                           }
-                        }}
-                     >
-                        {element.title}
-                     </div>
-                  ))}
-               </div>
-               <div className={cx('control-button-categories')}>
-                  {showButtonCategoryState.showLeft && (
-                     <div
-                        className={cx(
-                           'control-button-categories__wrapper-button',
-                           'control-button-categories__wrapper-button-left',
-                        )}
-                        onClick={handlScrollLeft}
-                     >
-                        <Button
-                           transparent
-                           hover
-                           className={cx('control-button-categories__button')}
+                              if (index !== 0) {
+                                 navigate(`/category/` + element.id);
+                              } else {
+                                 navigate(`/category`);
+                              }
+                           }}
                         >
-                           <MdOutlineKeyboardArrowLeft />
-                        </Button>
-                     </div>
-                  )}
-                  {showButtonCategoryState.showRight && (
-                     <div
-                        onClick={handlScrollRight}
-                        className={cx(
-                           'control-button-categories__wrapper-button',
-                           'control-button-categories__wrapper-button-right',
-                        )}
-                     >
-                        <Button
-                           transparent
-                           hover
-                           className={cx('control-button-categories__button')}
+                           {element.title}
+                        </div>
+                     ))}
+                  </div>
+                  <div className={cx('control-button-categories')}>
+                     {showButtonCategoryState.showLeft && (
+                        <div
+                           className={cx(
+                              'control-button-categories__wrapper-button',
+                              'control-button-categories__wrapper-button-left',
+                           )}
+                           onClick={handlScrollLeft}
                         >
-                           <MdOutlineKeyboardArrowRight />
-                        </Button>
-                     </div>
-                  )}
+                           <Button
+                              transparent
+                              hover
+                              className={cx('control-button-categories__button')}
+                           >
+                              <MdOutlineKeyboardArrowLeft />
+                           </Button>
+                        </div>
+                     )}
+                     {showButtonCategoryState.showRight && (
+                        <div
+                           onClick={handlScrollRight}
+                           className={cx(
+                              'control-button-categories__wrapper-button',
+                              'control-button-categories__wrapper-button-right',
+                           )}
+                        >
+                           <Button
+                              transparent
+                              hover
+                              className={cx('control-button-categories__button')}
+                           >
+                              <MdOutlineKeyboardArrowRight />
+                           </Button>
+                        </div>
+                     )}
+                  </div>
                </div>
             </div>
          </div>

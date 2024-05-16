@@ -65,3 +65,132 @@
       -webkit-user-drag: none;
    }
 }
+
+.list {
+   scrollbar-color: transparent transparent;
+   scrollbar-width: thin;
+   padding: 0px 9px;
+
+   &:hover {
+      scrollbar-color: var(--scrollbar-bland) transparent;
+   }
+   .button {
+      position: relative;
+      display: flex;
+      justify-content: flex-start;
+      width: 100%;
+      font-size: 2.3rem;
+      padding: 9px 16px;
+      border-radius: 13px;
+      overflow: hidden;
+
+      -webkit-user-drag: none;
+
+      .content {
+         margin-left: 16px;
+      }
+
+      .content .icon {
+         margin-bottom: 4px;
+      }
+
+      .content div {
+         font-size: 1.6rem;
+         line-height: 1.6rem;
+         font-weight: 500;
+      }
+
+      div {
+         border-radius: 13px;
+      }
+
+      &:hover {
+         background-color: var(--hover-item-color);
+      }
+
+      &.active {
+         .content div {
+            font-weight: 550;
+         }
+      }
+
+      &.active::after {
+         content: '';
+         position: absolute;
+         top: 0;
+         bottom: 0;
+         left: 0;
+         right: 0;
+         background-color: var(--hover-item-color);
+      }
+
+      .wrapper-img-item {
+         position: relative;
+         width: 23px;
+         max-width: 23px;
+         border-radius: 3px;
+         overflow: hidden;
+
+         &::before {
+            content: '';
+            display: block;
+            padding-top: 135.3333%;
+            background-color: aliceblue;
+         }
+
+         .img-item {
+            width: 100%;
+            height: 100%;
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+         }
+      }
+   }
+   &.collaped {
+      overflow-x: hidden;
+      overflow-y: hidden;
+      padding: 0px 0px;
+
+      .button {
+         padding: 9px 0px;
+         display: flex;
+         justify-content: center;
+         .content div {
+            font-size: 1.2rem;
+            line-height: 1.2rem;
+            margin-top: 6px;
+         }
+
+         .content {
+            margin-left: 0px;
+         }
+
+         &.active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: transparent;
+         }
+      }
+   }
+
+   .wrapper-sperator {
+      margin-top: 13px;
+      margin-bottom: 9px;
+
+      .header-title {
+         margin-top: 16px;
+         padding: 0 16px;
+
+         font-size: 1.8rem;
+         font-weight: 600;
+      }
+   }
+}

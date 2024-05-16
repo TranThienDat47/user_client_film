@@ -72,11 +72,15 @@ function ProductItem({
       itemWrapperRef.current.addEventListener('mousemove', handleMouseEnter);
 
       itemWrapperRef.current.addEventListener('mouseleave', handleMouseOut);
-
-      FollowService.getCountFollowOfProduct({ product_id: data._id }).then((res) => {
-         setFollowState(res.count);
-      });
    }, []);
+
+   useEffect(() => {
+      if (data?._id) {
+         FollowService.getCountFollowOfProduct({ product_id: data._id }).then((res) => {
+            setFollowState(res.count);
+         });
+      }
+   }, [data]);
 
    useEffect(() => {
       let start = false;

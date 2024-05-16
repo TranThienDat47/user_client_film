@@ -34,6 +34,16 @@ const cx = classNames.bind(styles);
 function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () => {} }) {
    const { user, isAuthenticated } = useSelector(authSelector);
 
+   const currentPath = window.location.pathname;
+
+   const isWatchPage = currentPath === '/watch';
+
+   useEffect(() => {
+      if (isWatchPage) {
+         setAbleHeaderSidebarState(true);
+      } else setAbleHeaderSidebarState(false);
+   }, [currentPath]);
+
    // eslint-disable-next-line
    const [ableHeaderSidebarState, setAbleHeaderSidebarState] = useState(false);
    const [canClickSideBarState, setCanClickSideBarState] = useState(true);

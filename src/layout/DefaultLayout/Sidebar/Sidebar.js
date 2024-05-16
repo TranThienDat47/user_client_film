@@ -29,6 +29,8 @@ const cx = classNames.bind(styles);
 function Sidebar({ collaped = false }) {
    const { user, isAuthenticated } = useSelector(authSelector);
 
+   const currentPath = window.location.pathname;
+
    const dataItemCollapsed = [
       {
          icon: <AiOutlineHome className={cx('icon')} />,
@@ -71,7 +73,7 @@ function Sidebar({ collaped = false }) {
          {
             icon: <AiOutlineCheck className={cx('icon')} />,
             title: 'Theo dõi',
-            active: false,
+            active: currentPath === '/follow' ? true : false,
             to: '/follow',
          },
          {
@@ -83,19 +85,19 @@ function Sidebar({ collaped = false }) {
          {
             icon: <BsClockHistory className={cx('icon')} />,
             title: 'Phim đã xem',
-            active: false,
+            active: currentPath === '/seenMovie' ? true : false,
             to: '/seenMovie',
          },
          {
             icon: <AiOutlineDownload className={cx('icon')} />,
             title: 'Phim đã lưu',
             active: false,
-            to: false,
+            to: '#',
          },
          {
             icon: <BsClock className={cx('icon')} />,
             title: 'Xem sau',
-            active: false,
+            active: currentPath === '/seeLaterMovie' ? true : false,
             to: '/seeLaterMovie',
          },
          ...listData,
@@ -109,13 +111,13 @@ function Sidebar({ collaped = false }) {
          {
             icon: <AiOutlineHome className={cx('icon')} />,
             title: 'Trang chủ',
-            active: false,
+            active: currentPath === '/' || currentPath === '' ? true : false,
             to: '/',
          },
          {
             icon: <BiCategory className={cx('icon')} />,
             title: 'Thể loại',
-            active: false,
+            active: currentPath === '/category' ? true : false,
             to: '/category',
          },
          ...listCheck,
@@ -129,7 +131,7 @@ function Sidebar({ collaped = false }) {
             icon: <AiOutlineBarChart className={cx('icon')} />,
             title: 'Xếp hạng',
             active: false,
-            to: false,
+            to: '#',
          },
          {
             icon: null,
@@ -209,7 +211,7 @@ function Sidebar({ collaped = false }) {
                        icon: false,
                        title: 'Chưa theo dõi bộ phim nào',
                        active: false,
-                       to: false,
+                       to: '#',
                     }
                   : beforeArray
                        .map((element) => ({
@@ -283,6 +285,10 @@ function Sidebar({ collaped = false }) {
    };
 
    const wrapperRef = useRef();
+
+   useEffect(() => {
+      updateFollowList([...followItemExpandRef.current]);
+   }, [currentPath]);
 
    useEffect(() => {
       if (isAuthenticated) {
