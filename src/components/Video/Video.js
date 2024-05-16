@@ -1069,7 +1069,7 @@ const Video = ({
       };
 
       watchRef.current.onclick = () => {
-         if (!videoRef.current.paused && showSetting) {
+         if (!videoRef.current.paused && !showSetting) {
             setShowControl(1);
          } else setShowControl(2);
       };
@@ -1176,7 +1176,7 @@ const Video = ({
       window.onkeydown = (e) => {
          if (e.keyCode === 32) {
             handlePlayAndPaus(e);
-            if (videoRef.current.paused && showSetting) {
+            if (videoRef.current.paused && !showSetting) {
                setShowControl(1);
             } else setShowControl(2);
          }
@@ -1259,6 +1259,7 @@ const Video = ({
       };
 
       videoRef.current.onprogress = () => {
+         setLoadingVideoState(false);
          if (!curIntervalRef.current) {
             handleAutoProgress();
          }
@@ -1283,7 +1284,7 @@ const Video = ({
       document.onmouseup = (e) => {
          if (dragVideoRef.current || dragVolumeRef.current) {
             setTimeout(() => {
-               if (!watchRef.current.contains(e.target) && !showSetting) {
+               if (!watchRef.current.contains(e.target) && showSetting) {
                   if (!videoRef.current.paused) setShowControl(0);
                } else setShowControl(1);
             }, 0);
