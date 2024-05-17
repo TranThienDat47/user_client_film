@@ -301,8 +301,6 @@ function Sidebar({ collaped = false }) {
          }).then((res) => {
             updateFollowList(res.follows);
          });
-
-         console.log('ok ma');
       }
    }, [isAuthenticated]);
 

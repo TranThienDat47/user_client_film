@@ -339,6 +339,24 @@ const HeaderSidebar = forwardRef((prop, ref) => {
       navRef.current.style.transform = `translateX(-240px)`;
    };
 
+   // useEffect(() => {
+   //    updateFollowList([...followItemExpandRef.current]);
+   // }, [currentPath]);
+
+   useEffect(() => {
+      if (isAuthenticated) {
+         FollowService.getListFollow({
+            skip: 0,
+            limit: 8,
+            user_id: user?._id,
+            keySearch: '',
+            sort: 1,
+         }).then((res) => {
+            updateFollowList(res.follows);
+         });
+      }
+   }, [isAuthenticated]);
+
    useEffect(() => {
       if (showNav) {
          handleShowNav();
