@@ -181,7 +181,7 @@ function ProductItem({
                />
                {data.episodes ? (
                   <div className={cx('episode')}>
-                     <span className={cx('current')}>{data.currentEpisodes}</span> /
+                     <span className={cx('current')}>{data.currentEpisodes}</span>/
                      <span className={cx('episodes')}>{data.episodes}</span>
                   </div>
                ) : (

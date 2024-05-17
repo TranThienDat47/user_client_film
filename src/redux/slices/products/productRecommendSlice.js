@@ -16,7 +16,7 @@ export const fetchRecommendProducts = createAsyncThunk(
    'productRecommend/fetchRecommendProducts',
    async (page, { rejectWithValue }) => {
       try {
-         const response = await ProductServices.search({
+         const response = await ProductServices.searchRecommend({
             skip: page * LENGTH_PAGE_RECOMMEND,
             limit: LENGTH_PAGE_RECOMMEND,
          });

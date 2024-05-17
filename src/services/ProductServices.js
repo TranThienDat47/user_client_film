@@ -19,6 +19,22 @@ class ProductServices {
       }
    }
 
+   async searchRecommend({ skip, limit, recently = false, key = null }) {
+      try {
+         const response = await axios.get(
+            `${apiUrl}/products/search_recommend?skip=${skip}&limit=${limit}${
+               key ? '&key=' + key : ''
+            }&recently=${recently}`,
+         );
+
+         return response.data;
+      } catch (error) {
+         if (error.response) return { success: false, message: error.response };
+
+         return { success: false, message: error.message };
+      }
+   }
+
    async show({ product_id }) {
       try {
          const response = await axios.get(`${apiUrl}/products/${product_id}`);
