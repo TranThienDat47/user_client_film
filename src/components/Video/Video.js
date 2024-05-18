@@ -1258,11 +1258,15 @@ const Video = ({
          handleMouseMoveVolume(e);
       };
 
-      videoRef.current.onprogress = () => {
+      videoRef.current.ontimeupdate = () => {
          setLoadingVideoState(false);
+
          if (!curIntervalRef.current) {
             handleAutoProgress();
          }
+      };
+
+      videoRef.current.onprogress = () => {
          if (videoRef.current.buffered.length > tempBufferedRef.current) {
             if (videoRef.current.buffered && videoRef.current.buffered.length > 0) {
                for (let i = 0; i < videoRef.current.buffered.length; i++) {
