@@ -345,6 +345,7 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
                      </Menu>
                   ) : (
                      <Menu
+                        placement={'bottom-start'}
                         items={dataInit}
                         key={dataInit}
                         hideOnClick={true}
