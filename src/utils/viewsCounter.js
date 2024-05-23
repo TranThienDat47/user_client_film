@@ -17,7 +17,6 @@ export default (videoDuration, updateCallback) => {
             countTime++;
          }, 1000);
 
-         console.log('ok nha bo');
          return { success: true, message: 'Start counting time' };
       } catch (error) {
          return { success: false, error: error.message };

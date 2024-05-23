@@ -31,17 +31,17 @@ function CategoriesPage({ categoryID = null, wrapperRef }) {
          if (res.products.length >= LENGTH_PAGE_DEFAULT) {
             setHasMore(true);
             setLoadingMore(false);
-            setProductCurrent(res.products);
+            setProductCurrent((prev) => [...prev, ...res.products]);
             setPageCurrent(page);
          } else if (res.products.length > 0 && res.products.length < LENGTH_PAGE_DEFAULT) {
             setHasMore(false);
             setLoadingMore(false);
-            setProductCurrent(res.products);
+            setProductCurrent((prev) => [...prev, ...res.products]);
             setPageCurrent(page);
          } else if (res.products.length <= 0) {
             setHasMore(false);
             setLoadingMore(false);
-            setProductCurrent(res.products);
+            setProductCurrent((prev) => [...prev, ...res.products]);
             setPageCurrent(page - 1);
          }
       });
