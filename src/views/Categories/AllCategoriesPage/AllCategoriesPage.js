@@ -48,7 +48,7 @@ function AllCategoriesPage({ handleClickMore = () => {} }) {
                   <div key={'allcategorypage' + index} className={cx('wrapper-category')}>
                      <h3>{element.category.title}</h3>
                      <div className={cx('content')}>
-                        <ListProductHome data={element.products} />
+                        <ListProductHome data={element.products.slice(0, 7)} />
                      </div>
 
                      <div className={cx('footer')}>

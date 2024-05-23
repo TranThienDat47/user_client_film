@@ -21,8 +21,6 @@ class CategoriesService {
             `${apiUrl}/products/get_product_of_category?categories_id=${catgories_id}&skip=${skip}&limit=${limit}&recently=${recently}`,
          );
 
-         console.log(response.data);
-
          return response.data;
       } catch (error) {
          if (error.response) return { success: false, message: error.response };
