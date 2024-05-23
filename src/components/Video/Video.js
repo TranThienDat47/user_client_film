@@ -1477,9 +1477,6 @@ const Video = ({
                               className={cx('wrapper-setting')}
                               darkMode
                               offset={[66, 23]}
-                              onChange={(e) => {
-                                 if (e.onChange) e.onChange();
-                              }}
                            >
                               <Button
                                  key="setting1"

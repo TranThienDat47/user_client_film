@@ -100,6 +100,10 @@ html {
    overflow: hidden;
 }
 
+button {
+   color: var(--text-color);
+}
+
 body {
    font-family: 'ProximaNova', sans-serif;
    font-size: 1.6rem;

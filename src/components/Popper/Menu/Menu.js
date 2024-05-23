@@ -48,7 +48,8 @@ function Menu({
                         [...history, item.children].length - 1
                      ];
                   } else {
-                     onChange(item);
+                     console.log(item);
+                     item?.onChange(item);
 
                      if (history.length > 1) {
                         setHistory((prev) => prev.slice(0, prev.length - 1));

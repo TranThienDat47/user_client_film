@@ -360,7 +360,7 @@ function CommentItem({
                         <Button
                            className={cx('option', 'menu')}
                            transparent
-                           backgroundColor="rgba(255, 255, 255, 0.94)"
+                           backgroundColor="var(--white)"
                            onClick={() => {
                               clickOptionRef.current = true;
                               setShowMenuOption((prev) => !prev);

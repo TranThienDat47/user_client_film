@@ -26,7 +26,7 @@
    border-bottom-left-radius: 0 !important;
 
    .top__background {
-      border: 3px solid var(--white);
+      border: 3px solid var(--border-color);
       box-shadow: 0 0 9px 1px var(--box-shadow-color);
       border-radius: 13px;
       width: 100%;
@@ -93,7 +93,7 @@
       width: 236px;
       border-radius: 9px;
       box-shadow: -9px 9px 13px 9px var(--box-shadow-color);
-      border: 3px solid var(--white);
+      border: 3px solid var(--border-color);
    }
 }
 

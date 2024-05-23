@@ -1,16 +1,5 @@
 import { useEffect, useRef, useState, Suspense, lazy } from 'react';
 import classNames from 'classnames/bind';
-
-import config from '~/config';
-import imgs from '~/assets/img';
-// import Search from '~/components/Search';
-
-import Button from '~/components/Button';
-import styles from './Header.module.scss';
-import HeaderSidebar from './HeaderSidebar';
-import Notification from './Notification';
-import Menu from '~/components/Popper/Menu';
-
 import { BiUserCircle } from 'react-icons/bi';
 import {
    AiOutlineLogout,
@@ -20,12 +9,20 @@ import {
    AiOutlineRight,
    AiOutlineCheck,
    AiOutlineMenu,
-   AiOutlineBell,
 } from 'react-icons/ai';
 import { IoLanguageOutline } from 'react-icons/io5';
 import { RiSettingsLine } from 'react-icons/ri';
 import { useSelector } from 'react-redux';
+
+import config from '~/config';
+import imgs from '~/assets/img';
+import Button from '~/components/Button';
+import styles from './Header.module.scss';
+import HeaderSidebar from './HeaderSidebar';
+import Notification from './Notification';
+import Menu from '~/components/Popper/Menu';
 import { authSelector } from '~/redux/selectors/auth/authSelector';
+import { handleChangeModeTheme } from '~/utils/handleChangeModeTheme';
 
 const SearchLayzy = lazy(() => import('~/components/Search'));
 
@@ -33,237 +30,215 @@ const cx = classNames.bind(styles);
 
 function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () => {} }) {
    const { user, isAuthenticated } = useSelector(authSelector);
-
    const currentPath = window.location.pathname;
-
    const isWatchPage = currentPath === '/watch';
 
-   useEffect(() => {
-      if (isWatchPage) {
-         setAbleHeaderSidebarState(true);
-      } else setAbleHeaderSidebarState(false);
-   }, [currentPath]);
-
-   // eslint-disable-next-line
    const [ableHeaderSidebarState, setAbleHeaderSidebarState] = useState(false);
    const [canClickSideBarState, setCanClickSideBarState] = useState(true);
    const [navbarCollapsedState, setNavbarCollapsedState] = useState(collapseDefault);
 
-   const [dataInit, setDataInit] = useState([
-      {
-         title: <div className={cx('title')}>Cài đặt</div>,
-         left_icon: <RiSettingsLine className={cx('icon')} />,
-         right_icon: <AiOutlineRight className={cx('icon')} />,
-      },
-      {
-         title: <div className={cx('title')}>Giao diện: Giao diện sáng</div>,
-         left_icon: <AiOutlineThunderbolt className={cx('icon')} />,
-         right_icon: <AiOutlineRight className={cx('icon')} />,
-         children: {
-            title: <div className={cx('title')}>Giao diện</div>,
-            data: [
-               {
-                  title: <div className={cx('title')}>Giao diện sáng</div>,
-                  left_icon: <AiOutlineCheck className={cx('icon')} />,
-               },
-               // {
-               //    title: <div className={cx('title')}>Giao diện tối</div>,
-               //    left_icon: <div className={cx('icon')}></div>,
-               // },
-            ],
-         },
-         separate: true,
-      },
-      {
-         title: <div className={cx('title')}>Ngôn ngữ: Tiếng Việt (VN)</div>,
-         left_icon: <IoLanguageOutline className={cx('icon')} />,
-         right_icon: <AiOutlineRight className={cx('icon')} />,
-         children: {
-            title: <div className={cx('title')}>Ngôn ngữ</div>,
-            data: [
-               {
-                  title: <div className={cx('title')}>Tiếng Việt (VN)</div>,
-                  left_icon: <AiOutlineCheck className={cx('icon')} />,
-               },
-            ],
-         },
-      },
-      {
-         title: <div className={cx('title')}>Trợ giúp</div>,
-         left_icon: <AiOutlineQuestionCircle className={cx('icon')} />,
-         separate: true,
-      },
-      {
-         title: <div className={cx('title')}>Đóng góp ý kiến</div>,
-         left_icon: <AiOutlineExclamationCircle className={cx('icon')} />,
-      },
-   ]);
+   // Thêm trạng thái cho giao diện và ngôn ngữ
+   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+   const [language, setLanguage] = useState('Tiếng Việt (VN)');
 
-   // const dataInitRef = useRef([
-   //       {
-   //          title: (
-   //             <div className={cx('title')}>
-   //                <p className={cx('account-name')}>Trần Văn Nam</p>
-   //                <p className={cx('account-email')}>tranthiendat220102@gmail.com</p>
-   //             </div>
-   //          ),
-   //          left_icon: (
-   //             <img
-   //                className={cx('avt', 'account-avt')}
-   //                src={imgs.noImage}
-   //                onError={(e) => {
-   //                   e.target.onerror = null;
-   //                   e.target.src = imgs.noImage;
-   //                }}
-   //                alt=""
-   //             />
-   //          ),
-   //       },
-   //       {
-   //          title: <div className={cx('title')}>Tài khoản của bạn</div>,
-   //          left_icon: <BiUserCircle className={cx('icon')} />,
-   //          separate: true,
-   //       },
-   //       {
-   //          title: <div className={cx('title')}>Cài đặt</div>,
-   //          left_icon: <RiSettingsLine className={cx('icon')} />,
-   //          right_icon: <AiOutlineRight className={cx('icon')} />,
-   //       },
-   //       {
-   //          title: <div className={cx('title')}>Giao diện: Giao diện sáng</div>,
-   //          left_icon: <AiOutlineThunderbolt className={cx('icon')} />,
-   //          right_icon: <AiOutlineRight className={cx('icon')} />,
-   //          children: {
-   //             title: <div className={cx('title')}>Giao diện</div>,
-   //             data: [
-   //                {
-   //                   title: <div className={cx('title')}>Giao diện sáng</div>,
-   //                   left_icon: <AiOutlineCheck className={cx('icon')} />,
-   //                },
-   //                {
-   //                   title: <div className={cx('title')}>Giao diện tối</div>,
-   //                   left_icon: <div className={cx('icon')}></div>,
-   //                },
-   //             ],
-   //          },
-   //          separate: true,
-   //       },
-   //       {
-   //          title: <div className={cx('title')}>Ngôn ngữ: Tiếng Việt (VN)</div>,
-   //          left_icon: <IoLanguageOutline className={cx('icon')} />,
-   //          right_icon: <AiOutlineRight className={cx('icon')} />,
-   //          children: {
-   //             title: <div className={cx('title')}>Ngôn ngữ</div>,
-   //             data: [
-   //                {
-   //                   title: <div className={cx('title')}>Tiếng Việt (VN)</div>,
-   //                   left_icon: <AiOutlineCheck className={cx('icon')} />,
-   //                },
-   //             ],
-   //          },
-   //       },
-   //       {
-   //          to: '/logout',
-   //          title: <div className={cx('title')}>Đăng xuất</div>,
-   //          left_icon: <AiOutlineLogout className={cx('icon')} />,
-   //          separate: true,
-   //       },
-   //       {
-   //          title: <div className={cx('title')}>Trợ giúp</div>,
-   //          left_icon: <AiOutlineQuestionCircle className={cx('icon')} />,
-   //          separate: true,
-   //       },
-   //       {
-   //          title: <div className={cx('title')}>Đóng góp ý kiến</div>,
-   //          left_icon: <AiOutlineExclamationCircle className={cx('icon')} />,
-   //       },
-   //   ]);
+   const [dataInit, setDataInit] = useState(getInitialData(theme, language));
 
    const childRef = useRef(null);
 
    useEffect(() => {
+      localStorage.setItem('theme', theme);
+      handleChangeModeTheme(theme);
+   }, [theme]);
+
+   useEffect(() => {
+      setAbleHeaderSidebarState(isWatchPage);
+   }, [currentPath]);
+
+   useEffect(() => {
       if (user) {
-         setDataInit([
-            {
-               title: (
-                  <div className={cx('title')}>
-                     <p className={cx('account-name')}>{user._name}</p>
-                     <p className={cx('account-email')}>{user.username}</p>
-                  </div>
-               ),
-               left_icon: (
-                  <img
-                     className={cx('avt', 'account-avt')}
-                     src={user.img || imgs.noImage}
-                     onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = imgs.noImage;
-                     }}
-                     alt=""
-                  />
-               ),
-            },
-            {
-               title: <div className={cx('title')}>Tài khoản của bạn</div>,
-               left_icon: <BiUserCircle className={cx('icon')} />,
-               separate: true,
-            },
-            {
-               title: <div className={cx('title')}>Cài đặt</div>,
-               left_icon: <RiSettingsLine className={cx('icon')} />,
-               right_icon: <AiOutlineRight className={cx('icon')} />,
-            },
-            {
-               title: <div className={cx('title')}>Giao diện: Giao diện sáng</div>,
-               left_icon: <AiOutlineThunderbolt className={cx('icon')} />,
-               right_icon: <AiOutlineRight className={cx('icon')} />,
-               children: {
-                  title: <div className={cx('title')}>Giao diện</div>,
-                  data: [
-                     {
-                        title: <div className={cx('title')}>Giao diện sáng</div>,
-                        left_icon: <AiOutlineCheck className={cx('icon')} />,
-                     },
-                     // {
-                     //    title: <div className={cx('title')}>Giao diện tối</div>,
-                     //    left_icon: <div className={cx('icon')}></div>,
-                     // },
-                  ],
-               },
-               separate: true,
-            },
-            {
-               title: <div className={cx('title')}>Ngôn ngữ: Tiếng Việt (VN)</div>,
-               left_icon: <IoLanguageOutline className={cx('icon')} />,
-               right_icon: <AiOutlineRight className={cx('icon')} />,
-               children: {
-                  title: <div className={cx('title')}>Ngôn ngữ</div>,
-                  data: [
-                     {
-                        title: <div className={cx('title')}>Tiếng Việt (VN)</div>,
-                        left_icon: <AiOutlineCheck className={cx('icon')} />,
-                     },
-                  ],
-               },
-            },
-            {
-               to: '/logout',
-               title: <div className={cx('title')}>Đăng xuất</div>,
-               left_icon: <AiOutlineLogout className={cx('icon')} />,
-               separate: true,
-            },
-            {
-               title: <div className={cx('title')}>Trợ giúp</div>,
-               left_icon: <AiOutlineQuestionCircle className={cx('icon')} />,
-               separate: true,
-            },
-            {
-               title: <div className={cx('title')}>Đóng góp ý kiến</div>,
-               left_icon: <AiOutlineExclamationCircle className={cx('icon')} />,
-            },
-         ]);
+         setDataInit(getUserData(user, theme, language));
+      } else {
+         setDataInit(getInitialData(theme, language));
       }
-   }, [user]);
+   }, [user, theme, language]);
+
+   function getInitialData(theme, language) {
+      return [
+         {
+            title: <div className={cx('title')}>Cài đặt</div>,
+            left_icon: <RiSettingsLine className={cx('icon')} />,
+            right_icon: <AiOutlineRight className={cx('icon')} />,
+         },
+         {
+            title: (
+               <div className={cx('title')}>
+                  Giao diện: Giao diện {theme === 'light' ? 'sáng' : 'tối'}
+               </div>
+            ),
+            left_icon: <AiOutlineThunderbolt className={cx('icon')} />,
+            right_icon: <AiOutlineRight className={cx('icon')} />,
+            children: {
+               title: <div className={cx('title')}>Giao diện</div>,
+               data: [
+                  {
+                     title: <div className={cx('title')}>Giao diện sáng</div>,
+                     left_icon:
+                        theme === 'light' ? (
+                           <AiOutlineCheck className={cx('icon')} />
+                        ) : (
+                           <div className={cx('icon')}></div>
+                        ),
+                     onChange: () => setTheme('light'),
+                  },
+                  {
+                     title: <div className={cx('title')}>Giao diện tối</div>,
+                     left_icon:
+                        theme === 'dark' ? (
+                           <AiOutlineCheck className={cx('icon')} />
+                        ) : (
+                           <div className={cx('icon')}></div>
+                        ),
+                     onChange: () => setTheme('dark'),
+                  },
+               ],
+            },
+            separate: true,
+         },
+         {
+            title: <div className={cx('title')}>Ngôn ngữ: {language}</div>,
+            left_icon: <IoLanguageOutline className={cx('icon')} />,
+            right_icon: <AiOutlineRight className={cx('icon')} />,
+            children: {
+               title: <div className={cx('title')}>Ngôn ngữ</div>,
+               data: [
+                  {
+                     title: <div className={cx('title')}>Tiếng Việt (VN)</div>,
+                     left_icon:
+                        language === 'Tiếng Việt (VN)' ? (
+                           <AiOutlineCheck className={cx('icon')} />
+                        ) : (
+                           <div className={cx('icon')}></div>
+                        ),
+                     onChange: () => setLanguage('Tiếng Việt (VN)'),
+                  },
+               ],
+            },
+         },
+         {
+            title: <div className={cx('title')}>Trợ giúp</div>,
+            left_icon: <AiOutlineQuestionCircle className={cx('icon')} />,
+            separate: true,
+         },
+         {
+            title: <div className={cx('title')}>Đóng góp ý kiến</div>,
+            left_icon: <AiOutlineExclamationCircle className={cx('icon')} />,
+         },
+      ];
+   }
+
+   function getUserData(user, theme, language) {
+      return [
+         {
+            title: (
+               <div className={cx('title')}>
+                  <p className={cx('account-name')}>{user._name}</p>
+                  <p className={cx('account-email')}>{user.username}</p>
+               </div>
+            ),
+            left_icon: (
+               <img
+                  className={cx('avt', 'account-avt')}
+                  src={user.img || imgs.noImage}
+                  onError={(e) => {
+                     e.target.onerror = null;
+                     e.target.src = imgs.noImage;
+                  }}
+                  alt=""
+               />
+            ),
+         },
+         {
+            title: <div className={cx('title')}>Tài khoản của bạn</div>,
+            left_icon: <BiUserCircle className={cx('icon')} />,
+            separate: true,
+         },
+         {
+            title: <div className={cx('title')}>Cài đặt</div>,
+            left_icon: <RiSettingsLine className={cx('icon')} />,
+            right_icon: <AiOutlineRight className={cx('icon')} />,
+         },
+         {
+            title: (
+               <div className={cx('title')}>
+                  Giao diện: Giao diện {theme === 'light' ? 'sáng' : 'tối'}
+               </div>
+            ),
+            left_icon: <AiOutlineThunderbolt className={cx('icon')} />,
+            right_icon: <AiOutlineRight className={cx('icon')} />,
+            children: {
+               title: <div className={cx('title')}>Giao diện</div>,
+               data: [
+                  {
+                     title: <div className={cx('title')}>Giao diện sáng</div>,
+                     left_icon:
+                        theme === 'light' ? (
+                           <AiOutlineCheck className={cx('icon')} />
+                        ) : (
+                           <div className={cx('icon')}></div>
+                        ),
+                     onChange: () => setTheme('light'),
+                  },
+                  {
+                     title: <div className={cx('title')}>Giao diện tối</div>,
+                     left_icon:
+                        theme === 'dark' ? (
+                           <AiOutlineCheck className={cx('icon')} />
+                        ) : (
+                           <div className={cx('icon')}></div>
+                        ),
+                     onChange: () => setTheme('dark'),
+                  },
+               ],
+            },
+            separate: true,
+         },
+         {
+            title: <div className={cx('title')}>Ngôn ngữ: {language}</div>,
+            left_icon: <IoLanguageOutline className={cx('icon')} />,
+            right_icon: <AiOutlineRight className={cx('icon')} />,
+            children: {
+               title: <div className={cx('title')}>Ngôn ngữ</div>,
+               data: [
+                  {
+                     title: <div className={cx('title')}>Tiếng Việt (VN)</div>,
+                     left_icon:
+                        language === 'Tiếng Việt (VN)' ? (
+                           <AiOutlineCheck className={cx('icon')} />
+                        ) : (
+                           <div className={cx('icon')}></div>
+                        ),
+                     onChange: () => setLanguage('Tiếng Việt (VN)'),
+                  },
+               ],
+            },
+         },
+         {
+            to: '/logout',
+            title: <div className={cx('title')}>Đăng xuất</div>,
+            left_icon: <AiOutlineLogout className={cx('icon')} />,
+            separate: true,
+         },
+         {
+            title: <div className={cx('title')}>Trợ giúp</div>,
+            left_icon: <AiOutlineQuestionCircle className={cx('icon')} />,
+            separate: true,
+         },
+         {
+            title: <div className={cx('title')}>Đóng góp ý kiến</div>,
+            left_icon: <AiOutlineExclamationCircle className={cx('icon')} />,
+         },
+      ];
+   }
 
    const handleClickMenuSidebar = () => {
       if (ableHeaderSidebarState) {

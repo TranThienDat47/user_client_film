@@ -44,7 +44,7 @@
       left: 6px;
       border-top: 6px solid transparent;
       border-bottom: 6px solid transparent;
-      border-left: 10px solid black;
+      border-left: 10px solid var(--black);
    }
 
    &.medium.small {
@@ -239,7 +239,7 @@
 .productname {
    line-height: 16px;
    font-size: 1.4rem;
-   color: rgba(22, 24, 35, 0.5);
+   color: var(--text-bland-down);
    overflow: hidden;
    -webkit-line-clamp: 1;
    text-overflow: ellipsis;

@@ -1,3 +1,9 @@
+:root {
+   --search-icon-normal-color: rgba(22, 24, 35, 0.34);
+   --background-search-color: rgba(255, 255, 255, 1);
+   --sperator-color: var(--border-color);
+}
+
 .wrapper {
    width: 100%;
    margin-left: 24px;
@@ -15,7 +21,7 @@
 }
 
 .search-title {
-   color: rgba(22, 24, 35, 0.5);
+   color: var(--text-bland-down);
    font-size: 1.4rem;
    font-weight: 600;
    padding: 4px 12px;
@@ -26,8 +32,8 @@
    height: var(--search-height);
    padding: 0px 16px;
    border-radius: 92px;
-   background-color: var(--white);
-   border: 1px solid rgba(22, 24, 35, 0.25);
+   background-color: var(--background-search-color);
+   border: 1px solid var(--border-color);
 
    input {
       font-family: var(--font-family);
@@ -40,14 +46,14 @@
       background-color: transparent;
    }
 
-   input:not(:placeholder-shown) ~ .search-wrapper .search-btn {
-      color: rgba(22, 24, 35, 0.75);
+   input:not(:placeholder-shown) ~ .search-btn {
+      color: var(--text-color);
    }
 
    &::after {
       content: '';
       position: absolute;
-      background-color: rgba(22, 24, 35, 0.12);
+      background-color: var(--sperator-color);
       height: calc(var(--search-height) - var(--search-top-spacer) * 2);
       top: var(--search-top-spacer);
       width: 1px;
@@ -100,18 +106,18 @@
    border-bottom-right-radius: 92px;
    background-color: transparent;
    font-size: 2rem;
-   color: rgba(22, 24, 35, 0.34);
+   color: var(--search-icon-normal-color);
    display: flex;
    align-items: center;
    justify-content: center;
    cursor: pointer;
 
    &:hover {
-      background-color: rgba(22, 24, 35, 0.03);
+      background-color: var(--hover-item-color);
    }
 
    &:active {
-      background-color: rgba(22, 24, 35, 0.06);
+      background-color: var(--border-color);
    }
 }
 

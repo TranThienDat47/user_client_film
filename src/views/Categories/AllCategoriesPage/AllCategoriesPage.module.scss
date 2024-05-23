@@ -20,7 +20,7 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            background-color: var(--white-color);
+            background-color: var(--white);
 
             transform: translate(-50%, -50%);
 
@@ -28,6 +28,7 @@
                box-shadow: none;
                font-size: 1.4rem;
                padding: 16px 86px;
+               border: 1px solid var(--border-color);
             }
          }
       }

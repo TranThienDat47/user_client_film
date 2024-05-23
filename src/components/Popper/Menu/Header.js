@@ -13,7 +13,7 @@ function Header({ title, onBack, darkMode, titleOnBack = false }) {
          <Button
             transparent
             className={cx('back-btn')}
-            style={{ color: `${darkMode ? 'var(--white-color)' : ''}` }}
+            style={{ color: `${darkMode ? 'var(--white)' : ''}` }}
             onClick={onBack}
          >
             <AiOutlineArrowLeft />
