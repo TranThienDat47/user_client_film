@@ -12,12 +12,17 @@ import Auth from '~/views/Auth/index.js';
 import { useState, useEffect } from 'react';
 import Categories from '~/views/Categories';
 import CategoriesService from './services/CategoriesService';
+import { handleChangeModeTheme } from './utils/handleChangeModeTheme';
 
 function App() {
    const [dynamicRoutePublicState, setDynamicRoutePublicState] = useState([]);
    const [ableRouteState, setAbleRouteState] = useState(false);
 
    useEffect(() => {
+      const tempTheme = localStorage.getItem('theme');
+      console.log('haha', tempTheme);
+      if (tempTheme) handleChangeModeTheme(tempTheme);
+
       CategoriesService.getAll().then((res) => {
          setDynamicRoutePublicState(
             res.categories.map((element, index) => {
