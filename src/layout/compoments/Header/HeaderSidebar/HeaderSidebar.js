@@ -115,7 +115,7 @@ const HeaderSidebar = forwardRef((prop, ref) => {
             icon: <RiSettingsLine className={cx('icon')} />,
             title: 'Cài đặt',
             active: false,
-            to: '#',
+            to: user ? '#' : '/login',
          },
          {
             icon: <AiOutlineQuestionCircle className={cx('icon')} />,

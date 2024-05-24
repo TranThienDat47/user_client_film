@@ -23,6 +23,7 @@ import Notification from './Notification';
 import Menu from '~/components/Popper/Menu';
 import { authSelector } from '~/redux/selectors/auth/authSelector';
 import { handleChangeModeTheme } from '~/utils/handleChangeModeTheme';
+import { useNavigate } from 'react-router-dom';
 
 const SearchLayzy = lazy(() => import('~/components/Search'));
 
@@ -32,6 +33,8 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
    const { user, isAuthenticated } = useSelector(authSelector);
    const currentPath = window.location.pathname;
    const isWatchPage = currentPath === '/watch';
+
+   const navigate = useNavigate();
 
    const [ableHeaderSidebarState, setAbleHeaderSidebarState] = useState(false);
    const [canClickSideBarState, setCanClickSideBarState] = useState(true);
@@ -67,7 +70,12 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
          {
             title: <div className={cx('title')}>Cài đặt</div>,
             left_icon: <RiSettingsLine className={cx('icon')} />,
-            right_icon: <AiOutlineRight className={cx('icon')} />,
+            // right_icon: <AiOutlineRight className={cx('icon')} />,
+            onChange: () => {
+               if (!user) {
+                  navigate('/login');
+               }
+            },
          },
          {
             title: (
@@ -166,6 +174,11 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
             title: <div className={cx('title')}>Cài đặt</div>,
             left_icon: <RiSettingsLine className={cx('icon')} />,
             right_icon: <AiOutlineRight className={cx('icon')} />,
+            onChange: () => {
+               if (!user) {
+                  navigate('/login');
+               }
+            },
          },
          {
             title: (

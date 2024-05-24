@@ -2,7 +2,7 @@ export const handleChangeModeTheme = (mode) => {
    if (mode === 'light') {
       document.documentElement.style.setProperty('--primary', '#fff');
       document.documentElement.style.setProperty('--white', '#fff');
-      document.documentElement.style.setProperty('--black', '#E4E6EB');
+      document.documentElement.style.setProperty('--black', '#000');
       document.documentElement.style.setProperty('--border-color', 'rgba(22, 24, 35, 0.13)');
 
       document.documentElement.style.setProperty(

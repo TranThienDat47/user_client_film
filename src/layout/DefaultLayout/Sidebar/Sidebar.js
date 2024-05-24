@@ -69,39 +69,7 @@ function Sidebar({ collaped = false }) {
    const [followItemExpandState, setFollowItemExpandState] = useState([]);
 
    const filterDataItemExpandState = (listData) => {
-      var listCheck = [
-         {
-            icon: <AiOutlineCheck className={cx('icon')} />,
-            title: 'Theo dõi',
-            active: currentPath === '/follow' ? true : false,
-            to: '/follow',
-         },
-         {
-            icon: null,
-            title: null,
-            sperator: true,
-            header_title: 'Cá nhân',
-         },
-         {
-            icon: <BsClockHistory className={cx('icon')} />,
-            title: 'Phim đã xem',
-            active: currentPath === '/seenMovie' ? true : false,
-            to: '/seenMovie',
-         },
-         {
-            icon: <AiOutlineDownload className={cx('icon')} />,
-            title: 'Phim đã lưu',
-            active: false,
-            to: '#',
-         },
-         {
-            icon: <BsClock className={cx('icon')} />,
-            title: 'Xem sau',
-            active: currentPath === '/seeLaterMovie' ? true : false,
-            to: '/seeLaterMovie',
-         },
-         ...listData,
-      ];
+      var listCheck = [...listData];
 
       if (!isAuthenticated) {
          listCheck = [];
@@ -119,6 +87,36 @@ function Sidebar({ collaped = false }) {
             title: 'Thể loại',
             active: currentPath === '/category' ? true : false,
             to: '/category',
+         },
+         {
+            icon: <AiOutlineCheck className={cx('icon')} />,
+            title: 'Theo dõi',
+            active: currentPath === '/follow' ? true : false,
+            to: user ? '/follow' : '/login',
+         },
+         {
+            icon: null,
+            title: null,
+            sperator: true,
+            header_title: 'Cá nhân',
+         },
+         {
+            icon: <BsClockHistory className={cx('icon')} />,
+            title: 'Phim đã xem',
+            active: currentPath === '/seenMovie' ? true : false,
+            to: user ? '/seenMovie' : '/login',
+         },
+         {
+            icon: <AiOutlineDownload className={cx('icon')} />,
+            title: 'Phim đã lưu',
+            active: false,
+            to: user ? '#' : '/login',
+         },
+         {
+            icon: <BsClock className={cx('icon')} />,
+            title: 'Xem sau',
+            active: currentPath === '/seeLaterMovie' ? true : false,
+            to: user ? '/seeLaterMovie' : '/login',
          },
          ...listCheck,
          {
@@ -143,7 +141,7 @@ function Sidebar({ collaped = false }) {
             icon: <RiSettingsLine className={cx('icon')} />,
             title: 'Cài đặt',
             active: false,
-            to: '#',
+            to: user ? '#' : '/login',
          },
          {
             icon: <AiOutlineQuestionCircle className={cx('icon')} />,

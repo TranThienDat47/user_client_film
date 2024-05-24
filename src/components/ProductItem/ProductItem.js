@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames/bind';
 
@@ -14,6 +14,8 @@ import Headless from '../Headless';
 import formatFollowCount from '~/utils/formatFollowCount';
 import FollowService from '~/services/FollowService';
 import { validateTime } from '~/utils/validated';
+import { authSelector } from '~/redux/selectors/auth/authSelector';
+import { useSelector } from 'react-redux';
 
 const cx = classNames.bind(styles);
 
@@ -36,6 +38,9 @@ function ProductItem({
    },
    ...passProp
 }) {
+   const { user } = useSelector(authSelector);
+   const navigate = useNavigate();
+
    const animationRef = useRef();
    const itemRef = useRef();
    const itemWrapperRef = useRef();
@@ -144,12 +149,30 @@ function ProductItem({
 
    const renderOptionItem = (
       items = [
-         { title: 'Thêm vào danh sách yêu thích' },
-         { title: 'Chia sẻ' },
+         {
+            title: 'Theo dõi',
+            onClick: () => {
+               if (user) {
+                  setShowMenuOption(false);
+               } else {
+                  navigate('/login');
+               }
+            },
+         },
+         {
+            title: 'Chia sẻ (Sao chép URL)',
+            onClick: () => {
+               navigator.clipboard.writeText(window.location.origin + '/product?id=' + data._id);
+
+               setShowMenuOption(false);
+            },
+         },
          { title: 'Báo cáo vấn đề', separate: true },
       ],
    ) => {
-      return items.map((item, index) => <MenuItem small key={index} data={item}></MenuItem>);
+      return items.map((item, index) => (
+         <MenuItem small key={index} onClick={item.onClick} data={item}></MenuItem>
+      ));
    };
 
    useEffect(() => {
