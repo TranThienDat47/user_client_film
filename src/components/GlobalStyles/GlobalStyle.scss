@@ -21,7 +21,7 @@
 
    --hover-dark-color: rgba(255, 255, 255, 0.19);
 
-   --took-tip-color: rgba(23, 26, 39, 0.59);
+   --tooltip-color: mix(rgba(0, 0, 0, 1), rgba(255, 255, 255, 0.6));
    --aria-color: #c3c9cb30;
 
    --default-layout-header-height: 60px;
@@ -68,6 +68,8 @@
 
    //empty content
    --empty-content: rgba(22, 24, 35, 0.1);
+
+   --background-search-color: rgba(255, 255, 255, 1);
 
    @media (min-width: 0px) and (max-width: 640px) {
       --ytd-rich-grid-items-per-row: 3;
@@ -174,6 +176,11 @@ input[type='checkbox']:focus {
    box-shadow: none;
 }
 
+input {
+   background-color: transparent;
+   color: var(--text-color);
+}
+
 a {
    color: var(--text-color);
    text-decoration: none;
@@ -204,7 +211,7 @@ a {
       font-weight: 600;
       color: var(--white);
       border-radius: 6px;
-      background-color: mix(rgba(0, 0, 0, 1), rgba(255, 255, 255, 0.6));
+      background-color: var(--tooltip-color);
    }
 
    &:hover:last-child::after {

@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import classNames from 'classnames/bind';
-
 import imgs from '~/assets/img';
 import Button from '~/components/Button';
 import { FcGoogle } from 'react-icons/fc';
 import { SiFacebook } from 'react-icons/si';
-
 import styles from './Auth.module.scss';
 import { Link } from 'react-router-dom';
 import AuthServices from '~/services/AuthServices';
@@ -23,46 +21,63 @@ const RegisterForm = () => {
       confirm_password: '',
    });
 
-   const [tempStep, setTempStep] = useState(0); //0 default, 1 ok email, 2 ok password
-   const [invalid, setInvalid] = useState(0); //0 valid, 1 invalid duplicate email, 2 invalid password
+   const [tempStep, setTempStep] = useState(0);
+   const [invalid, setInvalid] = useState(-1);
    const [showPassword, setShowPassword] = useState(false);
-
-   // const { username, password, confirm_password, last_name, first_name } = registerForm;
 
    const onChangeRegisterForm = (event) => {
       setRegisterForm({ ...registerForm, [event.target.name]: event.target.value });
    };
 
-   const hanldeChangeShowPassword = (event) => {
+   const hanldeChangeShowPassword = () => {
       setShowPassword((prev) => !prev);
    };
 
    const handleRegister = async (event) => {
-      startLoading();
-      if (registerForm.confirm_password !== registerForm.password) {
-         console.log(registerForm.confirm_password, registerForm.password);
-         setInvalid(2);
-         return;
-      } else {
-         const register = await AuthServices.register(registerForm);
-
-         if (register) {
-            endLoading();
-            if (register.success) {
-               localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, register.accessToken);
-               window.location.href = '/';
+      if (!!registerForm.confirm_password && !!registerForm.password) {
+         if (registerForm.password.trim().length >= 6) {
+            event.preventDefault();
+            startLoading();
+            if (registerForm.confirm_password !== registerForm.password) {
+               setInvalid(2);
+               endLoading();
+               return;
+            } else {
+               try {
+                  const register = await AuthServices.register(registerForm);
+                  endLoading();
+                  if (register.success) {
+                     localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, register.accessToken);
+                     window.location.href = '/';
+                  } else {
+                     // Handle registration failure (e.g., show error message)
+                  }
+               } catch (error) {
+                  endLoading();
+                  // Handle error (e.g., show error message)
+               }
             }
+         } else {
+            setInvalid(4);
          }
+      } else {
+         setInvalid(0);
       }
    };
 
    const checkUsernameExist = async () => {
-      const check = await AuthServices.checkUsername({ username: registerForm.username });
-
-      if (check.success && check.valid) {
-         setInvalid(1);
+      if (!!registerForm.username && !!registerForm.first_name && !!registerForm.last_name) {
+         try {
+            const check = await AuthServices.checkUsername({ username: registerForm.username });
+            if (check.success && !check.valid) {
+               setTempStep(1);
+               setInvalid(-1);
+            } else {
+               setInvalid(1);
+            }
+         } catch (error) {}
       } else {
-         setTempStep(1);
+         setInvalid(0);
       }
    };
 
@@ -77,14 +92,19 @@ const RegisterForm = () => {
          <form className={cx('frmLogin')} onChange={onChangeRegisterForm}>
             {tempStep === 0 ? (
                <>
+                  {invalid === 0 && (
+                     <span style={{ marginBottom: '6px' }} className={cx('error-message')}>
+                        Bạn phải nhập đầy đủ thông tin
+                     </span>
+                  )}
                   <div className={cx('block-input', 'horizon-2')}>
                      <input
                         className={cx('first-name')}
                         type="text"
                         placeholder="Họ"
                         name="first_name"
+                        required
                      />
-
                      <input
                         className={cx('last-name', 'mrg-l-13')}
                         type="text"
@@ -92,17 +112,10 @@ const RegisterForm = () => {
                         name="last_name"
                      />
                   </div>
-
-                  <div
-                     className={cx('block-input', 'mrg-t-16', `${invalid === 1 ? 'invalid' : ''}`)}
-                     invalid-message={
-                        invalid === 1
-                           ? 'Tên đăng nhập đã được sử dụng'
-                           : 'Tên đăng nhập không hợp lệ'
-                     }
-                  >
+                  <div className={cx('block-input', 'mrg-t-16', { invalid: invalid === 1 })}>
                      <input
                         className={cx('username')}
+                        required
                         type="email"
                         placeholder="Email hoặc số điện thoại"
                         name="username"
@@ -113,29 +126,42 @@ const RegisterForm = () => {
                            }
                         }}
                      />
+                     {invalid === 1 && (
+                        <span className={cx('error-message')}>Tên đăng nhập đã được sử dụng</span>
+                     )}
                   </div>
                </>
             ) : (
-               ''
-            )}
-
-            {tempStep === 1 ? (
                <>
+                  {invalid === 0 && (
+                     <span
+                        style={{ marginBottom: '6px', marginLeft: '6px' }}
+                        className={cx('error-message')}
+                     >
+                        Bạn phải nhập đầy đủ thông tin
+                     </span>
+                  )}
+
                   <div className={cx('block-input')}>
                      <input
                         className={cx('password')}
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Mật khẩu của bạn"
                         name="password"
+                        required
                      />
                   </div>
-
+                  {invalid === 4 && (
+                     <span
+                        style={{ marginTop: '6px', marginLeft: '6px' }}
+                        className={cx('error-message')}
+                     >
+                        Độ dài mật khẩu ít nhất 6 ký tự
+                     </span>
+                  )}
                   <div className={cx('block-input', 'mrg-t-16')}>
                      <input
                         className={cx('password')}
-                        invalid-message={
-                           invalid === 1 ? 'Mật khẩu không trùng khớp' : 'Mật khẩu không trùng khớp'
-                        }
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Nhập lại mật khẩu"
                         name="confirm_password"
@@ -145,9 +171,17 @@ const RegisterForm = () => {
                               handleRegister();
                            }
                         }}
+                        required
                      />
                   </div>
-
+                  {invalid === 2 && (
+                     <span
+                        style={{ marginTop: '6px', marginLeft: '6px' }}
+                        className={cx('error-message')}
+                     >
+                        Mật khẩu không trùng khớp
+                     </span>
+                  )}
                   <div className={cx('block-other')}>
                      <input
                         onChange={hanldeChangeShowPassword}
@@ -160,27 +194,19 @@ const RegisterForm = () => {
                      </label>
                   </div>
                </>
-            ) : (
-               ''
             )}
             <div className={cx('control')}>
                <Button to={`/login`} className={cx('btn-login')}>
                   Đã có tài khoản
                </Button>
-               {tempStep === 1 ? (
-                  <Button className={cx('btn-submit')} onClick={handleRegister} hover type="button">
-                     Đăng ký
-                  </Button>
-               ) : (
-                  <Button
-                     className={cx('btn-submit')}
-                     onClick={checkUsernameExist}
-                     hover
-                     type="button"
-                  >
-                     Tiếp theo
-                  </Button>
-               )}
+               <Button
+                  className={cx('btn-submit')}
+                  onClick={tempStep === 1 ? handleRegister : checkUsernameExist}
+                  hover
+                  type="button"
+               >
+                  {tempStep === 1 ? 'Đăng ký' : 'Tiếp theo'}
+               </Button>
             </div>
          </form>
          <p className={cx('separator-with_text')}>Hoặc</p>

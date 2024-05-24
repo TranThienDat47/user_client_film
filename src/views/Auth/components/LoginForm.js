@@ -40,6 +40,8 @@ const LoginForm = () => {
          if (login.success) {
             localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, login.accessToken);
             window.location.href = '/';
+         } else {
+            setInvalid(2);
          }
       }
    };
@@ -124,6 +126,14 @@ const LoginForm = () => {
 
             {tempStep === 1 ? (
                <>
+                  {invalid === 2 && (
+                     <span
+                        style={{ marginBottom: '6px', marginLeft: '6px' }}
+                        className={cx('error-message')}
+                     >
+                        Mật khẩu sai
+                     </span>
+                  )}
                   <div className={cx('block-input')}>
                      <input
                         className={cx('password')}

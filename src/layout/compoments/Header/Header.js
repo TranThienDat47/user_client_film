@@ -331,7 +331,7 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
                            className={cx('header__icon', 'option', 'menu', 'tooltip')}
                            transparent
                            name-tooltip="Cài đặt"
-                           backgroundColor="rgba(255, 255, 255, 0.94)"
+                           backgroundColor="var(--white)"
                         >
                            <RiSettingsLine />
                         </Button>

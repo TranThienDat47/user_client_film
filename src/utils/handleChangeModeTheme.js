@@ -23,6 +23,11 @@ export const handleChangeModeTheme = (mode) => {
       document.documentElement.style.setProperty('--text-color', '#272e34');
       document.documentElement.style.setProperty('--text-bland', 'rgba(23, 26, 39, 0.63)');
       document.documentElement.style.setProperty('--text-bland-down', 'rgba(23, 26, 39, 0.33)');
+
+      document.documentElement.style.setProperty(
+         '--tooltip-color',
+         'mix(rgba(0, 0, 0, 1), rgba(255, 255, 255, 0.6))',
+      );
    } else if (mode === 'dark') {
       document.documentElement.style.setProperty('--primary', '#18191a');
       document.documentElement.style.setProperty('--white', '#18191a');
@@ -41,5 +46,7 @@ export const handleChangeModeTheme = (mode) => {
       document.documentElement.style.setProperty('--text-color', '#E4E6EB');
       document.documentElement.style.setProperty('--text-bland', '#E4E6EB');
       document.documentElement.style.setProperty('--text-bland-down', '#E4E6EB');
+
+      document.documentElement.style.setProperty('--tooltip-color', '#E4E6EB');
    }
 };

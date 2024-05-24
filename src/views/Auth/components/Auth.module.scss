@@ -31,6 +31,10 @@
    }
 }
 
+.error-message {
+   color: var(--invalid-color);
+}
+
 .invalid {
    flex-direction: column;
    & > input {
@@ -124,7 +128,7 @@
       font-weight: 500;
 
       background-color: var(--btn-submit);
-      color: var(--white);
+      color: var(--white-color);
 
       &:hover {
          background-color: var(--btn-submit-hover);
@@ -181,9 +185,11 @@
 
    &.with-google {
       border: 1px solid var(--border-color);
+      background-color: var(--white-color);
+      color: #272e34;
    }
    &.with-facebook {
-      color: var(--white);
+      color: var(--white-color);
       background-color: #00acff;
    }
 
