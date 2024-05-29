@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import Categories from '~/views/Categories';
 import CategoriesService from './services/CategoriesService';
 import { handleChangeModeTheme } from './utils/handleChangeModeTheme';
+import { FabllbackProvider, FallbackContext } from './composables/FabllbackProvider';
 
 function App() {
    const [dynamicRoutePublicState, setDynamicRoutePublicState] = useState([]);
@@ -20,7 +21,6 @@ function App() {
 
    useEffect(() => {
       const tempTheme = localStorage.getItem('theme');
-      console.log('haha', tempTheme);
       if (tempTheme) handleChangeModeTheme(tempTheme);
 
       CategoriesService.getAll().then((res) => {
@@ -53,7 +53,9 @@ function App() {
                      path={route.path}
                      element={
                         <Layout>
-                           <Page />
+                           <FabllbackProvider>
+                              <Page />
+                           </FabllbackProvider>
                         </Layout>
                      }
                   />
@@ -72,7 +74,9 @@ function App() {
                      path={route.path}
                      element={
                         <Layout>
-                           <Page />
+                           <FabllbackProvider>
+                              <Page />
+                           </FabllbackProvider>
                         </Layout>
                      }
                   />
@@ -96,7 +100,9 @@ function App() {
                         path={route.path}
                         element={
                            <Layout>
-                              <Page />
+                              <FabllbackProvider>
+                                 <Page />
+                              </FabllbackProvider>
                            </Layout>
                         }
                      />

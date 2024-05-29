@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useContext } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './Home.module.scss';
@@ -12,10 +12,15 @@ import {
    fetchHomeSuggested,
 } from '~/redux/slices/products/productHomeSuggestedSlice';
 import { suggestedProductsSelector } from '~/redux/selectors/products/producHomeSuggestedtSelector';
+import { checkIsStart, endLoading } from '~/utils/nprogress';
+import { GlobalContext } from '~/composables/GlobalProvider';
+import { Page as WrapperPage } from '~/composables/Page';
 
 const cx = classNames.bind(styles);
 
 function Home() {
+   const { setLoadFull } = useContext(GlobalContext);
+
    const dispatch = useDispatch();
 
    const newProducts = useSelector(newProductsSelector);
@@ -31,44 +36,56 @@ function Home() {
    }, []);
 
    useEffect(() => {
-      wrapperRef.current.onscroll = () => {
-         childRef.current.handleScroll(wrapperRef.current);
-      };
+      setTimeout(() => {
+         endLoading();
+         setLoadFull(true);
+
+         if (wrapperRef.current) {
+            wrapperRef.current.onscroll = () => {
+               childRef.current.handleScroll(wrapperRef.current);
+            };
+         }
+      });
    }, []);
 
    return (
-      <div ref={wrapperRef} className={cx('wrapper')}>
-         <div className={cx('inner')}>
-            <div className={cx('heading_of_block')}>
-               <span className={cx('title')}>Mới</span>
-            </div>
-            <div className={cx('wrapper_of_block', 'wrapper-product', 'new')}>
-               <ListProductHome data={newProducts.length > 0 ? newProducts : Array(12).fill(0)} />
-            </div>
-
-            <div className={cx('heading_of_block')}>
-               <span className={cx('title')}>Đề xuất</span>
-            </div>
-            <div className={cx('wrapper_of_block', 'wrapper-product', 'recommend-products')}>
-               <LazyLoading
-                  ref={childRef}
-                  hasMore={hasMore}
-                  loadingMore={loadingMore}
-                  pageCurrent={pageSuggestedProducts}
-                  beforeLoad={() => {
-                     dispatch(beforeLoadHomeSuggested());
-                  }}
-                  loadProductMore={(page) => {
-                     dispatch(fetchHomeSuggested(page));
-                  }}
-               >
+      <WrapperPage>
+         {' '}
+         <div ref={wrapperRef} className={cx('wrapper')}>
+            <div className={cx('inner')}>
+               <div className={cx('heading_of_block')}>
+                  <span className={cx('title')}>Mới</span>
+               </div>
+               <div className={cx('wrapper_of_block', 'wrapper-product', 'new')}>
                   <ListProductHome
-                     data={suggestedProducts.length > 0 ? suggestedProducts : Array(12).fill(0)}
+                     data={newProducts.length > 0 ? newProducts : Array(12).fill(0)}
                   />
-               </LazyLoading>
+               </div>
+
+               <div className={cx('heading_of_block')}>
+                  <span className={cx('title')}>Đề xuất</span>
+               </div>
+               <div className={cx('wrapper_of_block', 'wrapper-product', 'recommend-products')}>
+                  <LazyLoading
+                     ref={childRef}
+                     hasMore={hasMore}
+                     loadingMore={loadingMore}
+                     pageCurrent={pageSuggestedProducts}
+                     beforeLoad={() => {
+                        dispatch(beforeLoadHomeSuggested());
+                     }}
+                     loadProductMore={(page) => {
+                        dispatch(fetchHomeSuggested(page));
+                     }}
+                  >
+                     <ListProductHome
+                        data={suggestedProducts.length > 0 ? suggestedProducts : Array(12).fill(0)}
+                     />
+                  </LazyLoading>
+               </div>
             </div>
          </div>
-      </div>
+      </WrapperPage>
    );
 }
 

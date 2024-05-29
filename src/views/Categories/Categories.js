@@ -1,7 +1,7 @@
 import classNames from 'classnames/bind';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useContext } from 'react';
 
 import styles from './Categories.module.scss';
 import Button from '~/components/Button';
@@ -10,12 +10,26 @@ import { MdOutlineKeyboardArrowLeft, MdOutlineKeyboardArrowRight } from 'react-i
 import CategoriesService from '~/services/CategoriesService';
 import CategoriesPage from './CategoriesPage/CategoriesPage';
 import AllCategoriesPage from './AllCategoriesPage/AllCategoriesPage';
+import { checkIsStart, endLoading } from '~/utils/nprogress';
+import { GlobalContext } from '~/composables/GlobalProvider';
+
+import { Page as WrapperPage } from '~/composables/Page';
 
 const cx = classNames.bind(styles);
 
 const STEP_SCROLL_CATEGORY = 49;
 
+const fetchCategories = async () => {
+   return await CategoriesService.getAll().then((res) => {
+      return res;
+   });
+};
+
+const initCategories = await fetchCategories();
+
 const Categories = () => {
+   const { setLoadFull } = useContext(GlobalContext);
+
    const navigate = useNavigate();
 
    const location = useLocation();
@@ -133,12 +147,17 @@ const Categories = () => {
 
    useEffect(() => {
       if (readyState && dataInitCategoriesState.length > 1) {
-         const rectWapperList = wrapperListCategoryRef.current.getBoundingClientRect();
-         const rectLastItem = lastItemCategoryRef.current.getBoundingClientRect();
+         setTimeout(() => {
+            endLoading();
+            setLoadFull(true);
+         });
 
-         maxMoveRef.current = rectLastItem.right - rectWapperList.right;
+         const rectWapperList = wrapperListCategoryRef.current?.getBoundingClientRect();
+         const rectLastItem = lastItemCategoryRef.current?.getBoundingClientRect();
 
-         if (rectWapperList.right < rectLastItem.right) {
+         maxMoveRef.current = rectLastItem?.right - rectWapperList?.right;
+
+         if (rectWapperList?.right < rectLastItem?.right) {
             setShowButtonCategoryState({ ...showButtonCategoryState, showRight: true });
             ableScrollCategoryRef.current = true;
          }
@@ -190,118 +209,120 @@ const Categories = () => {
          }
       }
       // eslint-disable-next-line
-   }, [ableScrollCategoryRef.current, dataInitCategoriesState]);
+   }, [ableScrollCategoryRef.current, dataInitCategoriesState, readyState]);
 
    return (
-      <div ref={wrapperRef} className={cx('wrapper')}>
-         <div className={cx('header_page-wrapper')}>
-            <div className={cx('header_page-pesudo')}></div>
-            <div className={cx('header_page')}>
-               <h1 className={cx('string-formatted')}>Thể loại</h1>
-               <div
-                  className={cx('wrapper-categories')}
-                  style={{
-                     paddingLeft: showButtonCategoryState.showLeft && '46px',
-                     paddingRight: showButtonCategoryState.showRight && '46px',
-                  }}
-               >
-                  <div ref={wrapperListCategoryRef} className={cx('categories-list')}>
-                     {dataInitCategoriesState.map((element, index) => (
-                        <div
-                           key={'category' + index}
-                           ref={
-                              index === 0
-                                 ? firstItemCategoryRef
-                                 : index === dataInitCategoriesState.length - 1
-                                 ? lastItemCategoryRef
-                                 : null
-                           }
-                           className={cx(
-                              'categories-item',
-                              element.active && 'categories-item-active',
-                           )}
-                           onClick={(e) => {
-                              if (!isMoveRef.current) {
-                                 e.preventDefault();
-                                 setDataInitCategoriesState(
-                                    dataInitCategoriesState.map((elementTemp, indexTemp) =>
-                                       indexTemp === index
-                                          ? { ...elementTemp, active: true }
-                                          : { ...elementTemp, active: false },
-                                    ),
-                                 );
+      <WrapperPage>
+         <div ref={wrapperRef} className={cx('wrapper')}>
+            <div className={cx('header_page-wrapper')}>
+               <div className={cx('header_page-pesudo')}></div>
+               <div className={cx('header_page')}>
+                  <h1 className={cx('string-formatted')}>Thể loại</h1>
+                  <div
+                     className={cx('wrapper-categories')}
+                     style={{
+                        paddingLeft: showButtonCategoryState.showLeft && '46px',
+                        paddingRight: showButtonCategoryState.showRight && '46px',
+                     }}
+                  >
+                     <div ref={wrapperListCategoryRef} className={cx('categories-list')}>
+                        {dataInitCategoriesState.map((element, index) => (
+                           <div
+                              key={'category' + index}
+                              ref={
+                                 index === 0
+                                    ? firstItemCategoryRef
+                                    : index === dataInitCategoriesState.length - 1
+                                    ? lastItemCategoryRef
+                                    : null
                               }
+                              className={cx(
+                                 'categories-item',
+                                 element.active && 'categories-item-active',
+                              )}
+                              onClick={(e) => {
+                                 if (!isMoveRef.current) {
+                                    e.preventDefault();
+                                    setDataInitCategoriesState(
+                                       dataInitCategoriesState.map((elementTemp, indexTemp) =>
+                                          indexTemp === index
+                                             ? { ...elementTemp, active: true }
+                                             : { ...elementTemp, active: false },
+                                       ),
+                                    );
+                                 }
 
-                              if (index !== 0) {
-                                 navigate(`/category/` + element.id);
-                              } else {
-                                 navigate(`/category`);
-                              }
-                           }}
-                        >
-                           {element.title}
-                        </div>
-                     ))}
-                  </div>
-                  <div className={cx('control-button-categories')}>
-                     {showButtonCategoryState.showLeft && (
-                        <div
-                           className={cx(
-                              'control-button-categories__wrapper-button',
-                              'control-button-categories__wrapper-button-left',
-                           )}
-                           onClick={handlScrollLeft}
-                        >
-                           <Button
-                              transparent
-                              hover
-                              className={cx('control-button-categories__button')}
+                                 if (index !== 0) {
+                                    navigate(`/category/` + element.id);
+                                 } else {
+                                    navigate(`/category`);
+                                 }
+                              }}
                            >
-                              <MdOutlineKeyboardArrowLeft />
-                           </Button>
-                        </div>
-                     )}
-                     {showButtonCategoryState.showRight && (
-                        <div
-                           onClick={handlScrollRight}
-                           className={cx(
-                              'control-button-categories__wrapper-button',
-                              'control-button-categories__wrapper-button-right',
-                           )}
-                        >
-                           <Button
-                              transparent
-                              hover
-                              className={cx('control-button-categories__button')}
+                              {element.title}
+                           </div>
+                        ))}
+                     </div>
+                     <div className={cx('control-button-categories')}>
+                        {showButtonCategoryState.showLeft && (
+                           <div
+                              className={cx(
+                                 'control-button-categories__wrapper-button',
+                                 'control-button-categories__wrapper-button-left',
+                              )}
+                              onClick={handlScrollLeft}
                            >
-                              <MdOutlineKeyboardArrowRight />
-                           </Button>
-                        </div>
-                     )}
+                              <Button
+                                 transparent
+                                 hover
+                                 className={cx('control-button-categories__button')}
+                              >
+                                 <MdOutlineKeyboardArrowLeft />
+                              </Button>
+                           </div>
+                        )}
+                        {showButtonCategoryState.showRight && (
+                           <div
+                              onClick={handlScrollRight}
+                              className={cx(
+                                 'control-button-categories__wrapper-button',
+                                 'control-button-categories__wrapper-button-right',
+                              )}
+                           >
+                              <Button
+                                 transparent
+                                 hover
+                                 className={cx('control-button-categories__button')}
+                              >
+                                 <MdOutlineKeyboardArrowRight />
+                              </Button>
+                           </div>
+                        )}
+                     </div>
                   </div>
                </div>
             </div>
-         </div>
-         <div className={cx('inner')}>
-            {!!tempIdState ? (
-               <CategoriesPage wrapperRef={wrapperRef} categoryID={tempIdState} />
-            ) : (
-               <AllCategoriesPage
-                  handleClickMore={(tempIdState) => {
-                     setDataInitCategoriesState(
-                        dataInitCategoriesState.map((element, index) =>
-                           element.id === tempIdState
-                              ? { ...element, active: true }
-                              : { ...element, active: false },
-                        ),
-                     );
+            <div className={cx('inner')}>
+               {!!tempIdState ? (
+                  <CategoriesPage wrapperRef={wrapperRef} categoryID={tempIdState} />
+               ) : (
+                  <AllCategoriesPage
+                     handleClickMore={(tempIdState) => {
+                        setDataInitCategoriesState(
+                           dataInitCategoriesState.map((element, index) =>
+                              element.id === tempIdState
+                                 ? { ...element, active: true }
+                                 : { ...element, active: false },
+                           ),
+                        );
 
-                     wrapperRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-               />
-            )}
+                        wrapperRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                     }}
+                  />
+               )}
+            </div>
          </div>
-      </div>
+      </WrapperPage>
    );
 };
 

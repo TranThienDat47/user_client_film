@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames/bind';
@@ -25,11 +25,16 @@ import { globalSelector } from '~/redux/selectors/globals/globalSelector';
 import { fetchProductCurrent } from '~/redux/slices/globals/globalSlice';
 import { authSelector } from '~/redux/selectors/auth/authSelector';
 import SeeLaterMovieService from '~/services/SeeLaterMovieService';
-import { endLoading } from '~/utils/nprogress';
+import { checkIsStart, endLoading } from '~/utils/nprogress';
+import { GlobalContext } from '~/composables/GlobalProvider';
+
+import { Page as WrapperPage } from '~/composables/Page';
 
 const cx = classNames.bind(styles);
 
 const Product = () => {
+   const { setLoadFull } = useContext(GlobalContext);
+
    const navigate = useNavigate();
 
    const { user } = useSelector(authSelector);
@@ -166,365 +171,373 @@ const Product = () => {
    }, [productCurrent, parent_id]);
 
    useEffect(() => {
-      wrapperRef.current.onscroll = () => {
-         childRefComment.current.handleScroll(wrapperRef.current);
-         childRefRecommend.current.handleScroll(wrapperRef.current);
-      };
+      setTimeout(() => {
+         endLoading();
+         setLoadFull(true);
+         wrapperRef.current.onscroll = () => {
+            childRefComment.current.handleScroll(wrapperRef.current);
+            childRefRecommend.current.handleScroll(wrapperRef.current);
+         };
+      });
    }, []);
 
    return (
-      <div ref={wrapperRef} className={cx('wrapper')}>
-         <div className={cx('inner')}>
-            <div className={cx('wrapper_of_block', 'top')}>
-               <div className={cx('top__background')}>
-                  <img
-                     src={
-                        loading
-                           ? imgs.noImage
-                           : productCurrentState.background
-                           ? productCurrentState.background
-                           : imgs.noImage
-                     }
-                     alt={productCurrentState._name}
-                     onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = imgs.noImage;
-                     }}
-                  />
-                  <div className={cx('background_modal')}></div>
-               </div>
-
-               <div className={cx('top__introduce')}>
-                  <div className={cx('top__thumbnail')}>
+      <WrapperPage>
+         <div ref={wrapperRef} className={cx('wrapper')}>
+            <div className={cx('inner')}>
+               <div className={cx('wrapper_of_block', 'top')}>
+                  <div className={cx('top__background')}>
                      <img
                         src={
                            loading
                               ? imgs.noImage
-                              : productCurrentState.img
-                              ? productCurrentState.img
+                              : productCurrentState.background
+                              ? productCurrentState.background
                               : imgs.noImage
                         }
-                        alt="Ko co gi"
+                        alt={productCurrentState._name}
                         onError={(e) => {
                            e.target.onerror = null;
                            e.target.src = imgs.noImage;
                         }}
                      />
+                     <div className={cx('background_modal')}></div>
                   </div>
-                  <div className={cx('top__details')}>
-                     <div className={cx('top__name', 'content-empty w-200 h-29')}>
-                        {productCurrentState._name}
-                     </div>
-                     <div className={cx('top__another-name', 'content-empty w-200 h-23')}>
-                        {productCurrentState.anotherName}
-                     </div>
 
-                     <div className={cx('top__details-inf')}>
-                        <div className={cx('top__details-inf__content')}>
-                           <div className={cx('wrapper-count', 'count-date')}>
-                              <span>Ngày ra mắt:</span>
-                              <div
-                                 className={cx(
-                                    'content-empty w-100 h-20',
-                                    'string-formatted',
-                                    'strong',
-                                 )}
-                              >
-                                 {productCurrentState.releaseDate}
+                  <div className={cx('top__introduce')}>
+                     <div className={cx('top__thumbnail')}>
+                        <img
+                           src={
+                              loading
+                                 ? imgs.noImage
+                                 : productCurrentState.img
+                                 ? productCurrentState.img
+                                 : imgs.noImage
+                           }
+                           alt="Ko co gi"
+                           onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = imgs.noImage;
+                           }}
+                        />
+                     </div>
+                     <div className={cx('top__details')}>
+                        <div className={cx('top__name', 'content-empty w-200 h-29')}>
+                           {productCurrentState._name}
+                        </div>
+                        <div className={cx('top__another-name', 'content-empty w-200 h-23')}>
+                           {productCurrentState.anotherName}
+                        </div>
+
+                        <div className={cx('top__details-inf')}>
+                           <div className={cx('top__details-inf__content')}>
+                              <div className={cx('wrapper-count', 'count-date')}>
+                                 <span>Ngày ra mắt:</span>
+                                 <div
+                                    className={cx(
+                                       'content-empty w-100 h-20',
+                                       'string-formatted',
+                                       'strong',
+                                    )}
+                                 >
+                                    {productCurrentState.releaseDate}
+                                 </div>
+                              </div>
+                              <div className={cx('wrapper-count', 'count-episode')}>
+                                 <span>Số tập:</span>
+                                 <div
+                                    className={cx(
+                                       loading ? 'content-empty w-100 h-20' : '',
+                                       'string-formatted',
+                                       'strong',
+                                    )}
+                                 >
+                                    {productCurrentState.currentEpisodes}/
+                                    {productCurrentState.episodes}
+                                 </div>
+                              </div>
+                              <div className={cx('wrapper-count', 'count-views')}>
+                                 <span>Lượt theo dõi:</span>
+                                 <div
+                                    className={cx(
+                                       'content-empty w-100 h-20',
+                                       'string-formatted',
+                                       'strong',
+                                    )}
+                                 >
+                                    {!!countFollowState ? formatFollowCount(countFollowState) : 0}
+                                 </div>
                               </div>
                            </div>
-                           <div className={cx('wrapper-count', 'count-episode')}>
-                              <span>Số tập:</span>
-                              <div
-                                 className={cx(
-                                    loading ? 'content-empty w-100 h-20' : '',
-                                    'string-formatted',
-                                    'strong',
-                                 )}
-                              >
-                                 {productCurrentState.currentEpisodes}/
-                                 {productCurrentState.episodes}
-                              </div>
+                           <div className={cx('others-controls')}>
+                              {loading ? (
+                                 ''
+                              ) : (
+                                 <>
+                                    <Button
+                                       to={tempWatchRef.current || '#'}
+                                       primary
+                                       rounded
+                                       className={cx('btn_follow')}
+                                       disable={
+                                          productCurrent?.product_details &&
+                                          productCurrent?.product_details.length <= 0
+                                             ? true
+                                             : false
+                                       }
+                                    >
+                                       Xem phim
+                                    </Button>
+
+                                    {seeLaterState ? (
+                                       <Button
+                                          onClick={handleSeeLaterAfter}
+                                          grey
+                                          rounded
+                                          className={cx('btn_follow')}
+                                       >
+                                          Bỏ xem sau
+                                       </Button>
+                                    ) : (
+                                       <Button
+                                          onClick={handleSeeLater}
+                                          grey
+                                          rounded
+                                          className={cx('btn_follow')}
+                                       >
+                                          Xem sau
+                                       </Button>
+                                    )}
+
+                                    {followState.isFollow ? (
+                                       <Button
+                                          onClick={handleFollowAfter}
+                                          grey
+                                          rounded
+                                          className={cx('btn_watching')}
+                                       >
+                                          Bỏ theo dõi
+                                       </Button>
+                                    ) : (
+                                       <Button
+                                          onClick={handleFollow}
+                                          grey
+                                          rounded
+                                          className={cx('btn_watching')}
+                                       >
+                                          Theo dõi
+                                       </Button>
+                                    )}
+                                 </>
+                              )}
                            </div>
-                           <div className={cx('wrapper-count', 'count-views')}>
-                              <span>Lượt theo dõi:</span>
-                              <div
-                                 className={cx(
-                                    'content-empty w-100 h-20',
-                                    'string-formatted',
-                                    'strong',
-                                 )}
-                              >
-                                 {!!countFollowState ? formatFollowCount(countFollowState) : 0}
+                        </div>
+
+                        <div className={cx('categories')}>
+                           <div className={cx('categories-title')}>
+                              <span>Thể loại:</span>
+                           </div>
+                           <div className={cx('categories-list')}>
+                              {productCurrentState.categories &&
+                                 productCurrentState.categories.map((element, index) => (
+                                    <Link
+                                       to={'/category/' + element._id}
+                                       key={element._id ? element._id : index}
+                                    >
+                                       {element.title}
+                                    </Link>
+                                 ))}
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div className={cx('page-body')}>
+                  <div className={cx('body-left')}>
+                     <div>
+                        <div className={cx('wrapper_of_block', 'container', 'wrapper_detail')}>
+                           <div className={cx('detail')}>
+                              <div className={cx('inf__header')}>
+                                 {/* <span className={cx('string-formatted')}>
+                              {formatFollowCount(productDetailCurrentState.views)}
+                              lượt xem
+                           </span> */}
+                                 {/* <span className={cx('string-formatted')}> - </span> */}
+                                 <span className={cx('string-formatted')}>
+                                    {converterDateTitle(productCurrentState.createdAt)}
+                                 </span>
+                              </div>
+                              <div className={cx('wrapper-count', 'description', 'mrg-b-3')}>
+                                 <span className={cx('string-formatted strong flex-shink-0')}>
+                                    Nội dung phim:
+                                 </span>
+                                 <span className={cx('string-formatted')}> </span>
+                                 <div
+                                    className={cx(
+                                       'string-formatted',
+                                       'content-empty w-100 h-20',
+                                       'text-align-justify',
+                                    )}
+                                 >
+                                    {productCurrentState.description}
+                                 </div>
+                              </div>
+
+                              <div className={cx('wrapper-count', 'date', 'mrg-b-3')}>
+                                 <span className={cx('string-formatted strong flex-shink-0')}>
+                                    Ngày phát hành:
+                                 </span>
+                                 <span className={cx('string-formatted')}> </span>
+                                 <div
+                                    className={cx(
+                                       'string-formatted',
+                                       'content-empty w-100 h-20',
+                                       'text-align-justify',
+                                    )}
+                                 >
+                                    {productCurrentState.releaseDate}
+                                 </div>
+                              </div>
+
+                              <div className={cx('wrapper-count', 'country', 'mrg-b-3')}>
+                                 <span className={cx('string-formatted strong flex-shink-0')}>
+                                    Quốc gia:
+                                 </span>
+                                 <span className={cx('string-formatted')}> </span>
+                                 <div
+                                    className={cx(
+                                       'string-formatted',
+                                       loading ? 'content-empty w-100 h-20' : '',
+                                       'text-align-justify',
+                                    )}
+                                 >
+                                    {productCurrentState.country_Of_Origin || ''}
+                                 </div>
+                              </div>
+
+                              <div className={cx('wrapper-count', 'status', 'mrg-b-3')}>
+                                 <span className={cx('string-formatted strong flex-shink-0')}>
+                                    Trạng thái:
+                                 </span>
+                                 <span className={cx('string-formatted')}> </span>
+                                 <div
+                                    className={cx(
+                                       'string-formatted',
+                                       'content-empty w-100 h-20',
+                                       'text-align-justify',
+                                    )}
+                                 >
+                                    Đã hoàn thành
+                                 </div>
+                              </div>
+                              <div className={cx('wrapper-count', 'episode', 'mrg-b-3')}>
+                                 <span className={cx('string-formatted strong flex-shink-0')}>
+                                    Số tập:
+                                 </span>
+                                 <span className={cx('string-formatted')}> </span>
+                                 <div
+                                    className={cx(
+                                       'string-formatted',
+                                       'content-empty w-100 h-20',
+                                       'text-align-justify',
+                                    )}
+                                 >
+                                    {productCurrentState.currentEpisodes}/
+                                    {productCurrentState.episodes}
+                                 </div>
+                              </div>
+
+                              <div className={cx('wrapper-count', 'categories')}>
+                                 <span className={cx('string-formatted strong')}>Thể loại:</span>
+                                 <span className={cx('string-formatted')}> </span>
+                                 <div
+                                    className={cx(
+                                       'string-formatted',
+                                       'content-empty w-100 h-20',
+                                       'text-align-justify',
+                                    )}
+                                 >
+                                    {productCurrentState.categories &&
+                                       productCurrentState.categories.map((element, index) =>
+                                          index === 0 ? element.title : ', ' + element.title,
+                                       )}
+                                 </div>
+                              </div>
+
+                              <div className={cx('trailer')}>
+                                 <span className={cx('string-formatted strong')}>
+                                    Đoạn phim giới thiệu
+                                 </span>
                               </div>
                            </div>
                         </div>
-                        <div className={cx('others-controls')}>
-                           {loading ? (
-                              ''
-                           ) : (
-                              <>
-                                 <Button
-                                    to={tempWatchRef.current || '#'}
-                                    primary
-                                    rounded
-                                    className={cx('btn_follow')}
-                                    disable={
-                                       productCurrent?.product_details &&
-                                       productCurrent?.product_details.length <= 0
-                                          ? true
-                                          : false
+                     </div>
+
+                     <div className={cx('wrapper_of_block', 'container')}>
+                        <div className={cx('header-inner eposide__header')}>
+                           <span className={cx('string-formatted strong')}>Chọn tập</span>
+                        </div>
+                        <div className={cx('list-episodes')}>
+                           {productCurrent?.product_details?.length > 0 ? (
+                              sortedEpisodes(productCurrent?.product_details).map(
+                                 (element, index) => {
+                                    if (index === productCurrent?.product_details.length - 1) {
+                                       tempWatchRef.current = `/watch?parent_id=${parent_id}&episodes=${productCurrent?.product_details[index]._id}`;
                                     }
-                                 >
-                                    Xem phim
-                                 </Button>
 
-                                 {seeLaterState ? (
-                                    <Button
-                                       onClick={handleSeeLaterAfter}
-                                       grey
-                                       rounded
-                                       className={cx('btn_follow')}
-                                    >
-                                       Bỏ xem sau
-                                    </Button>
-                                 ) : (
-                                    <Button
-                                       onClick={handleSeeLater}
-                                       grey
-                                       rounded
-                                       className={cx('btn_follow')}
-                                    >
-                                       Xem sau
-                                    </Button>
-                                 )}
-
-                                 {followState.isFollow ? (
-                                    <Button
-                                       onClick={handleFollowAfter}
-                                       grey
-                                       rounded
-                                       className={cx('btn_watching')}
-                                    >
-                                       Bỏ theo dõi
-                                    </Button>
-                                 ) : (
-                                    <Button
-                                       onClick={handleFollow}
-                                       grey
-                                       rounded
-                                       className={cx('btn_watching')}
-                                    >
-                                       Theo dõi
-                                    </Button>
-                                 )}
-                              </>
+                                    return (
+                                       <Link
+                                          to={`/watch?parent_id=${parent_id}&episodes=${element._id}`}
+                                          key={element._id}
+                                          className={cx('item-episodes')}
+                                       >
+                                          {element.episode}
+                                       </Link>
+                                    );
+                                 },
+                              )
+                           ) : (
+                              <div>Hiện chưa có tập phim nào</div>
                            )}
                         </div>
                      </div>
 
-                     <div className={cx('categories')}>
-                        <div className={cx('categories-title')}>
-                           <span>Thể loại:</span>
-                        </div>
-                        <div className={cx('categories-list')}>
-                           {productCurrentState.categories &&
-                              productCurrentState.categories.map((element, index) => (
-                                 <Link
-                                    to={'/category/' + element._id}
-                                    key={element._id ? element._id : index}
-                                 >
-                                    {element.title}
-                                 </Link>
+                     <Comment key={parent_id} ref={childRefComment} parent_id={parent_id}></Comment>
+                  </div>
+                  <div className={cx('body-right')}>
+                     <div className={cx('heading_of_block')}>
+                        <h3 className={cx('title')}>Đề xuất</h3>
+                     </div>
+                     <div className={cx('sperator')}></div>
+                     <div className={cx('wrapper_of_block', 'container', 'no-margin-top')}>
+                        <div className={cx('recommend')}>
+                           <LazyLoading
+                              ref={childRefRecommend}
+                              hasMore={hasMore}
+                              loadingMore={loadingMore}
+                              pageCurrent={pageRecommendProducts}
+                              beforeLoad={() => {
+                                 dispatch(beforeLoadProductRecommend());
+                              }}
+                              loadProductMore={(page) => {
+                                 dispatch(fetchRecommendProducts(page));
+                              }}
+                           >
+                              {recommendProducts.map((element, index) => (
+                                 <div key={index} className={cx('productTest')}>
+                                    <ProductItem key={index} data={element}></ProductItem>
+                                 </div>
                               ))}
+                           </LazyLoading>
                         </div>
                      </div>
                   </div>
                </div>
+
+               <div className={cx('footer_pseudo')}></div>
             </div>
-            <div className={cx('page-body')}>
-               <div className={cx('body-left')}>
-                  <div>
-                     <div className={cx('wrapper_of_block', 'container', 'wrapper_detail')}>
-                        <div className={cx('detail')}>
-                           <div className={cx('inf__header')}>
-                              {/* <span className={cx('string-formatted')}>
-                                 {formatFollowCount(productDetailCurrentState.views)}
-                                 lượt xem
-                              </span> */}
-                              {/* <span className={cx('string-formatted')}> - </span> */}
-                              <span className={cx('string-formatted')}>
-                                 {converterDateTitle(productCurrentState.createdAt)}
-                              </span>
-                           </div>
-                           <div className={cx('wrapper-count', 'description', 'mrg-b-3')}>
-                              <span className={cx('string-formatted strong flex-shink-0')}>
-                                 Nội dung phim:
-                              </span>
-                              <span className={cx('string-formatted')}> </span>
-                              <div
-                                 className={cx(
-                                    'string-formatted',
-                                    'content-empty w-100 h-20',
-                                    'text-align-justify',
-                                 )}
-                              >
-                                 {productCurrentState.description}
-                              </div>
-                           </div>
-
-                           <div className={cx('wrapper-count', 'date', 'mrg-b-3')}>
-                              <span className={cx('string-formatted strong flex-shink-0')}>
-                                 Ngày phát hành:
-                              </span>
-                              <span className={cx('string-formatted')}> </span>
-                              <div
-                                 className={cx(
-                                    'string-formatted',
-                                    'content-empty w-100 h-20',
-                                    'text-align-justify',
-                                 )}
-                              >
-                                 {productCurrentState.releaseDate}
-                              </div>
-                           </div>
-
-                           <div className={cx('wrapper-count', 'country', 'mrg-b-3')}>
-                              <span className={cx('string-formatted strong flex-shink-0')}>
-                                 Quốc gia:
-                              </span>
-                              <span className={cx('string-formatted')}> </span>
-                              <div
-                                 className={cx(
-                                    'string-formatted',
-                                    loading ? 'content-empty w-100 h-20' : '',
-                                    'text-align-justify',
-                                 )}
-                              >
-                                 {productCurrentState.country_Of_Origin || ''}
-                              </div>
-                           </div>
-
-                           <div className={cx('wrapper-count', 'status', 'mrg-b-3')}>
-                              <span className={cx('string-formatted strong flex-shink-0')}>
-                                 Trạng thái:
-                              </span>
-                              <span className={cx('string-formatted')}> </span>
-                              <div
-                                 className={cx(
-                                    'string-formatted',
-                                    'content-empty w-100 h-20',
-                                    'text-align-justify',
-                                 )}
-                              >
-                                 Đã hoàn thành
-                              </div>
-                           </div>
-                           <div className={cx('wrapper-count', 'episode', 'mrg-b-3')}>
-                              <span className={cx('string-formatted strong flex-shink-0')}>
-                                 Số tập:
-                              </span>
-                              <span className={cx('string-formatted')}> </span>
-                              <div
-                                 className={cx(
-                                    'string-formatted',
-                                    'content-empty w-100 h-20',
-                                    'text-align-justify',
-                                 )}
-                              >
-                                 {productCurrentState.currentEpisodes}/
-                                 {productCurrentState.episodes}
-                              </div>
-                           </div>
-
-                           <div className={cx('wrapper-count', 'categories')}>
-                              <span className={cx('string-formatted strong')}>Thể loại:</span>
-                              <span className={cx('string-formatted')}> </span>
-                              <div
-                                 className={cx(
-                                    'string-formatted',
-                                    'content-empty w-100 h-20',
-                                    'text-align-justify',
-                                 )}
-                              >
-                                 {productCurrentState.categories &&
-                                    productCurrentState.categories.map((element, index) =>
-                                       index === 0 ? element.title : ', ' + element.title,
-                                    )}
-                              </div>
-                           </div>
-
-                           <div className={cx('trailer')}>
-                              <span className={cx('string-formatted strong')}>
-                                 Đoạn phim giới thiệu
-                              </span>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-
-                  <div className={cx('wrapper_of_block', 'container')}>
-                     <div className={cx('header-inner eposide__header')}>
-                        <span className={cx('string-formatted strong')}>Chọn tập</span>
-                     </div>
-                     <div className={cx('list-episodes')}>
-                        {productCurrent?.product_details?.length > 0 ? (
-                           sortedEpisodes(productCurrent?.product_details).map((element, index) => {
-                              if (index === productCurrent?.product_details.length - 1) {
-                                 tempWatchRef.current = `/watch?parent_id=${parent_id}&episodes=${productCurrent?.product_details[index]._id}`;
-                              }
-
-                              return (
-                                 <Link
-                                    to={`/watch?parent_id=${parent_id}&episodes=${element._id}`}
-                                    key={element._id}
-                                    className={cx('item-episodes')}
-                                 >
-                                    {element.episode}
-                                 </Link>
-                              );
-                           })
-                        ) : (
-                           <div>Hiện chưa có tập phim nào</div>
-                        )}
-                     </div>
-                  </div>
-
-                  <Comment key={parent_id} ref={childRefComment} parent_id={parent_id}></Comment>
-               </div>
-               <div className={cx('body-right')}>
-                  <div className={cx('heading_of_block')}>
-                     <h3 className={cx('title')}>Đề xuất</h3>
-                  </div>
-                  <div className={cx('sperator')}></div>
-                  <div className={cx('wrapper_of_block', 'container', 'no-margin-top')}>
-                     <div className={cx('recommend')}>
-                        <LazyLoading
-                           ref={childRefRecommend}
-                           hasMore={hasMore}
-                           loadingMore={loadingMore}
-                           pageCurrent={pageRecommendProducts}
-                           beforeLoad={() => {
-                              dispatch(beforeLoadProductRecommend());
-                           }}
-                           loadProductMore={(page) => {
-                              dispatch(fetchRecommendProducts(page));
-                           }}
-                        >
-                           {recommendProducts.map((element, index) => (
-                              <div key={index} className={cx('productTest')}>
-                                 <ProductItem key={index} data={element}></ProductItem>
-                              </div>
-                           ))}
-                        </LazyLoading>
-                     </div>
-                  </div>
-               </div>
-            </div>
-
-            <div className={cx('footer_pseudo')}></div>
          </div>
-      </div>
+      </WrapperPage>
    );
 };
 

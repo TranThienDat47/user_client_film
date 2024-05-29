@@ -1,7 +1,7 @@
 import classNames from 'classnames/bind';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useContext } from 'react';
 
 import Button from '~/components/Button';
 import styles from './SeenMovie.module.scss';
@@ -21,11 +21,16 @@ import {
    setSeenMovieKeySearchFromPageSeenMovie,
    setSeenMovieSortFromPageSeenMovie,
 } from '~/redux/slices/auth/authSlice';
+import { endLoading } from '~/utils/nprogress';
+import { GlobalContext } from '~/composables/GlobalProvider';
+
+import { Page as WrapperPage } from '~/composables/Page';
 
 const cx = classNames.bind(styles);
 
 const SeenMovie = () => {
    const navigate = useNavigate();
+   const { setLoadFull } = useContext(GlobalContext);
 
    const dispatch = useDispatch();
    const { seenMovie, user } = useSelector(authSelector);
@@ -67,25 +72,40 @@ const SeenMovie = () => {
    };
 
    useEffect(() => {
-      if (seenMovie.keySearchFromPageSeenMovie.trim().length <= 0) {
-         navigate('/seenMovie');
-      } else {
-         setValueSearchPageState(seenMovie.keySearchFromPageSeenMovie);
-      }
+      const pathname = window.location.pathname;
 
-      if (+seenMovie.pageSeenMovieProduct === -1) {
-         dispatch(beforeLoadSeenMovieProduct());
+      if (pathname === '/seenMovie') {
+         if (seenMovie.keySearchFromPageSeenMovie.trim().length <= 0) {
+            navigate('/seenMovie');
+         } else {
+            setValueSearchPageState(seenMovie.keySearchFromPageSeenMovie);
+         }
+
+         if (+seenMovie.pageSeenMovieProduct === -1) {
+            dispatch(beforeLoadSeenMovieProduct());
+         }
       }
       // eslint-disable-next-line
    }, [search_query]);
 
    useEffect(() => {
-      wrapperRef.current.onscroll = () => {
-         childRef.current.handleScroll(wrapperRef.current);
-      };
+      setTimeout(() => {
+         endLoading();
+         setLoadFull(true);
+
+         if (wrapperRef.current) {
+            wrapperRef.current.onscroll = () => {
+               childRef.current.handleScroll(wrapperRef.current);
+            };
+         }
+      });
 
       return () => {
-         dispatch(resetSeenMovieProducts());
+         setTimeout(() => {
+            endLoading();
+            setLoadFull(true);
+         }, 1000);
+         // dispatch(resetSeenMovieProducts());
       };
    }, []);
 
@@ -98,114 +118,116 @@ const SeenMovie = () => {
    }, [valueSearchPageState]);
 
    return (
-      <div ref={wrapperRef} className={cx('wrapper')}>
-         <div className={cx('header_page')}>
-            <h1 className={cx('string-formatted')}>Phim đã xem</h1>
-         </div>
-         <div className={cx('inner')}>
-            <div className={cx('inner__left')}>
-               <LazyLoading
-                  ref={childRef}
-                  ableLoading={!!user?._id}
-                  hasMore={seenMovie.hasMore}
-                  loadingMore={seenMovie.loadingMore}
-                  pageCurrent={seenMovie.pageSeenMovieProduct}
-                  beforeLoad={() => {
-                     dispatch(beforeLoadSeenMovieProduct());
-                  }}
-                  loadProductMore={(page) => {
-                     dispatch(fetchSeenMovieProducts(page));
-                  }}
-                  emptyData={!!!seenMovie.seenMovieProduct.length}
-               >
-                  <ListProductSearch data={seenMovie.seenMovieProduct} />
-               </LazyLoading>
+      <WrapperPage>
+         <div ref={wrapperRef} className={cx('wrapper')}>
+            <div className={cx('header_page')}>
+               <h1 className={cx('string-formatted')}>Phim đã xem</h1>
             </div>
-            <div className={cx('inner__right')}>
-               <div className={cx('search-from-page__wrapper')}>
-                  <div className={cx('search-from-page__inner')}>
-                     <Button
-                        onClick={() => {
-                           handleSearch();
-                        }}
-                        transparent
-                        hover
-                        className={cx('search-from-page__inner-icon')}
-                     >
-                        <IoSearchOutline className={cx('search-from-page__inner-icon-main')} />
-                     </Button>
-                     <input
-                        ref={inputSearchRef}
-                        value={valueSearchPageState}
-                        onChange={(e) => {
-                           setValueSearchPageState(e.target.value);
-                        }}
-                        onKeyUp={(e) => {
-                           if (e.key === 'Enter') {
-                              handleSearch();
-                           }
-                        }}
-                        type="text"
-                        placeholder="Tìm kiếm trong danh sách ..."
-                        className={cx('search-from-page__inner-input')}
-                     />
-                     {showInputClearState && (
+            <div className={cx('inner')}>
+               <div className={cx('inner__left')}>
+                  <LazyLoading
+                     ref={childRef}
+                     ableLoading={!!user?._id}
+                     hasMore={seenMovie.hasMore}
+                     loadingMore={seenMovie.loadingMore}
+                     pageCurrent={seenMovie.pageSeenMovieProduct}
+                     beforeLoad={() => {
+                        dispatch(beforeLoadSeenMovieProduct());
+                     }}
+                     loadProductMore={(page) => {
+                        dispatch(fetchSeenMovieProducts(page));
+                     }}
+                     emptyData={!!!seenMovie.seenMovieProduct.length}
+                  >
+                     <ListProductSearch data={seenMovie.seenMovieProduct} />
+                  </LazyLoading>
+               </div>
+               <div className={cx('inner__right')}>
+                  <div className={cx('search-from-page__wrapper')}>
+                     <div className={cx('search-from-page__inner')}>
                         <Button
                            onClick={() => {
-                              inputSearchRef.current.focus();
-                              setValueSearchPageState('');
-                              setShowInputClearState(false);
-
-                              dispatch(resetSeenMovieProducts());
-
-                              dispatch(setSeenMovieKeySearchFromPageSeenMovie(''));
-
-                              dispatch(beforeLoadSeenMovieProduct());
+                              handleSearch();
                            }}
                            transparent
                            hover
                            className={cx('search-from-page__inner-icon')}
                         >
-                           <MdOutlineClear style={{ color: 'var(--text-color)' }} />
+                           <IoSearchOutline className={cx('search-from-page__inner-icon-main')} />
                         </Button>
-                     )}
-                  </div>
-               </div>
-               <div className={cx('sort-from-page__wrapper')}>
-                  <div className={cx('sort-from-page__inner')}>
-                     <div className={cx('sort-from-page__header')}>
-                        <MdOutlineSort className={cx('sort-from-page__header-icon')} />
-                        <div className={cx('sort-from-page__header-text')}>Sắp xếp</div>
-                     </div>
-                     <div className={cx('sort-from-page__content')}>
-                        {initListSortState.map((element, index) => (
-                           <div
-                              key={'sort' + index}
+                        <input
+                           ref={inputSearchRef}
+                           value={valueSearchPageState}
+                           onChange={(e) => {
+                              setValueSearchPageState(e.target.value);
+                           }}
+                           onKeyUp={(e) => {
+                              if (e.key === 'Enter') {
+                                 handleSearch();
+                              }
+                           }}
+                           type="text"
+                           placeholder="Tìm kiếm trong danh sách ..."
+                           className={cx('search-from-page__inner-input')}
+                        />
+                        {showInputClearState && (
+                           <Button
                               onClick={() => {
-                                 dispatch(setSeenMovieSortFromPageSeenMovie(element.typeSort));
-                                 setInitListSortState((prev) =>
-                                    prev.map((elementTemp, indexTemp) =>
-                                       indexTemp === index
-                                          ? { ...elementTemp, checked: true }
-                                          : { ...elementTemp, checked: false },
-                                    ),
-                                 );
+                                 inputSearchRef.current.focus();
+                                 setValueSearchPageState('');
+                                 setShowInputClearState(false);
+
+                                 dispatch(resetSeenMovieProducts());
+
+                                 dispatch(setSeenMovieKeySearchFromPageSeenMovie(''));
+
+                                 dispatch(beforeLoadSeenMovieProduct());
                               }}
-                              className={cx(
-                                 'sort-from-page__content-row',
-                                 element.checked && 'sort-from-page__content-row-check',
-                              )}
+                              transparent
+                              hover
+                              className={cx('search-from-page__inner-icon')}
                            >
-                              {element.icon}
-                              {element.title}
-                           </div>
-                        ))}
+                              <MdOutlineClear style={{ color: 'var(--text-color)' }} />
+                           </Button>
+                        )}
+                     </div>
+                  </div>
+                  <div className={cx('sort-from-page__wrapper')}>
+                     <div className={cx('sort-from-page__inner')}>
+                        <div className={cx('sort-from-page__header')}>
+                           <MdOutlineSort className={cx('sort-from-page__header-icon')} />
+                           <div className={cx('sort-from-page__header-text')}>Sắp xếp</div>
+                        </div>
+                        <div className={cx('sort-from-page__content')}>
+                           {initListSortState.map((element, index) => (
+                              <div
+                                 key={'sort' + index}
+                                 onClick={() => {
+                                    dispatch(setSeenMovieSortFromPageSeenMovie(element.typeSort));
+                                    setInitListSortState((prev) =>
+                                       prev.map((elementTemp, indexTemp) =>
+                                          indexTemp === index
+                                             ? { ...elementTemp, checked: true }
+                                             : { ...elementTemp, checked: false },
+                                       ),
+                                    );
+                                 }}
+                                 className={cx(
+                                    'sort-from-page__content-row',
+                                    element.checked && 'sort-from-page__content-row-check',
+                                 )}
+                              >
+                                 {element.icon}
+                                 {element.title}
+                              </div>
+                           ))}
+                        </div>
                      </div>
                   </div>
                </div>
             </div>
          </div>
-      </div>
+      </WrapperPage>
    );
 };
 

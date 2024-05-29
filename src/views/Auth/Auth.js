@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import axios from 'axios';
 
@@ -10,6 +10,7 @@ import styles from './Auth.module.scss';
 import Button from '~/components/Button';
 import { useSelector } from 'react-redux';
 import { authSelector } from '~/redux/selectors/auth/authSelector';
+import { endLoading } from '~/utils/nprogress';
 
 const cx = classNames.bind(styles);
 
@@ -53,6 +54,14 @@ const Auth = ({ authRoute }) => {
          </>
       );
    }
+
+   useEffect(() => {
+      setTimeout(() => {
+         endLoading();
+      });
+
+      return () => {};
+   }, []);
 
    return (
       <div className={cx('wrapper')}>

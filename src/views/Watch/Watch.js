@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import Button from '~/components/Button';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Comment } from '~/components/Comment';
@@ -30,11 +30,17 @@ import CommentServices from '~/services/CommentServices';
 import formatFollowCount from '~/utils/formatFollowCount';
 import ProductServices from '~/services/ProductServices';
 import ShareFacebook from './components/ShareFacebook';
+import { checkIsStart, endLoading } from '~/utils/nprogress';
+import { GlobalContext } from '~/composables/GlobalProvider';
+
+import { Page as WrapperPage } from '~/composables/Page';
 
 const cx = classNames.bind(styles);
 
 const Watch = () => {
    const dispatch = useDispatch();
+
+   const { setLoadFull } = useContext(GlobalContext);
 
    const { user } = useSelector(authSelector);
 
@@ -84,6 +90,11 @@ const Watch = () => {
    }, [parent_id]);
 
    useEffect(() => {
+      setTimeout(() => {
+         endLoading();
+         setLoadFull(true);
+      }, 1000);
+
       if (!parent_id || !episodeCurrent) {
          navigate(`/`);
       }
@@ -202,7 +213,7 @@ const Watch = () => {
    }, [loading]);
 
    return (
-      <>
+      <WrapperPage>
          {loading ? (
             <></>
          ) : (
@@ -598,7 +609,7 @@ const Watch = () => {
                </div>
             </>
          )}
-      </>
+      </WrapperPage>
    );
 };
 

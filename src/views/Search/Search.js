@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import { useLocation } from 'react-router-dom';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useContext } from 'react';
 
 import styles from './Search.module.scss';
 import { ListProductSearch } from '~/components/ListProduct';
@@ -13,11 +13,16 @@ import {
    setKeySearchResult,
    beforeLoadSearchResult,
 } from '~/redux/slices/searchs/searchPageSlice';
-import { endLoading } from '~/utils/nprogress';
+import { checkIsStart, endLoading } from '~/utils/nprogress';
+import { GlobalContext } from '~/composables/GlobalProvider';
+
+import { Page as WrapperPage } from '~/composables/Page';
 
 const cx = classNames.bind(styles);
 
 const Search = () => {
+   const { setLoadFull } = useContext(GlobalContext);
+
    const dispatch = useDispatch();
    const { searchResultProducts, pageSearchResultProducts, hasMore, loadingMore, keySearch } =
       useSelector(searchPageSelector);
@@ -43,38 +48,47 @@ const Search = () => {
    }, [search_query]);
 
    useEffect(() => {
-      wrapperRef.current.onscroll = () => {
-         childRef.current.handleScroll(wrapperRef.current);
-      };
+      setTimeout(() => {
+         endLoading();
+         setLoadFull(true);
+
+         if (wrapperRef.current) {
+            wrapperRef.current.onscroll = () => {
+               childRef.current.handleScroll(wrapperRef.current);
+            };
+         }
+      });
    }, []);
 
    return (
-      <div ref={wrapperRef} className={cx('wrapper')}>
-         <div className={cx('inner')}>
-            <div className={cx('header')}>
-               <p className={cx('string-formatted')}>
-                  Kết quả tìm kiếm cho từ khóa: "
-                  <span className={cx('string-formatted strong')}>{search_query}</span>"
-               </p>
-            </div>
-            <div className={cx('result')}>
-               <LazyLoading
-                  ref={childRef}
-                  hasMore={hasMore}
-                  loadingMore={loadingMore}
-                  pageCurrent={pageSearchResultProducts}
-                  beforeLoad={() => {
-                     dispatch(beforeLoadSearchResult());
-                  }}
-                  loadProductMore={(page) => {
-                     dispatch(fetchSearchResultProducts(page));
-                  }}
-               >
-                  <ListProductSearch data={searchResultProducts} />
-               </LazyLoading>
+      <WrapperPage>
+         <div ref={wrapperRef} className={cx('wrapper')}>
+            <div className={cx('inner')}>
+               <div className={cx('header')}>
+                  <p className={cx('string-formatted')}>
+                     Kết quả tìm kiếm cho từ khóa: "
+                     <span className={cx('string-formatted strong')}>{search_query}</span>"
+                  </p>
+               </div>
+               <div className={cx('result')}>
+                  <LazyLoading
+                     ref={childRef}
+                     hasMore={hasMore}
+                     loadingMore={loadingMore}
+                     pageCurrent={pageSearchResultProducts}
+                     beforeLoad={() => {
+                        dispatch(beforeLoadSearchResult());
+                     }}
+                     loadProductMore={(page) => {
+                        dispatch(fetchSearchResultProducts(page));
+                     }}
+                  >
+                     <ListProductSearch data={searchResultProducts} />
+                  </LazyLoading>
+               </div>
             </div>
          </div>
-      </div>
+      </WrapperPage>
    );
 };
 
