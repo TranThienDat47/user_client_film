@@ -798,6 +798,9 @@ const Video = ({
 
          prevVolumeRef.current.move = moveVolume;
 
+         timeCurrentRef.current.innerHTML = `${convertTime(videoRef.current.duration)}`;
+         curTimeImgRef.current.innerHTML = `${convertTime(videoRef.current.duration)}`;
+
          volumeCurRef.current = moveVolume;
          videoRef.current.volume = moveVolume;
 

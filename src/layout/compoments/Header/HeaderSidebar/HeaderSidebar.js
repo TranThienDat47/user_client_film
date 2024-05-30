@@ -405,7 +405,7 @@ const HeaderSidebar = forwardRef((prop, ref) => {
                            key={'item' + index}
                            leftIcon={!!elment.icon ? elment.icon : false}
                            className={cx('button', elment.active ? 'active' : '')}
-                           to={elment?.to ? elment.to : false}
+                           to={elment?.to ? elment.to : '#'}
                            onClick={elment?.onClick && elment.onClick}
                         >
                            <div
