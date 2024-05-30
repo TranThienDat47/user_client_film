@@ -19,11 +19,11 @@ import { Page as WrapperPage } from '~/composables/Page';
 const cx = classNames.bind(styles);
 
 function Home() {
-   const { setLoadFull } = useContext(GlobalContext);
+   const { setLoadFull, isLoadFull } = useContext(GlobalContext);
 
    const dispatch = useDispatch();
 
-   const newProducts = useSelector(newProductsSelector);
+   const { newProducts, loading } = useSelector(newProductsSelector);
    const { suggestedProducts, pageSuggestedProducts, hasMore, loadingMore } =
       useSelector(suggestedProductsSelector);
 
@@ -32,11 +32,10 @@ function Home() {
 
    useEffect(() => {
       dispatch(fetchHomeNew());
-      // eslint-disable-next-line
    }, []);
 
    useEffect(() => {
-      setTimeout(() => {
+      if (!loading) {
          endLoading();
          setLoadFull(true);
 
@@ -45,12 +44,11 @@ function Home() {
                childRef.current.handleScroll(wrapperRef.current);
             };
          }
-      });
-   }, []);
+      }
+   }, [loading]);
 
    return (
       <WrapperPage>
-         {' '}
          <div ref={wrapperRef} className={cx('wrapper')}>
             <div className={cx('inner')}>
                <div className={cx('heading_of_block')}>
@@ -58,7 +56,7 @@ function Home() {
                </div>
                <div className={cx('wrapper_of_block', 'wrapper-product', 'new')}>
                   <ListProductHome
-                     data={newProducts.length > 0 ? newProducts : Array(12).fill(0)}
+                     data={newProducts.length > 0 ? newProducts : Array(14).fill(0)}
                   />
                </div>
 
@@ -66,22 +64,26 @@ function Home() {
                   <span className={cx('title')}>Đề xuất</span>
                </div>
                <div className={cx('wrapper_of_block', 'wrapper-product', 'recommend-products')}>
-                  <LazyLoading
-                     ref={childRef}
-                     hasMore={hasMore}
-                     loadingMore={loadingMore}
-                     pageCurrent={pageSuggestedProducts}
-                     beforeLoad={() => {
-                        dispatch(beforeLoadHomeSuggested());
-                     }}
-                     loadProductMore={(page) => {
-                        dispatch(fetchHomeSuggested(page));
-                     }}
-                  >
-                     <ListProductHome
-                        data={suggestedProducts.length > 0 ? suggestedProducts : Array(12).fill(0)}
-                     />
-                  </LazyLoading>
+                  {isLoadFull && (
+                     <LazyLoading
+                        ref={childRef}
+                        hasMore={hasMore}
+                        loadingMore={loadingMore}
+                        pageCurrent={pageSuggestedProducts}
+                        beforeLoad={() => {
+                           dispatch(beforeLoadHomeSuggested());
+                        }}
+                        loadProductMore={(page) => {
+                           dispatch(fetchHomeSuggested(page));
+                        }}
+                     >
+                        <ListProductHome
+                           data={
+                              suggestedProducts.length > 0 ? suggestedProducts : Array(12).fill(0)
+                           }
+                        />
+                     </LazyLoading>
+                  )}
                </div>
             </div>
          </div>

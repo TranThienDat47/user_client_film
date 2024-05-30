@@ -166,20 +166,21 @@ const Product = () => {
          currentState.categories = productCurrent?.product.categories;
 
          setProductCurrentState(currentState);
-         wrapperRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+         if (wrapperRef.current) wrapperRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+
+         setTimeout(() => {
+            endLoading();
+            setLoadFull(true);
+            if (wrapperRef.current)
+               wrapperRef.current.onscroll = () => {
+                  childRefComment.current.handleScroll(wrapperRef.current);
+                  childRefRecommend.current.handleScroll(wrapperRef.current);
+               };
+         });
       }
    }, [productCurrent, parent_id]);
 
-   useEffect(() => {
-      setTimeout(() => {
-         endLoading();
-         setLoadFull(true);
-         wrapperRef.current.onscroll = () => {
-            childRefComment.current.handleScroll(wrapperRef.current);
-            childRefRecommend.current.handleScroll(wrapperRef.current);
-         };
-      });
-   }, []);
+   useEffect(() => {}, []);
 
    return (
       <WrapperPage>

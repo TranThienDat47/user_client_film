@@ -37,6 +37,7 @@ const LazyLoading = forwardRef(
                Math.floor(parentNode.offsetHeight + parentNode.scrollTop) >=
                   parentNode.scrollHeight - 3
             ) {
+               console.log(hasMore, loadingMore);
                if (hasMore) beforeLoad();
             }
          },

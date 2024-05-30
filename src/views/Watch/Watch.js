@@ -90,11 +90,6 @@ const Watch = () => {
    }, [parent_id]);
 
    useEffect(() => {
-      setTimeout(() => {
-         endLoading();
-         setLoadFull(true);
-      }, 1000);
-
       if (!parent_id || !episodeCurrent) {
          navigate(`/`);
       }
@@ -146,6 +141,18 @@ const Watch = () => {
          currentState.categories = productCurrent.product.categories;
 
          setProductCurrentState(currentState);
+
+         setTimeout(() => {
+            endLoading();
+            setLoadFull(true);
+
+            if (wrapperRef.current) {
+               wrapperRef.current.onscroll = () => {
+                  childRef.current?.handleScroll(wrapperRef.current);
+                  childRefRecommend.current?.handleScroll(wrapperRef.current);
+               };
+            }
+         });
       }
 
       if (
@@ -203,14 +210,7 @@ const Watch = () => {
       }
    }, [productDetailCurrentState, user]);
 
-   useEffect(() => {
-      if (wrapperRef.current) {
-         wrapperRef.current.onscroll = () => {
-            childRef.current?.handleScroll(wrapperRef.current);
-            childRefRecommend.current?.handleScroll(wrapperRef.current);
-         };
-      }
-   }, [loading]);
+   useEffect(() => {}, [loading]);
 
    return (
       <WrapperPage>

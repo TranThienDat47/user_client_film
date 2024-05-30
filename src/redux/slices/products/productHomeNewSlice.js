@@ -17,7 +17,7 @@ const productHomeNewSlice = createSlice({
    name: 'productHomenew',
    initialState: {
       newProducts: [],
-      loading: false,
+      loading: true,
       error: null,
       status: '',
    },
