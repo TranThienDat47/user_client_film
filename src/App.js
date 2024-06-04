@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Fragment, Suspense } from 'react';
+import { Fragment, useState } from 'react';
 
 import { publicRoutes, privateRoutes } from '~/route/routes';
 import PassportGoogle from '~/route/routing/PassportGoogle';
@@ -9,103 +9,51 @@ import Account from '~/route/routing/Account';
 import Logout from '~/route/routing/Logout';
 import Verify from '~/route/routing/Verify';
 import Auth from '~/views/Auth/index.js';
-import { useState, useEffect } from 'react';
-import Categories from '~/views/Categories';
-import CategoriesService from './services/CategoriesService';
-import { handleChangeModeTheme } from './utils/handleChangeModeTheme';
+import { useEffect } from 'react';
+import { handleChangeModeTheme } from '~/utils/handleChangeModeTheme';
+import { FabllbackProvider } from '~/composables/FabllbackProvider';
+import GlobalLayout from '~/layout';
+
+import ListLayout from '~/config/layouts';
 
 function App() {
-   const [dynamicRoutePublicState, setDynamicRoutePublicState] = useState([]);
-   const [ableRouteState, setAbleRouteState] = useState(false);
-
    useEffect(() => {
       const tempTheme = localStorage.getItem('theme');
-      console.log('haha', tempTheme);
       if (tempTheme) handleChangeModeTheme(tempTheme);
-
-      CategoriesService.getAll().then((res) => {
-         setDynamicRoutePublicState(
-            res.categories.map((element, index) => {
-               return { path: `/category/${element._id}`, component: Categories };
-            }),
-         );
-
-         setAbleRouteState(true);
-      });
    }, []);
 
    return (
       <Router>
-         <Routes>
-            <Route exact path="/verify" element={<Verify />} />
-            <Route exact path="/passport/google" element={<PassportGoogle />} />
-            <Route exact path="/logout" element={<Logout />} />
+         <GlobalLayout>
+            <FabllbackProvider>
+               <Routes>
+                  <Route exact path="/verify" element={<Verify />} />
+                  <Route exact path="/passport/google" element={<PassportGoogle />} />
+                  <Route exact path="/logout" element={<Logout />} />
 
-            {publicRoutes.map((route, index) => {
-               const Page = route.component;
-               let Layout = DefaultLayout;
-               if (route.layout) Layout = route.layout;
-               else if (route.layout === null) Layout = Fragment;
+                  <Route element={<Account />}>
+                     <Route exact path="/register" element={<Auth authRoute="register" />} />
+                     <Route path="/login" element={<Auth authRoute="login" />} />
+                  </Route>
 
-               return (
-                  <Route
-                     key={index}
-                     path={route.path}
-                     element={
-                        <Layout>
-                           <Page />
-                        </Layout>
-                     }
-                  />
-               );
-            })}
+                  {publicRoutes.map((route, index) => {
+                     const Page = route.component;
 
-            {dynamicRoutePublicState.map((route, index) => {
-               const Page = route.component;
-               let Layout = DefaultLayout;
-               if (route.layout) Layout = route.layout;
-               else if (route.layout === null) Layout = Fragment;
+                     return <Route key={index} path={route.path} element={<Page />} />;
+                  })}
 
-               return (
-                  <Route
-                     key={'dynamic' + index}
-                     path={route.path}
-                     element={
-                        <Layout>
-                           <Page />
-                        </Layout>
-                     }
-                  />
-               );
-            })}
+                  <Route element={<ProtectedRoute />}>
+                     {privateRoutes.map((route, index) => {
+                        const Page = route.component;
 
-            <Route element={<Account />}>
-               <Route exact path="/register" element={<Auth authRoute="register" />} />
-               <Route path="/login" element={<Auth authRoute="login" />} />
-            </Route>
+                        return <Route key={index} path={route.path} element={<Page />} />;
+                     })}
+                  </Route>
 
-            <Route element={<ProtectedRoute />}>
-               {privateRoutes.map((route, index) => {
-                  const Page = route.component;
-                  let Layout = DefaultLayout;
-                  if (route.layout) Layout = route.layout;
-                  else if (route.layout === null) Layout = Fragment;
-                  return (
-                     <Route
-                        key={index}
-                        path={route.path}
-                        element={
-                           <Layout>
-                              <Page />
-                           </Layout>
-                        }
-                     />
-                  );
-               })}
-            </Route>
-
-            <Route path={ableRouteState ? '*' : ''} element={<Navigate to="/" />} />
-         </Routes>
+                  <Route path={'*'} element={<Navigate to="/" />} />
+               </Routes>
+            </FabllbackProvider>
+         </GlobalLayout>
       </Router>
    );
 }

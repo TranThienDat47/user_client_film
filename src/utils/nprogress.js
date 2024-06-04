@@ -4,10 +4,14 @@ nProgress.configure({
    showSpinner: false,
 });
 
+export const checkIsStart = () => {
+   return !!nProgress.status ? true : false;
+};
+
 export const startLoading = () => {
-   nProgress.start();
+   if (!checkIsStart()) nProgress.start();
 };
 
 export const endLoading = () => {
-   nProgress.done();
+   if (checkIsStart()) nProgress.done();
 };

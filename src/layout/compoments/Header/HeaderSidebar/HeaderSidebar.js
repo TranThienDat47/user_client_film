@@ -32,6 +32,8 @@ const cx = classNames.bind(styles);
 const HeaderSidebar = forwardRef((prop, ref) => {
    const { user, isAuthenticated } = useSelector(authSelector);
 
+   const currentPath = window.location.pathname;
+
    const navRef = useRef();
    const pseudoRef = useRef();
    const moveNavRef = useRef(false);
@@ -45,7 +47,7 @@ const HeaderSidebar = forwardRef((prop, ref) => {
          {
             icon: <AiOutlineCheck className={cx('icon')} />,
             title: 'Theo dõi',
-            active: false,
+            active: currentPath === '/follow' ? true : false,
             to: '/follow',
          },
          {
@@ -57,19 +59,19 @@ const HeaderSidebar = forwardRef((prop, ref) => {
          {
             icon: <BsClockHistory className={cx('icon')} />,
             title: 'Phim đã xem',
-            active: false,
+            active: currentPath === '/seenMovie' ? true : false,
             to: '/seenMovie',
          },
-         {
-            icon: <AiOutlineDownload className={cx('icon')} />,
-            title: 'Phim đã lưu',
-            active: false,
-            to: false,
-         },
+         // {
+         //    icon: <AiOutlineDownload className={cx('icon')} />,
+         //    title: 'Phim đã lưu',
+         //    active: false,
+         //    to: false,
+         // },
          {
             icon: <BsClock className={cx('icon')} />,
             title: 'Xem sau',
-            active: false,
+            active: currentPath === '/seeLaterMovie' ? true : false,
             to: '/seeLaterMovie',
          },
          ...listData,
@@ -84,12 +86,12 @@ const HeaderSidebar = forwardRef((prop, ref) => {
             icon: <AiOutlineHome className={cx('icon')} />,
             title: 'Trang chủ',
             active: false,
-            to: '/',
+            to: currentPath === '/' || currentPath === '' ? true : false,
          },
          {
             icon: <BiCategory className={cx('icon')} />,
             title: 'Thể loại',
-            active: false,
+            active: currentPath.includes('/category') ? true : false,
             to: '/category',
          },
          ...listCheck,
@@ -339,9 +341,9 @@ const HeaderSidebar = forwardRef((prop, ref) => {
       navRef.current.style.transform = `translateX(-240px)`;
    };
 
-   // useEffect(() => {
-   //    updateFollowList([...followItemExpandRef.current]);
-   // }, [currentPath]);
+   useEffect(() => {
+      updateFollowList([...followItemExpandRef.current]);
+   }, [currentPath]);
 
    useEffect(() => {
       if (isAuthenticated) {

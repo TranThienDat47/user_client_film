@@ -1,18 +1,15 @@
-import classNames from 'classnames/bind';
 import { useEffect, useState, useRef, memo } from 'react';
 
-import styles from './CategoriesPage.module.scss';
 import CategoriesService from '~/services/CategoriesService';
 import LazyLoading from '~/components/loading/LazyLoading';
 import { ListProductHome } from '~/components/ListProduct';
-const cx = classNames.bind(styles);
 
 const LENGTH_PAGE_DEFAULT = 14;
 
-function CategoriesPage({ categoryID = null, wrapperRef }) {
+function CategoriesPage({ categoryID = null, wrapperRef, defaultProducts = [] }) {
    const [hasMore, setHasMore] = useState(false);
    const [loadingMore, setLoadingMore] = useState(true);
-   const [pageCurrent, setPageCurrent] = useState(-1);
+   const [pageCurrent, setPageCurrent] = useState(0);
    const [productCurrent, setProductCurrent] = useState(-1);
 
    const childRef = useRef(null);
@@ -51,19 +48,35 @@ function CategoriesPage({ categoryID = null, wrapperRef }) {
       setHasMore(false);
       setLoadingMore(false);
       setProductCurrent([]);
-      setPageCurrent(-1);
-
-      beforeLoadProduct();
+      setPageCurrent(0);
    }, [categoryID]);
 
    useEffect(() => {
-      wrapperRef.current.onscroll = () => {
-         childRef.current.handleScroll(wrapperRef.current);
-      };
-   }, []);
+      if (wrapperRef.current)
+         wrapperRef.current.onscroll = () => {
+            childRef.current.handleScroll(wrapperRef.current);
+         };
+   }, [wrapperRef.current]);
 
    return (
-      <>
+      <div style={{ width: '100%' }}>
+         {defaultProducts.length > 0 ? (
+            <ListProductHome data={!!defaultProducts.length ? defaultProducts : []} />
+         ) : (
+            <>
+               <div
+                  style={{
+                     color: 'var(--text-bland)',
+                     fontSize: '1.6rem',
+                     fontWeight: '550',
+                     margin: '3px 0 0 16px',
+                  }}
+               >
+                  Chưa có dữ liệu nào
+               </div>
+            </>
+         )}
+
          <LazyLoading
             ref={childRef}
             hasMore={hasMore}
@@ -71,11 +84,10 @@ function CategoriesPage({ categoryID = null, wrapperRef }) {
             pageCurrent={pageCurrent}
             beforeLoad={beforeLoadProduct}
             loadProductMore={loadProduct}
-            emptyData={!!!productCurrent.length}
          >
             <ListProductHome data={!!productCurrent.length ? productCurrent : []} />
          </LazyLoading>
-      </>
+      </div>
    );
 }
 

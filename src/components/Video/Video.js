@@ -602,6 +602,9 @@ const Video = ({
 
             tempCurrentTimeRef.current = videoRef.current.currentTime;
 
+            timeCurrentRef.current.innerHTML = `${convertTime(tempCurrentTimeRef.current)}`;
+            curTimeImgRef.current.innerHTML = `${convertTime(tempCurrentTimeRef.current)}`;
+
             progressCurrent.current.style.transform = `scaleX(${moveProgress})`;
             progressBall.current.style.transform = `translateX(calc(${
                moveProgress * 100

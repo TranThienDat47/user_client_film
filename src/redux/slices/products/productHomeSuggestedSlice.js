@@ -4,8 +4,8 @@ import ProductServices from '~/services/ProductServices';
 const LENGTH_PAGE_SUGGESTED = 14;
 const initialState = {
    suggestedProducts: [],
-   pageSuggestedProducts: -1,
-   hasMore: false,
+   pageSuggestedProducts: 0,
+   hasMore: true,
    loadingMore: false,
    error: null,
    status: '',
@@ -14,11 +14,14 @@ const initialState = {
 export const fetchHomeSuggested = createAsyncThunk(
    'productHomeSuggested/fetchHomeSuggested',
    async (page, { rejectWithValue }) => {
+      page = page;
       try {
          const response = await ProductServices.search({
             skip: page * LENGTH_PAGE_SUGGESTED,
             limit: LENGTH_PAGE_SUGGESTED,
          });
+
+         console.log(response);
 
          if (response.success) {
             if (response.products.length >= LENGTH_PAGE_SUGGESTED) {
@@ -66,6 +69,12 @@ const productHomeSuggestedSlice = createSlice({
          state.hasMore = true;
          state.loadingMore = true;
       },
+      resetHomeSuggested: (state, action) => {
+         state.hasMore = true;
+         state.loadingMore = false;
+         state.suggestedProducts = [];
+         state.pageSuggestedProducts = 0;
+      },
    },
    extraReducers(builder) {
       builder
@@ -93,6 +102,6 @@ const productHomeSuggestedSlice = createSlice({
    },
 });
 
-export const { beforeLoadHomeSuggested } = productHomeSuggestedSlice.actions;
+export const { beforeLoadHomeSuggested, resetHomeSuggested } = productHomeSuggestedSlice.actions;
 
 export default productHomeSuggestedSlice.reducer;

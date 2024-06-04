@@ -1,17 +1,32 @@
-import * as React from 'react';
+import { useContext, useCallback } from 'react';
 import { FallbackContext } from '~/composables/FabllbackProvider';
+import { GlobalContext } from '~/composables/GlobalProvider';
 
 export default () => {
-   const { updateFallback } = React.useContext(FallbackContext);
+   const { updateFallback } = useContext(FallbackContext);
+   const { setLoadFull, isLoadFull, prevPage, loadPrevPage, loadReadyPage } =
+      useContext(GlobalContext);
 
-   const onLoad = React.useCallback(
+   const onLoad = useCallback(
       (component) => {
          if (component === undefined) component = null;
 
-         updateFallback(component);
+         if (!!prevPage) {
+            if (isLoadFull) {
+               loadPrevPage(component);
+               setLoadFull(false);
+            } else {
+               updateFallback(prevPage);
+            }
+         } else {
+            loadPrevPage(component);
+            updateFallback(component);
+            loadReadyPage(true);
+            setLoadFull(false);
+         }
       },
-      [updateFallback],
+      [updateFallback, isLoadFull, setLoadFull, loadPrevPage],
    );
 
-   return { onLoad };
+   return { onLoad, prevPage: prevPage };
 };

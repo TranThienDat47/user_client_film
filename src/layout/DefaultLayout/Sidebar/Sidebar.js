@@ -23,13 +23,15 @@ import Button from '~/components/Button';
 import FollowService from '~/services/FollowService';
 import { useSelector } from 'react-redux';
 import { authSelector } from '~/redux/selectors/auth/authSelector';
+import { useLocation } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
 function Sidebar({ collaped = false }) {
    const { user, isAuthenticated } = useSelector(authSelector);
 
-   const currentPath = window.location.pathname;
+   const location = useLocation();
+   const currentPath = location.pathname;
 
    const dataItemCollapsed = [
       {
@@ -85,7 +87,7 @@ function Sidebar({ collaped = false }) {
          {
             icon: <BiCategory className={cx('icon')} />,
             title: 'Thể loại',
-            active: currentPath === '/category' ? true : false,
+            active: currentPath.includes('/category') ? true : false,
             to: '/category',
          },
          {
@@ -106,12 +108,12 @@ function Sidebar({ collaped = false }) {
             active: currentPath === '/seenMovie' ? true : false,
             to: user ? '/seenMovie' : '/login',
          },
-         {
-            icon: <AiOutlineDownload className={cx('icon')} />,
-            title: 'Phim đã lưu',
-            active: false,
-            to: user ? '#' : '/login',
-         },
+         // {
+         //    icon: <AiOutlineDownload className={cx('icon')} />,
+         //    title: 'Phim đã lưu',
+         //    active: false,
+         //    to: user ? '#' : '/login',
+         // },
          {
             icon: <BsClock className={cx('icon')} />,
             title: 'Xem sau',

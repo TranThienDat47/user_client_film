@@ -1,3 +1,3 @@
-const newProductsSelector = (state) => state.productHomeNew.newProducts;
+const newProductsSelector = (state) => state.productHomeNew;
 
 export { newProductsSelector };

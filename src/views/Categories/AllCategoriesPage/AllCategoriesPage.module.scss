@@ -4,9 +4,11 @@
    width: 100%;
 
    .wrapper-category {
-      &:not(:first-child) {
-         margin-top: 33px;
-      }
+      // &:not(:first-child) {
+      //    margin-top: 33px;
+      // }
+
+      margin-top: 33px;
 
       h3 {
          margin-bottom: 9px;

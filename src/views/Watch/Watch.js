@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import Button from '~/components/Button';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Comment } from '~/components/Comment';
@@ -30,11 +30,17 @@ import CommentServices from '~/services/CommentServices';
 import formatFollowCount from '~/utils/formatFollowCount';
 import ProductServices from '~/services/ProductServices';
 import ShareFacebook from './components/ShareFacebook';
+import { checkIsStart, endLoading } from '~/utils/nprogress';
+import { GlobalContext } from '~/composables/GlobalProvider';
+
+import { Page as WrapperPage } from '~/composables/Page';
 
 const cx = classNames.bind(styles);
 
 const Watch = () => {
    const dispatch = useDispatch();
+
+   const { setLoadFull, isReadyPage, loadReadyPage } = useContext(GlobalContext);
 
    const { user } = useSelector(authSelector);
 
@@ -135,6 +141,19 @@ const Watch = () => {
          currentState.categories = productCurrent.product.categories;
 
          setProductCurrentState(currentState);
+
+         setTimeout(() => {
+            endLoading();
+            setLoadFull(true);
+            loadReadyPage(true);
+
+            if (wrapperRef.current) {
+               wrapperRef.current.onscroll = () => {
+                  childRef.current?.handleScroll(wrapperRef.current);
+                  childRefRecommend.current?.handleScroll(wrapperRef.current);
+               };
+            }
+         });
       }
 
       if (
@@ -193,16 +212,24 @@ const Watch = () => {
    }, [productDetailCurrentState, user]);
 
    useEffect(() => {
-      if (wrapperRef.current) {
-         wrapperRef.current.onscroll = () => {
-            childRef.current?.handleScroll(wrapperRef.current);
-            childRefRecommend.current?.handleScroll(wrapperRef.current);
-         };
+      if (isReadyPage) {
+         setLoadFull(true);
       }
-   }, [loading]);
+   }, [
+      productDetailCurrentState,
+      user,
+      showShareState,
+      likeState,
+      countLikeState,
+      productCurrentState,
+      pageRecommendProducts,
+      hasMore,
+      loadingMore,
+      recommendProducts,
+   ]);
 
    return (
-      <>
+      <WrapperPage>
          {loading ? (
             <></>
          ) : (
@@ -598,7 +625,7 @@ const Watch = () => {
                </div>
             </>
          )}
-      </>
+      </WrapperPage>
    );
 };
 

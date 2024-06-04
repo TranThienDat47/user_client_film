@@ -1,18 +1,16 @@
-import * as React from 'react';
+import { useMemo, useEffect } from 'react';
 import { usePage } from '~/hook';
 
-const Page = ({ children }) => {
-   const { onLoad } = usePage();
+export const Page = ({ children }) => {
+   const { onLoad, prevPage } = usePage();
 
-   const render = React.useMemo(() => {
+   const render = useMemo(() => {
       return <>{children}</>;
    }, [children]);
 
-   React.useEffect(() => {
+   useEffect(() => {
       onLoad(render);
    }, [onLoad, render]);
 
-   return render;
+   return prevPage;
 };
-
-export default Page;

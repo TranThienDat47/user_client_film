@@ -8,6 +8,8 @@
    height: 100%;
    overflow: auto;
 
+   padding-bottom: 16px;
+
    .header_page-pesudo {
       padding-bottom: 100px;
    }
@@ -32,10 +34,16 @@
       width: 100%;
 
       display: flex;
+      flex-direction: column;
 
       margin: auto;
       padding: 0 12px 0 16px;
       height: 100%;
+   }
+
+   .footerpage {
+      float: inline-end;
+      padding: 39px;
    }
 }
 

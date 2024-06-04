@@ -5,15 +5,18 @@ import reportWebVitals from './reportWebVitals';
 import GlobalStyles from './components/GlobalStyles';
 import store from '~/redux';
 import { Provider } from 'react-redux';
+import { GlobalProvider } from './composables/GlobalProvider';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-   <React.StrictMode>
+   // <React.StrictMode>
+   <GlobalProvider>
       <Provider store={store}>
          <GlobalStyles>
             <App />
          </GlobalStyles>
       </Provider>
-   </React.StrictMode>,
+   </GlobalProvider>,
+   // </React.StrictMode>,
 );
 reportWebVitals();
