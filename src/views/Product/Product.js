@@ -33,7 +33,7 @@ import { Page as WrapperPage } from '~/composables/Page';
 const cx = classNames.bind(styles);
 
 const Product = () => {
-   const { setLoadFull } = useContext(GlobalContext);
+   const { setLoadFull, isReadyPage, loadReadyPage } = useContext(GlobalContext);
 
    const navigate = useNavigate();
 
@@ -171,6 +171,7 @@ const Product = () => {
          setTimeout(() => {
             endLoading();
             setLoadFull(true);
+            loadReadyPage(true);
             if (wrapperRef.current)
                wrapperRef.current.onscroll = () => {
                   childRefComment.current.handleScroll(wrapperRef.current);
@@ -180,7 +181,31 @@ const Product = () => {
       }
    }, [productCurrent, parent_id]);
 
-   useEffect(() => {}, []);
+   useEffect(() => {
+      return () => {
+         setLoadFull(false);
+         loadReadyPage(false);
+      };
+   }, []);
+
+   useEffect(() => {
+      if (isReadyPage) {
+         setLoadFull(true);
+      }
+   }, [
+      user,
+      productCurrent,
+      parent_id,
+      seeLaterState,
+      pageRecommendProducts,
+      hasMore,
+      loadingMore,
+      recommendProducts,
+      countFollowState,
+      followState,
+      productCurrent,
+      loading,
+   ]);
 
    return (
       <WrapperPage>

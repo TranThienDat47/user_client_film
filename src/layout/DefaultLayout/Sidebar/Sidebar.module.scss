@@ -30,6 +30,7 @@
 
       .content {
          margin-left: 16px;
+         padding-right: 9px;
       }
 
       .content .icon {
@@ -40,6 +41,12 @@
          font-size: 1.6rem;
          line-height: 1.6rem;
          font-weight: 500;
+
+         overflow: hidden;
+         -webkit-line-clamp: 1;
+         text-overflow: ellipsis;
+         -webkit-box-orient: vertical;
+         display: -webkit-box;
       }
 
       div {

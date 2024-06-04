@@ -37,38 +37,43 @@ const LazyLoading = forwardRef(
                Math.floor(parentNode.offsetHeight + parentNode.scrollTop) >=
                   parentNode.scrollHeight - 3
             ) {
-               console.log(hasMore, loadingMore);
-               if (hasMore) beforeLoad();
+               if (hasMore) {
+                  beforeLoad();
+               }
             }
          },
       }));
 
       return (
-         <div className={cx('wrapper')} ref={ref}>
-            <div className="inner">{children}</div>
+         <>
+            {ableLoading && (
+               <div className={cx('wrapper')} ref={ref}>
+                  <div className="inner">{children}</div>
 
-            {loadingMore ? (
-               loadingComponent || (
-                  <div className={cx('loading-more')}>Đang tải thêm dữ liệu...</div>
-               )
-            ) : (
-               <>
-                  {emptyData && (
-                     <div
-                        style={{
-                           color: 'var(--text-bland)',
-                           fontSize: '1.6rem',
-                           fontWeight: '550',
-                           margin: '3px 0 0 16px',
-                        }}
-                     >
-                        Chưa có dữ liệu nào
-                     </div>
+                  {loadingMore ? (
+                     loadingComponent || (
+                        <div className={cx('loading-more')}>Đang tải thêm dữ liệu...</div>
+                     )
+                  ) : (
+                     <>
+                        {emptyData && (
+                           <div
+                              style={{
+                                 color: 'var(--text-bland)',
+                                 fontSize: '1.6rem',
+                                 fontWeight: '550',
+                                 margin: '3px 0 0 16px',
+                              }}
+                           >
+                              Chưa có dữ liệu nào
+                           </div>
+                        )}
+                     </>
                   )}
-               </>
+                  <div className={cx('footer_pseudo')}></div>
+               </div>
             )}
-            <div className={cx('footer_pseudo')}></div>
-         </div>
+         </>
       );
    },
 );

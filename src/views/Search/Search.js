@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import { useLocation } from 'react-router-dom';
-import { useEffect, useRef, useContext } from 'react';
+import { useEffect, useState, useRef, useContext } from 'react';
 
 import styles from './Search.module.scss';
 import { ListProductSearch } from '~/components/ListProduct';
@@ -13,19 +13,24 @@ import {
    setKeySearchResult,
    beforeLoadSearchResult,
 } from '~/redux/slices/searchs/searchPageSlice';
-import { checkIsStart, endLoading } from '~/utils/nprogress';
+import { endLoading, startLoading } from '~/utils/nprogress';
 import { GlobalContext } from '~/composables/GlobalProvider';
 
 import { Page as WrapperPage } from '~/composables/Page';
+import ProductServices from '~/services/ProductServices';
 
 const cx = classNames.bind(styles);
 
+const LENGTH_PAGE_SEARCH = 14;
+
 const Search = () => {
-   const { setLoadFull } = useContext(GlobalContext);
+   const { setLoadFull, isReadyPage, loadReadyPage } = useContext(GlobalContext);
 
    const dispatch = useDispatch();
    const { searchResultProducts, pageSearchResultProducts, hasMore, loadingMore, keySearch } =
       useSelector(searchPageSelector);
+
+   const [dataInit, setDataInit] = useState([]);
 
    const wrapperRef = useRef(null);
    const childRef = useRef(null);
@@ -34,31 +39,72 @@ const Search = () => {
    const params = new URLSearchParams(location.search);
    const search_query = params.get('search_query');
 
+   const fetchSearchInit = async () => {
+      try {
+         const response = await ProductServices.search({
+            skip: 0,
+            limit: LENGTH_PAGE_SEARCH,
+            key: search_query,
+         });
+
+         if (response.success) {
+            return response.products;
+         } else {
+            return [];
+         }
+      } catch (err) {
+         return [];
+      }
+   };
+
    useEffect(() => {
       dispatch(setKeySearchResult(search_query));
 
       dispatch(resetSearchResult());
+
       setTimeout(() => {
-         if (keySearch.trim() !== '') {
-            dispatch(beforeLoadSearchResult());
-         }
-      }, 10);
+         fetchSearchInit().then((res) => {
+            setDataInit(res);
+
+            endLoading();
+            setLoadFull(true);
+            loadReadyPage(false);
+         });
+      });
+
+      return () => {
+         startLoading();
+      };
 
       // eslint-disable-next-line
    }, [search_query]);
 
    useEffect(() => {
-      setTimeout(() => {
-         endLoading();
-         setLoadFull(true);
+      if (wrapperRef.current) {
+         wrapperRef.current.onscroll = () => {
+            childRef.current.handleScroll(wrapperRef.current);
+         };
+      }
 
-         if (wrapperRef.current) {
-            wrapperRef.current.onscroll = () => {
-               childRef.current.handleScroll(wrapperRef.current);
-            };
-         }
-      });
+      return () => {
+         setLoadFull(false);
+         loadReadyPage(false);
+      };
    }, []);
+
+   useEffect(() => {
+      if (isReadyPage) {
+         setLoadFull(true);
+      }
+   }, [
+      search_query,
+      dataInit,
+      searchResultProducts,
+      pageSearchResultProducts,
+      hasMore,
+      loadingMore,
+      keySearch,
+   ]);
 
    return (
       <WrapperPage>
@@ -71,6 +117,8 @@ const Search = () => {
                   </p>
                </div>
                <div className={cx('result')}>
+                  <ListProductSearch data={dataInit} />
+
                   <LazyLoading
                      ref={childRef}
                      hasMore={hasMore}

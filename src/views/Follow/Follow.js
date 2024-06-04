@@ -21,15 +21,42 @@ import {
    setFollowKeySearchFromPageFollow,
    setFollowSortFromPageFollow,
 } from '~/redux/slices/auth/authSlice';
-import { checkIsStart, endLoading } from '~/utils/nprogress';
+import { endLoading, startLoading } from '~/utils/nprogress';
 import { GlobalContext } from '~/composables/GlobalProvider';
 
 import { Page as WrapperPage } from '~/composables/Page';
+import FollowService from '~/services/FollowService';
 
 const cx = classNames.bind(styles);
 
+const LENGTH_PAGE_FOLLOW = 9;
+
 const Follow = () => {
-   const { setLoadFull } = useContext(GlobalContext);
+   const { setLoadFull, isReadyPage, loadReadyPage } = useContext(GlobalContext);
+
+   const fetchInitFollowProduct = async (keySearch = '', sort = 1) => {
+      try {
+         const response = await FollowService.getListFollow({
+            skip: 0,
+            limit: LENGTH_PAGE_FOLLOW + 1,
+            user_id: user._id,
+            keySearch,
+            sort,
+         });
+
+         if (response.success) {
+            setTimeout(() => {
+               endLoading();
+               setLoadFull(true);
+               loadReadyPage(true);
+            });
+
+            return response.follows;
+         }
+      } catch (err) {
+         return [];
+      }
+   };
 
    const navigate = useNavigate();
 
@@ -38,8 +65,11 @@ const Follow = () => {
 
    const location = useLocation();
    const params = new URLSearchParams(location.search);
-   const search_query = params.get('search_query');
+   const search_query_page = params.get('search_query_page');
 
+   const [initProductsFollow, setInitProductsFollow] = useState([]);
+
+   const [sortSearchPageState, setSortSearchPageState] = useState(1);
    const [valueSearchPageState, setValueSearchPageState] = useState('');
    const [showInputClearState, setShowInputClearState] = useState(false);
 
@@ -69,37 +99,50 @@ const Follow = () => {
       dispatch(resetFollowProducts());
 
       dispatch(setFollowKeySearchFromPageFollow(valueSearchPageState));
-      navigate('/follow?search_query=' + valueSearchPageState);
+      navigate('/follow?search_query_page=' + valueSearchPageState);
    };
 
    useEffect(() => {
-      if (search_query) {
+      if (user._id) {
+         fetchInitFollowProduct(search_query_page, sortSearchPageState).then((res) => {
+            setInitProductsFollow(res);
+         });
+      }
+   }, [user, sortSearchPageState]);
+
+   useEffect(() => {
+      if (user._id) {
          if (follow.keySearchFromPageFollow.trim().length <= 0) {
             navigate('/follow');
          } else {
             setValueSearchPageState(follow.keySearchFromPageFollow);
          }
 
-         if (+follow.pageFollowProduct === -1) {
-            dispatch(beforeLoadFollowProduct());
-         }
+         fetchInitFollowProduct(search_query_page, sortSearchPageState).then((res) => {
+            setInitProductsFollow(res);
+         });
       }
+      return () => {
+         dispatch(resetFollowProducts());
+         startLoading();
+      };
       // eslint-disable-next-line
-   }, [search_query]);
+   }, [search_query_page, user._id]);
 
    useEffect(() => {
-      setTimeout(() => {
-         endLoading();
-         setLoadFull(true);
-
-         if (wrapperRef.current) {
+      if (isReadyPage) {
+         if (wrapperRef.current && childRef.current) {
             wrapperRef.current.onscroll = () => {
                childRef.current.handleScroll(wrapperRef.current);
             };
          }
-      });
+      }
+   }, [isReadyPage, childRef.current, wrapperRef.current]);
 
+   useEffect(() => {
       return () => {
+         setLoadFull(false);
+         loadReadyPage(false);
          dispatch(resetFollowProducts());
       };
    }, []);
@@ -112,6 +155,19 @@ const Follow = () => {
       }
    }, [valueSearchPageState]);
 
+   useEffect(() => {
+      if (isReadyPage) {
+         setLoadFull(true);
+      }
+   }, [
+      search_query_page,
+      follow,
+      user,
+      valueSearchPageState,
+      showInputClearState,
+      initProductsFollow,
+   ]);
+
    return (
       <WrapperPage>
          <div ref={wrapperRef} className={cx('wrapper')}>
@@ -120,9 +176,26 @@ const Follow = () => {
             </div>
             <div className={cx('inner')}>
                <div className={cx('inner__left')}>
+                  {!!initProductsFollow.length ? (
+                     <ListProductSearch data={initProductsFollow.slice(0, LENGTH_PAGE_FOLLOW)} />
+                  ) : (
+                     <>
+                        <div
+                           style={{
+                              color: 'var(--text-bland)',
+                              fontSize: '1.6rem',
+                              fontWeight: '550',
+                              margin: '3px 0 0 16px',
+                           }}
+                        >
+                           Chưa có dữ liệu nào
+                        </div>
+                     </>
+                  )}
+
                   <LazyLoading
                      ref={childRef}
-                     ableLoading={!!user?._id}
+                     ableLoading={!!user?._id && initProductsFollow.length > LENGTH_PAGE_FOLLOW}
                      hasMore={follow.hasMore}
                      loadingMore={follow.loadingMore}
                      pageCurrent={follow.pageFollowProduct}
@@ -132,7 +205,6 @@ const Follow = () => {
                      loadProductMore={(page) => {
                         dispatch(fetchFollowProducts(page));
                      }}
-                     emptyData={!!!follow.followProduct.length}
                   >
                      <ListProductSearch data={follow.followProduct} />
                   </LazyLoading>
@@ -169,14 +241,13 @@ const Follow = () => {
                            <Button
                               onClick={() => {
                                  inputSearchRef.current.focus();
+
+                                 navigate('/follow');
+
                                  setValueSearchPageState('');
                                  setShowInputClearState(false);
 
-                                 dispatch(resetFollowProducts());
-
                                  dispatch(setFollowKeySearchFromPageFollow(''));
-
-                                 dispatch(beforeLoadFollowProduct());
                               }}
                               transparent
                               hover
@@ -198,6 +269,7 @@ const Follow = () => {
                               <div
                                  key={'sort' + index}
                                  onClick={() => {
+                                    setSortSearchPageState(element.typeSort);
                                     dispatch(setFollowSortFromPageFollow(element.typeSort));
                                     setInitListSortState((prev) =>
                                        prev.map((elementTemp, indexTemp) =>

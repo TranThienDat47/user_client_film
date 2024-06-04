@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useContext } from 'react';
+import React, { useEffect, useRef, useContext, useState } from 'react';
 import classNames from 'classnames/bind';
 
 import styles from './Home.module.scss';
@@ -10,16 +10,31 @@ import { fetchHomeNew } from '~/redux/slices/products/productHomeNewSlice';
 import {
    beforeLoadHomeSuggested,
    fetchHomeSuggested,
+   resetHomeSuggested,
 } from '~/redux/slices/products/productHomeSuggestedSlice';
 import { suggestedProductsSelector } from '~/redux/selectors/products/producHomeSuggestedtSelector';
-import { checkIsStart, endLoading } from '~/utils/nprogress';
+import { endLoading } from '~/utils/nprogress';
 import { GlobalContext } from '~/composables/GlobalProvider';
 import { Page as WrapperPage } from '~/composables/Page';
+import ProductServices from '~/services/ProductServices';
 
 const cx = classNames.bind(styles);
 
 function Home() {
-   const { setLoadFull, isLoadFull } = useContext(GlobalContext);
+   const fetchHomeSuggestedFirst = async () => {
+      try {
+         const response = await ProductServices.search({
+            skip: 0,
+            limit: 14,
+         });
+
+         return response.products;
+      } catch (err) {
+         return [];
+      }
+   };
+
+   const { setLoadFull, isLoadFull, isReadyPage, loadReadyPage } = useContext(GlobalContext);
 
    const dispatch = useDispatch();
 
@@ -27,44 +42,70 @@ function Home() {
    const { suggestedProducts, pageSuggestedProducts, hasMore, loadingMore } =
       useSelector(suggestedProductsSelector);
 
+   const [firstProduct, setFirstProduct] = useState([]);
+
    const childRef = useRef(null);
    const wrapperRef = useRef();
-
-   useEffect(() => {
-      dispatch(fetchHomeNew());
-   }, []);
 
    useEffect(() => {
       if (!loading) {
          endLoading();
          setLoadFull(true);
-
-         if (wrapperRef.current) {
-            wrapperRef.current.onscroll = () => {
-               childRef.current.handleScroll(wrapperRef.current);
-            };
-         }
       }
    }, [loading]);
 
-   return (
-      <WrapperPage>
-         <div ref={wrapperRef} className={cx('wrapper')}>
-            <div className={cx('inner')}>
-               <div className={cx('heading_of_block')}>
-                  <span className={cx('title')}>Mới</span>
-               </div>
-               <div className={cx('wrapper_of_block', 'wrapper-product', 'new')}>
-                  <ListProductHome
-                     data={newProducts.length > 0 ? newProducts : Array(14).fill(0)}
-                  />
-               </div>
+   useEffect(() => {
+      if (isLoadFull) {
+         setTimeout(() => {
+            if (wrapperRef.current) {
+               wrapperRef.current.onscroll = () => {
+                  childRef.current.handleScroll(wrapperRef.current);
+               };
+            }
+         });
+      }
+   }, [isLoadFull]);
 
-               <div className={cx('heading_of_block')}>
-                  <span className={cx('title')}>Đề xuất</span>
-               </div>
-               <div className={cx('wrapper_of_block', 'wrapper-product', 'recommend-products')}>
-                  {isLoadFull && (
+   useEffect(() => {
+      dispatch(fetchHomeNew());
+      fetchHomeSuggestedFirst().then((res) => {
+         setFirstProduct(res);
+      });
+
+      return () => {
+         dispatch(resetHomeSuggested());
+         loadReadyPage(false);
+      };
+   }, []);
+
+   useEffect(() => {
+      if (isReadyPage) {
+         setLoadFull(true);
+         loadReadyPage(true);
+      }
+   }, [firstProduct, suggestedProducts, pageSuggestedProducts, hasMore, loadingMore]);
+
+   return (
+      <>
+         <WrapperPage>
+            <div ref={wrapperRef} className={cx('wrapper')}>
+               <div className={cx('inner')}>
+                  <div className={cx('heading_of_block')}>
+                     <span className={cx('title')}>Mới</span>
+                  </div>
+                  <div className={cx('wrapper_of_block', 'wrapper-product', 'new')}>
+                     <ListProductHome
+                        data={newProducts.length > 0 ? newProducts : Array(14).fill(0)}
+                     />
+                  </div>
+                  <div className={cx('heading_of_block')}>
+                     <span className={cx('title')}>Đề xuất</span>
+                  </div>
+                  <div className={cx('wrapper_of_block', 'wrapper-product', 'recommend-products')}>
+                     <ListProductHome
+                        data={firstProduct.length > 0 ? firstProduct : Array(14).fill(0)}
+                     />
+
                      <LazyLoading
                         ref={childRef}
                         hasMore={hasMore}
@@ -77,17 +118,13 @@ function Home() {
                            dispatch(fetchHomeSuggested(page));
                         }}
                      >
-                        <ListProductHome
-                           data={
-                              suggestedProducts.length > 0 ? suggestedProducts : Array(12).fill(0)
-                           }
-                        />
+                        <ListProductHome data={suggestedProducts} />
                      </LazyLoading>
-                  )}
+                  </div>
                </div>
             </div>
-         </div>
-      </WrapperPage>
+         </WrapperPage>
+      </>
    );
 }
 

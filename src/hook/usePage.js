@@ -4,21 +4,29 @@ import { GlobalContext } from '~/composables/GlobalProvider';
 
 export default () => {
    const { updateFallback } = useContext(FallbackContext);
-   const { setLoadFull, isLoadFull, prevPage, loadPrevPage } = useContext(GlobalContext);
+   const { setLoadFull, isLoadFull, prevPage, loadPrevPage, loadReadyPage } =
+      useContext(GlobalContext);
 
    const onLoad = useCallback(
       (component) => {
          if (component === undefined) component = null;
 
-         if (isLoadFull) {
-            loadPrevPage(component);
-            setLoadFull(false);
+         if (!!prevPage) {
+            if (isLoadFull) {
+               loadPrevPage(component);
+               setLoadFull(false);
+            } else {
+               updateFallback(prevPage);
+            }
          } else {
-            updateFallback(prevPage);
+            loadPrevPage(component);
+            updateFallback(component);
+            loadReadyPage(true);
+            setLoadFull(false);
          }
       },
       [updateFallback, isLoadFull, setLoadFull, loadPrevPage],
    );
 
-   return { onLoad, prevPage };
+   return { onLoad, prevPage: prevPage };
 };

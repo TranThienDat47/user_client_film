@@ -40,7 +40,7 @@ const cx = classNames.bind(styles);
 const Watch = () => {
    const dispatch = useDispatch();
 
-   const { setLoadFull } = useContext(GlobalContext);
+   const { setLoadFull, isReadyPage, loadReadyPage } = useContext(GlobalContext);
 
    const { user } = useSelector(authSelector);
 
@@ -145,6 +145,7 @@ const Watch = () => {
          setTimeout(() => {
             endLoading();
             setLoadFull(true);
+            loadReadyPage(true);
 
             if (wrapperRef.current) {
                wrapperRef.current.onscroll = () => {
@@ -210,7 +211,22 @@ const Watch = () => {
       }
    }, [productDetailCurrentState, user]);
 
-   useEffect(() => {}, [loading]);
+   useEffect(() => {
+      if (isReadyPage) {
+         setLoadFull(true);
+      }
+   }, [
+      productDetailCurrentState,
+      user,
+      showShareState,
+      likeState,
+      countLikeState,
+      productCurrentState,
+      pageRecommendProducts,
+      hasMore,
+      loadingMore,
+      recommendProducts,
+   ]);
 
    return (
       <WrapperPage>

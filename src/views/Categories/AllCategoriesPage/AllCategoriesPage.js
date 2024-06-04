@@ -12,33 +12,8 @@ const cx = classNames.bind(styles);
 
 const LENGTH_PAGE_DEFAULT = 7;
 
-function AllCategoriesPage({ handleClickMore = () => {} }) {
+function AllCategoriesPage({ handleClickMore = () => {}, listCategoriesState }) {
    const navigate = useNavigate();
-
-   const [listCategoriesState, setListCategoriesState] = useState([]);
-   useEffect(() => {
-      CategoriesService.getAll().then(async (res) => {
-         const tempData = await Promise.all(
-            res.categories.map(async (element, index) => {
-               const tempData = await CategoriesService.getProductOfCategory({
-                  catgories_id: element._id,
-                  skip: 0,
-                  limit: LENGTH_PAGE_DEFAULT + 1,
-                  recently: true,
-               }).then((res) => {
-                  return res.products;
-               });
-
-               return {
-                  category: element,
-                  products: tempData,
-               };
-            }),
-         );
-
-         setListCategoriesState(tempData);
-      });
-   }, []);
 
    return (
       <>
@@ -53,12 +28,12 @@ function AllCategoriesPage({ handleClickMore = () => {} }) {
 
                      <div className={cx('footer')}>
                         <div className={cx('sperator')}></div>
-                        {element.products.length > LENGTH_PAGE_DEFAULT && (
+                        {element.products.length > LENGTH_PAGE_DEFAULT + 1 && (
                            <div className={cx('wrapper-button')}>
                               <Button
                                  onClick={() => {
                                     handleClickMore(element.category._id);
-                                    navigate('/category/' + element.category._id);
+                                    navigate('/category?page=' + element.category._id);
                                  }}
                                  rounded
                                  transparent

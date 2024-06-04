@@ -33,6 +33,7 @@ function ProductItem({
       view: '',
       news: false,
       episodes: '',
+      follows: '',
       currentEpisodes: '??',
       createdAt: '',
    },
@@ -79,13 +80,13 @@ function ProductItem({
       itemWrapperRef.current.addEventListener('mouseleave', handleMouseOut);
    }, []);
 
-   useEffect(() => {
-      if (data?._id) {
-         FollowService.getCountFollowOfProduct({ product_id: data._id }).then((res) => {
-            setFollowState(res.count);
-         });
-      }
-   }, [data]);
+   // useEffect(() => {
+   //    if (data?._id) {
+   //       FollowService.getCountFollowOfProduct({ product_id: data._id }).then((res) => {
+   //          setFollowState(res.count);
+   //       });
+   //    }
+   // }, [data]);
 
    useEffect(() => {
       let start = false;
@@ -226,7 +227,7 @@ function ProductItem({
                      {!!data.view || (
                         <>
                            <div className={cx('quantity')}>
-                              {formatFollowCount(followState) + ' lượt theo dõi'}
+                              {formatFollowCount(data.follows) + ' lượt theo dõi'}
                            </div>
                            {extraLarge || <span className={cx('sperator')}>|</span>}
                            <div className={cx('date')}>

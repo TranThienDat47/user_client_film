@@ -21,6 +21,8 @@ export const fetchHomeSuggested = createAsyncThunk(
             limit: LENGTH_PAGE_SUGGESTED,
          });
 
+         console.log(response);
+
          if (response.success) {
             if (response.products.length >= LENGTH_PAGE_SUGGESTED) {
                return {
@@ -67,6 +69,12 @@ const productHomeSuggestedSlice = createSlice({
          state.hasMore = true;
          state.loadingMore = true;
       },
+      resetHomeSuggested: (state, action) => {
+         state.hasMore = true;
+         state.loadingMore = false;
+         state.suggestedProducts = [];
+         state.pageSuggestedProducts = 0;
+      },
    },
    extraReducers(builder) {
       builder
@@ -94,6 +102,6 @@ const productHomeSuggestedSlice = createSlice({
    },
 });
 
-export const { beforeLoadHomeSuggested } = productHomeSuggestedSlice.actions;
+export const { beforeLoadHomeSuggested, resetHomeSuggested } = productHomeSuggestedSlice.actions;
 
 export default productHomeSuggestedSlice.reducer;

@@ -14,30 +14,30 @@ const initialState = {
    follow: {
       followProduct: [],
       keySearchFromPageFollow: '',
-      pageFollowProduct: -1,
+      pageFollowProduct: 0,
       sortFromPageFollow: 1,
       loadingMore: false,
-      hasMore: false,
+      hasMore: true,
       error: null,
    },
 
    seenMovie: {
       keySearchFromPageSeenMovie: '',
       sortFromPageSeenMovie: 1,
-      pageSeenMovieProduct: -1,
+      pageSeenMovieProduct: 0,
       seenMovieProduct: [],
       loadingMore: false,
-      hasMore: false,
+      hasMore: true,
       error: null,
    },
 
    seeLaterMovie: {
       keySearchFromPageSeeLaterMovie: '',
       sortFromPageSeeLaterMovie: 1,
-      pageSeeLaterMovieProduct: -1,
+      pageSeeLaterMovieProduct: 0,
       seeLaterMovieProduct: [],
       loadingMore: false,
-      hasMore: false,
+      hasMore: true,
       error: null,
    },
 };
@@ -240,22 +240,22 @@ const authSlice = createSlice({
       },
       setFollowKeySearchFromPageFollow: (state, action) => {
          state.follow.keySearchFromPageFollow = action.payload;
-         state.follow.pageFollowProduct = -1;
+         state.follow.pageFollowProduct = 0;
          state.follow.loadingMore = false;
-         state.follow.hasMore = false;
+         state.follow.hasMore = true;
       },
       setFollowSortFromPageFollow: (state, action) => {
          state.follow.sortFromPageFollow = action.payload;
          state.follow.followProduct = [];
-         state.follow.pageFollowProduct = -1;
+         state.follow.pageFollowProduct = 0;
          state.follow.loadingMore = false;
-         state.follow.hasMore = false;
+         state.follow.hasMore = true;
       },
       resetFollowProducts: (state) => {
          state.follow.followProduct = [];
-         state.follow.pageFollowProduct = -1;
+         state.follow.pageFollowProduct = 0;
          state.follow.loadingMore = false;
-         state.follow.hasMore = false;
+         state.follow.hasMore = true;
       },
       //seenMovie
       beforeLoadSeenMovieProduct: (state, action) => {

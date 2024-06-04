@@ -21,24 +21,55 @@ import {
    setSeenMovieKeySearchFromPageSeenMovie,
    setSeenMovieSortFromPageSeenMovie,
 } from '~/redux/slices/auth/authSlice';
-import { endLoading } from '~/utils/nprogress';
+import { endLoading, startLoading } from '~/utils/nprogress';
 import { GlobalContext } from '~/composables/GlobalProvider';
 
 import { Page as WrapperPage } from '~/composables/Page';
+import SeenMovieService from '~/services/SeenMovieService';
 
 const cx = classNames.bind(styles);
 
+const LENGTH_PAGE_FOLLOW = 9;
+
 const SeenMovie = () => {
+   const { setLoadFull, isReadyPage, loadReadyPage } = useContext(GlobalContext);
+
+   const fetchInitSeenMovieProduct = async (keySearch = '', sort = 1) => {
+      try {
+         const response = await SeenMovieService.getListSeenMovie({
+            skip: 0,
+            limit: LENGTH_PAGE_FOLLOW + 1,
+            user_id: user._id,
+            keySearch,
+            sort,
+         });
+
+         if (response.success) {
+            setTimeout(() => {
+               endLoading();
+               setLoadFull(true);
+               loadReadyPage(true);
+            });
+
+            return response.seenMovies;
+         }
+      } catch (err) {
+         return [];
+      }
+   };
+
    const navigate = useNavigate();
-   const { setLoadFull } = useContext(GlobalContext);
 
    const dispatch = useDispatch();
    const { seenMovie, user } = useSelector(authSelector);
 
    const location = useLocation();
    const params = new URLSearchParams(location.search);
-   const search_query = params.get('search_query');
+   const search_query_page = params.get('search_query_page');
 
+   const [initProductsSeenMovie, setInitProductsSeenMovie] = useState([]);
+
+   const [sortSearchPageState, setSortSearchPageState] = useState(1);
    const [valueSearchPageState, setValueSearchPageState] = useState('');
    const [showInputClearState, setShowInputClearState] = useState(false);
 
@@ -49,14 +80,14 @@ const SeenMovie = () => {
    const [initListSortState, setInitListSortState] = useState([
       {
          id: 0,
-         title: 'Phim đã xem (mới nhất)',
+         title: 'Ngày xem (mới nhất)',
          icon: <AiOutlineCheck className={cx('sort-from-page__content-row-icon')} />,
          typeSort: 1,
          checked: true,
       },
       {
          id: 1,
-         title: 'Phim đã xem (cũ nhất)',
+         title: 'Ngày xem (cũ nhất)',
          icon: <AiOutlineCheck className={cx('sort-from-page__content-row-icon')} />,
          typeSort: -1,
          checked: false,
@@ -68,44 +99,51 @@ const SeenMovie = () => {
       dispatch(resetSeenMovieProducts());
 
       dispatch(setSeenMovieKeySearchFromPageSeenMovie(valueSearchPageState));
-      navigate('/seenMovie?search_query=' + valueSearchPageState);
+      navigate('/seenMovie?search_query_page=' + valueSearchPageState);
    };
 
    useEffect(() => {
-      const pathname = window.location.pathname;
+      if (user._id) {
+         fetchInitSeenMovieProduct(search_query_page, sortSearchPageState).then((res) => {
+            setInitProductsSeenMovie(res);
+         });
+      }
+   }, [user, sortSearchPageState]);
 
-      if (pathname === '/seenMovie') {
+   useEffect(() => {
+      if (user._id) {
          if (seenMovie.keySearchFromPageSeenMovie.trim().length <= 0) {
             navigate('/seenMovie');
          } else {
             setValueSearchPageState(seenMovie.keySearchFromPageSeenMovie);
          }
 
-         if (+seenMovie.pageSeenMovieProduct === -1) {
-            dispatch(beforeLoadSeenMovieProduct());
-         }
+         fetchInitSeenMovieProduct(search_query_page, sortSearchPageState).then((res) => {
+            setInitProductsSeenMovie(res);
+         });
       }
+      return () => {
+         dispatch(resetSeenMovieProducts());
+         startLoading();
+      };
       // eslint-disable-next-line
-   }, [search_query]);
+   }, [search_query_page, user._id]);
 
    useEffect(() => {
-      setTimeout(() => {
-         endLoading();
-         setLoadFull(true);
-
-         if (wrapperRef.current) {
+      if (isReadyPage) {
+         if (wrapperRef.current && childRef.current) {
             wrapperRef.current.onscroll = () => {
                childRef.current.handleScroll(wrapperRef.current);
             };
          }
-      });
+      }
+   }, [isReadyPage, childRef.current, wrapperRef.current]);
 
+   useEffect(() => {
       return () => {
-         setTimeout(() => {
-            endLoading();
-            setLoadFull(true);
-         }, 1000);
-         // dispatch(resetSeenMovieProducts());
+         setLoadFull(false);
+         loadReadyPage(false);
+         dispatch(resetSeenMovieProducts());
       };
    }, []);
 
@@ -117,6 +155,19 @@ const SeenMovie = () => {
       }
    }, [valueSearchPageState]);
 
+   useEffect(() => {
+      if (isReadyPage) {
+         setLoadFull(true);
+      }
+   }, [
+      search_query_page,
+      seenMovie,
+      user,
+      valueSearchPageState,
+      showInputClearState,
+      initProductsSeenMovie,
+   ]);
+
    return (
       <WrapperPage>
          <div ref={wrapperRef} className={cx('wrapper')}>
@@ -125,9 +176,26 @@ const SeenMovie = () => {
             </div>
             <div className={cx('inner')}>
                <div className={cx('inner__left')}>
+                  {!!initProductsSeenMovie.length ? (
+                     <ListProductSearch data={initProductsSeenMovie.slice(0, LENGTH_PAGE_FOLLOW)} />
+                  ) : (
+                     <>
+                        <div
+                           style={{
+                              color: 'var(--text-bland)',
+                              fontSize: '1.6rem',
+                              fontWeight: '550',
+                              margin: '3px 0 0 16px',
+                           }}
+                        >
+                           Chưa có dữ liệu nào
+                        </div>
+                     </>
+                  )}
+
                   <LazyLoading
                      ref={childRef}
-                     ableLoading={!!user?._id}
+                     ableLoading={!!user?._id && initProductsSeenMovie.length > LENGTH_PAGE_FOLLOW}
                      hasMore={seenMovie.hasMore}
                      loadingMore={seenMovie.loadingMore}
                      pageCurrent={seenMovie.pageSeenMovieProduct}
@@ -137,7 +205,6 @@ const SeenMovie = () => {
                      loadProductMore={(page) => {
                         dispatch(fetchSeenMovieProducts(page));
                      }}
-                     emptyData={!!!seenMovie.seenMovieProduct.length}
                   >
                      <ListProductSearch data={seenMovie.seenMovieProduct} />
                   </LazyLoading>
@@ -174,14 +241,13 @@ const SeenMovie = () => {
                            <Button
                               onClick={() => {
                                  inputSearchRef.current.focus();
+
+                                 navigate('/seenMovie');
+
                                  setValueSearchPageState('');
                                  setShowInputClearState(false);
 
-                                 dispatch(resetSeenMovieProducts());
-
                                  dispatch(setSeenMovieKeySearchFromPageSeenMovie(''));
-
-                                 dispatch(beforeLoadSeenMovieProduct());
                               }}
                               transparent
                               hover
@@ -203,6 +269,7 @@ const SeenMovie = () => {
                               <div
                                  key={'sort' + index}
                                  onClick={() => {
+                                    setSortSearchPageState(element.typeSort);
                                     dispatch(setSeenMovieSortFromPageSeenMovie(element.typeSort));
                                     setInitListSortState((prev) =>
                                        prev.map((elementTemp, indexTemp) =>

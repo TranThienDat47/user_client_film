@@ -5,7 +5,7 @@ const LENGTH_PAGE_SEARCH = 9;
 
 const initialState = {
    searchResultProducts: [],
-   pageSearchResultProducts: -1,
+   pageSearchResultProducts: 0,
    keySearch: '',
    tempSelectSearchResult: '',
    hasMore: false,
@@ -73,7 +73,7 @@ const searchPageSlice = createSlice({
       },
       resetSearchResult: (state, action) => {
          state.searchResultProducts = [];
-         state.pageSearchResultProducts = -1;
+         state.pageSearchResultProducts = 0;
       },
       setKeySearchResult: (state, action) => {
          state.keySearch = action.payload;
