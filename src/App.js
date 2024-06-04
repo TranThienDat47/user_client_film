@@ -14,8 +14,6 @@ import { handleChangeModeTheme } from '~/utils/handleChangeModeTheme';
 import { FabllbackProvider } from '~/composables/FabllbackProvider';
 import GlobalLayout from '~/layout';
 
-import ListLayout from '~/config/layouts';
-
 function App() {
    useEffect(() => {
       const tempTheme = localStorage.getItem('theme');

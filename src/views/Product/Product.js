@@ -25,7 +25,7 @@ import { globalSelector } from '~/redux/selectors/globals/globalSelector';
 import { fetchProductCurrent } from '~/redux/slices/globals/globalSlice';
 import { authSelector } from '~/redux/selectors/auth/authSelector';
 import SeeLaterMovieService from '~/services/SeeLaterMovieService';
-import { checkIsStart, endLoading } from '~/utils/nprogress';
+import { checkIsStart, endLoading, startLoading } from '~/utils/nprogress';
 import { GlobalContext } from '~/composables/GlobalProvider';
 
 import { Page as WrapperPage } from '~/composables/Page';
@@ -141,7 +141,9 @@ const Product = () => {
       if (!parent_id) {
          navigate('/');
       } else dispatch(fetchProductCurrent(parent_id));
-
+      return () => {
+         startLoading();
+      };
       // eslint-disable-next-line
    }, [parent_id]);
 
