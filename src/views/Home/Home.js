@@ -108,6 +108,7 @@ function Home() {
 
                      <LazyLoading
                         ref={childRef}
+                        ableLoading={true}
                         hasMore={hasMore}
                         loadingMore={loadingMore}
                         pageCurrent={pageSuggestedProducts}
