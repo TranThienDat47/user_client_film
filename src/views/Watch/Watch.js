@@ -212,6 +212,13 @@ const Watch = () => {
    }, [productDetailCurrentState, user]);
 
    useEffect(() => {
+      return () => {
+         loadReadyPage(false);
+         setLoadFull(false);
+      };
+   });
+
+   useEffect(() => {
       if (isReadyPage) {
          setLoadFull(true);
       }
