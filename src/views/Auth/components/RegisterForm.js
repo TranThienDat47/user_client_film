@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames/bind';
 import imgs from '~/assets/img';
 import Button from '~/components/Button';
@@ -20,6 +20,8 @@ const RegisterForm = () => {
       password: '',
       confirm_password: '',
    });
+
+   const passwordRef = useRef();
 
    const [tempStep, setTempStep] = useState(0);
    const [invalid, setInvalid] = useState(-1);
@@ -45,16 +47,15 @@ const RegisterForm = () => {
             } else {
                try {
                   const register = await AuthServices.register(registerForm);
-                  endLoading();
                   if (register.success) {
                      localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, register.accessToken);
                      window.location.href = '/';
+                     endLoading();
                   } else {
-                     // Handle registration failure (e.g., show error message)
+                     endLoading();
                   }
                } catch (error) {
                   endLoading();
-                  // Handle error (e.g., show error message)
                }
             }
          } else {
@@ -65,17 +66,39 @@ const RegisterForm = () => {
       }
    };
 
+   useEffect(() => {
+      if (tempStep === 1) {
+         passwordRef.current.value = '';
+      }
+   }, [tempStep]);
+
+   useEffect(() => {
+      endLoading();
+      return () => {
+         startLoading();
+      };
+   }, []);
+
+   const validateEmail = (email) => {
+      const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      return re.test(String(email).toLowerCase());
+   };
+
    const checkUsernameExist = async () => {
       if (!!registerForm.username && !!registerForm.first_name && !!registerForm.last_name) {
-         try {
-            const check = await AuthServices.checkUsername({ username: registerForm.username });
-            if (check.success && !check.valid) {
-               setTempStep(1);
-               setInvalid(-1);
-            } else {
-               setInvalid(1);
-            }
-         } catch (error) {}
+         if (validateEmail(registerForm.username)) {
+            try {
+               const check = await AuthServices.checkUsername({ username: registerForm.username });
+               if (check.success && !check.valid) {
+                  setTempStep(1);
+                  setInvalid(-1);
+               } else {
+                  setInvalid(1);
+               }
+            } catch (error) {}
+         } else {
+            setInvalid(3);
+         }
       } else {
          setInvalid(0);
       }
@@ -112,12 +135,15 @@ const RegisterForm = () => {
                         name="last_name"
                      />
                   </div>
-                  <div className={cx('block-input', 'mrg-t-16', { invalid: invalid === 1 })}>
+                  <div
+                     style={{ flexDirection: 'column' }}
+                     className={cx('block-input', 'mrg-t-16', { invalid: invalid === 1 })}
+                  >
                      <input
                         className={cx('username')}
                         required
                         type="email"
-                        placeholder="Email hoặc số điện thoại"
+                        placeholder="Email "
                         name="username"
                         onKeyDown={(e) => {
                            if (e.key === 'Enter') {
@@ -126,8 +152,16 @@ const RegisterForm = () => {
                            }
                         }}
                      />
-                     {invalid === 1 && (
-                        <span className={cx('error-message')}>Tên đăng nhập đã được sử dụng</span>
+                     {invalid === 1 ? (
+                        <span className={cx('error-message', 'mrg-t-16')}>
+                           Tên đăng nhập đã được sử dụng
+                        </span>
+                     ) : invalid === 3 ? (
+                        <span className={cx('error-message', 'mrg-t-16')}>
+                           Tên đăng nhập phải là email(ví dụ: 123@gmail.com)
+                        </span>
+                     ) : (
+                        <></>
                      )}
                   </div>
                </>
@@ -145,6 +179,7 @@ const RegisterForm = () => {
                   <div className={cx('block-input')}>
                      <input
                         className={cx('password')}
+                        ref={passwordRef}
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Mật khẩu của bạn"
                         name="password"

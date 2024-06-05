@@ -77,6 +77,10 @@ const LoginForm = () => {
 
          setTempStep(1);
       }
+      endLoading();
+      return () => {
+         startLoading();
+      };
    }, []);
 
    return (
@@ -111,7 +115,7 @@ const LoginForm = () => {
                      className={cx('username')}
                      type="email"
                      name="username"
-                     placeholder="Email hoặc số điện thoại"
+                     placeholder="Email"
                      onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                            e.preventDefault();
