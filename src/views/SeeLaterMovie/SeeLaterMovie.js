@@ -128,13 +128,11 @@ const SeeLaterMovie = () => {
    }, [search_query_page, user._id]);
 
    useEffect(() => {
-      if (!!initProductsSeeLaterMovie.length) {
-         setTimeout(() => {
-            endLoading();
-            setLoadFull(true);
-            loadReadyPage(true);
-         });
-      }
+      setTimeout(() => {
+         endLoading();
+         setLoadFull(true);
+         loadReadyPage(true);
+      });
    }, [initProductsSeeLaterMovie]);
 
    useEffect(() => {
