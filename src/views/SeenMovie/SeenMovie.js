@@ -32,9 +32,13 @@ const cx = classNames.bind(styles);
 const LENGTH_PAGE_FOLLOW = 9;
 
 const SeenMovie = () => {
-   const { setLoadFull, isReadyPage, loadReadyPage } = useContext(GlobalContext);
+   const [isReady, setIsReady] = useState(false);
+
+   const { setLoadFull, loadReadyPage, isReadyPage } = useContext(GlobalContext);
 
    const fetchInitSeenMovieProduct = async (keySearch = '', sort = 1) => {
+      if (isReadyPage) startLoading();
+
       try {
          const response = await SeenMovieService.getListSeenMovie({
             skip: 0,
@@ -45,14 +49,8 @@ const SeenMovie = () => {
          });
 
          if (response.success) {
-            setTimeout(() => {
-               endLoading();
-               setLoadFull(true);
-               loadReadyPage(true);
-            });
-
             return response.seenMovies;
-         }
+         } else return [];
       } catch (err) {
          return [];
       }
@@ -80,14 +78,14 @@ const SeenMovie = () => {
    const [initListSortState, setInitListSortState] = useState([
       {
          id: 0,
-         title: 'Ngày xem (mới nhất)',
+         title: 'Ngày thêm (mới nhất)',
          icon: <AiOutlineCheck className={cx('sort-from-page__content-row-icon')} />,
          typeSort: 1,
          checked: true,
       },
       {
          id: 1,
-         title: 'Ngày xem (cũ nhất)',
+         title: 'Ngày thêm (cũ nhất)',
          icon: <AiOutlineCheck className={cx('sort-from-page__content-row-icon')} />,
          typeSort: -1,
          checked: false,
@@ -130,20 +128,34 @@ const SeenMovie = () => {
    }, [search_query_page, user._id]);
 
    useEffect(() => {
-      if (isReadyPage) {
+      if (!!initProductsSeenMovie.length) {
+         setTimeout(() => {
+            endLoading();
+            setLoadFull(true);
+            loadReadyPage(true);
+         });
+      }
+   }, [initProductsSeenMovie]);
+
+   useEffect(() => {
+      if (isReady) {
          if (wrapperRef.current && childRef.current) {
             wrapperRef.current.onscroll = () => {
                childRef.current.handleScroll(wrapperRef.current);
             };
          }
       }
-   }, [isReadyPage, childRef.current, wrapperRef.current]);
+   }, [isReady, childRef.current, wrapperRef.current]);
 
    useEffect(() => {
+      if (!isReadyPage) {
+         setIsReady(true);
+      }
+
       return () => {
-         setLoadFull(false);
-         loadReadyPage(false);
          dispatch(resetSeenMovieProducts());
+         loadReadyPage(false);
+         setIsReady(false);
       };
    }, []);
 
@@ -156,8 +168,12 @@ const SeenMovie = () => {
    }, [valueSearchPageState]);
 
    useEffect(() => {
-      if (isReadyPage) {
-         setLoadFull(true);
+      if (isReady) {
+         if (isReadyPage) {
+            setLoadFull(true);
+         }
+      } else {
+         setIsReady(true);
       }
    }, [
       search_query_page,

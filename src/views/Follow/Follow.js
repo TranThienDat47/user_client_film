@@ -32,9 +32,13 @@ const cx = classNames.bind(styles);
 const LENGTH_PAGE_FOLLOW = 9;
 
 const Follow = () => {
-   const { setLoadFull, isReadyPage, loadReadyPage } = useContext(GlobalContext);
+   const [isReady, setIsReady] = useState(false);
+
+   const { setLoadFull, loadReadyPage, isReadyPage } = useContext(GlobalContext);
 
    const fetchInitFollowProduct = async (keySearch = '', sort = 1) => {
+      if (isReadyPage) startLoading();
+
       try {
          const response = await FollowService.getListFollow({
             skip: 0,
@@ -45,14 +49,8 @@ const Follow = () => {
          });
 
          if (response.success) {
-            setTimeout(() => {
-               endLoading();
-               setLoadFull(true);
-               loadReadyPage(true);
-            });
-
             return response.follows;
-         }
+         } else return [];
       } catch (err) {
          return [];
       }
@@ -130,20 +128,34 @@ const Follow = () => {
    }, [search_query_page, user._id]);
 
    useEffect(() => {
-      if (isReadyPage) {
+      if (!!initProductsFollow.length) {
+         setTimeout(() => {
+            endLoading();
+            setLoadFull(true);
+            loadReadyPage(true);
+         });
+      }
+   }, [initProductsFollow]);
+
+   useEffect(() => {
+      if (isReady && isReadyPage) {
          if (wrapperRef.current && childRef.current) {
             wrapperRef.current.onscroll = () => {
                childRef.current.handleScroll(wrapperRef.current);
             };
          }
       }
-   }, [isReadyPage, childRef.current, wrapperRef.current]);
+   }, [isReadyPage, isReady, childRef.current, wrapperRef.current]);
 
    useEffect(() => {
+      if (!isReadyPage) {
+         setIsReady(true);
+      }
+
       return () => {
-         setLoadFull(false);
-         loadReadyPage(false);
          dispatch(resetFollowProducts());
+         loadReadyPage(false);
+         setIsReady(false);
       };
    }, []);
 
@@ -156,8 +168,12 @@ const Follow = () => {
    }, [valueSearchPageState]);
 
    useEffect(() => {
-      if (isReadyPage) {
-         setLoadFull(true);
+      if (isReady) {
+         if (isReadyPage) {
+            setLoadFull(true);
+         }
+      } else {
+         setIsReady(true);
       }
    }, [
       search_query_page,

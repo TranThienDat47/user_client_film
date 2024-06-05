@@ -20,8 +20,8 @@ const publicRoutes = [
 ];
 
 const privateRoutes = [
-   { path: config.routes.seenMovie, component: SeenMovie },
    { path: config.routes.follow, component: Follow },
+   { path: config.routes.seenMovie, component: SeenMovie },
    { path: config.routes.seeLaterMovie, component: SeeLaterMovie },
 ];
 

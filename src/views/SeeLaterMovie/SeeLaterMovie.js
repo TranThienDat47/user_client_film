@@ -32,9 +32,13 @@ const cx = classNames.bind(styles);
 const LENGTH_PAGE_FOLLOW = 9;
 
 const SeeLaterMovie = () => {
-   const { setLoadFull, isReadyPage, loadReadyPage } = useContext(GlobalContext);
+   const [isReady, setIsReady] = useState(false);
+
+   const { setLoadFull, loadReadyPage, isReadyPage } = useContext(GlobalContext);
 
    const fetchInitSeeLaterMovieProduct = async (keySearch = '', sort = 1) => {
+      if (isReadyPage) startLoading();
+
       try {
          const response = await SeeLaterMovieService.getListSeeLaterMovie({
             skip: 0,
@@ -45,14 +49,8 @@ const SeeLaterMovie = () => {
          });
 
          if (response.success) {
-            setTimeout(() => {
-               endLoading();
-               setLoadFull(true);
-               loadReadyPage(true);
-            });
-
             return response.seeLaterMovies;
-         }
+         } else return [];
       } catch (err) {
          return [];
       }
@@ -80,14 +78,14 @@ const SeeLaterMovie = () => {
    const [initListSortState, setInitListSortState] = useState([
       {
          id: 0,
-         title: 'Ngày thêm (mới nhất)',
+         title: 'Ngày xem (mới nhất)',
          icon: <AiOutlineCheck className={cx('sort-from-page__content-row-icon')} />,
          typeSort: 1,
          checked: true,
       },
       {
          id: 1,
-         title: 'Ngày thêm (cũ nhất)',
+         title: 'Ngày xem (cũ nhất)',
          icon: <AiOutlineCheck className={cx('sort-from-page__content-row-icon')} />,
          typeSort: -1,
          checked: false,
@@ -130,20 +128,34 @@ const SeeLaterMovie = () => {
    }, [search_query_page, user._id]);
 
    useEffect(() => {
-      if (isReadyPage) {
+      if (!!initProductsSeeLaterMovie.length) {
+         setTimeout(() => {
+            endLoading();
+            setLoadFull(true);
+            loadReadyPage(true);
+         });
+      }
+   }, [initProductsSeeLaterMovie]);
+
+   useEffect(() => {
+      if (isReady) {
          if (wrapperRef.current && childRef.current) {
             wrapperRef.current.onscroll = () => {
                childRef.current.handleScroll(wrapperRef.current);
             };
          }
       }
-   }, [isReadyPage, childRef.current, wrapperRef.current]);
+   }, [isReady, childRef.current, wrapperRef.current]);
 
    useEffect(() => {
+      if (!isReadyPage) {
+         setIsReady(true);
+      }
+
       return () => {
-         setLoadFull(false);
-         loadReadyPage(false);
          dispatch(resetSeeLaterMovieProducts());
+         loadReadyPage(false);
+         setIsReady(false);
       };
    }, []);
 
@@ -156,8 +168,12 @@ const SeeLaterMovie = () => {
    }, [valueSearchPageState]);
 
    useEffect(() => {
-      if (isReadyPage) {
-         setLoadFull(true);
+      if (isReady) {
+         if (isReadyPage) {
+            setLoadFull(true);
+         }
+      } else {
+         setIsReady(true);
       }
    }, [
       search_query_page,
@@ -172,7 +188,7 @@ const SeeLaterMovie = () => {
       <WrapperPage>
          <div ref={wrapperRef} className={cx('wrapper')}>
             <div className={cx('header_page')}>
-               <h1 className={cx('string-formatted')}>Xem sau</h1>
+               <h1 className={cx('string-formatted')}>Phim đã xem</h1>
             </div>
             <div className={cx('inner')}>
                <div className={cx('inner__left')}>

@@ -21,6 +21,8 @@ import ProductServices from '~/services/ProductServices';
 const cx = classNames.bind(styles);
 
 function Home() {
+   const [isReady, setIsReady] = useState(false);
+
    const fetchHomeSuggestedFirst = async () => {
       try {
          const response = await ProductServices.search({
@@ -68,6 +70,10 @@ function Home() {
    }, [isLoadFull]);
 
    useEffect(() => {
+      if (!isReadyPage) {
+         setIsReady(true);
+      }
+
       dispatch(fetchHomeNew());
       fetchHomeSuggestedFirst().then((res) => {
          setFirstProduct(res);
@@ -76,12 +82,17 @@ function Home() {
       return () => {
          dispatch(resetHomeSuggested());
          loadReadyPage(false);
+         setIsReady(false);
       };
    }, []);
 
    useEffect(() => {
-      if (isReadyPage) {
-         setLoadFull(true);
+      if (isReady) {
+         if (isReadyPage) {
+            setLoadFull(true);
+         }
+      } else {
+         setIsReady(true);
       }
    }, [newProducts, firstProduct, suggestedProducts, pageSuggestedProducts, hasMore, loadingMore]);
 
