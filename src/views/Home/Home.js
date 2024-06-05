@@ -51,6 +51,7 @@ function Home() {
       if (!loading) {
          endLoading();
          setLoadFull(true);
+         loadReadyPage(true);
       }
    }, [loading]);
 
@@ -81,9 +82,8 @@ function Home() {
    useEffect(() => {
       if (isReadyPage) {
          setLoadFull(true);
-         loadReadyPage(true);
       }
-   }, [firstProduct, suggestedProducts, pageSuggestedProducts, hasMore, loadingMore]);
+   }, [newProducts, firstProduct, suggestedProducts, pageSuggestedProducts, hasMore, loadingMore]);
 
    return (
       <>
