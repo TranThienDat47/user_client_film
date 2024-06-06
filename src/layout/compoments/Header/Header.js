@@ -67,16 +67,16 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
 
    function getInitialData(theme, language) {
       return [
-         {
-            title: <div className={cx('title')}>Cài đặt</div>,
-            left_icon: <RiSettingsLine className={cx('icon')} />,
-            // right_icon: <AiOutlineRight className={cx('icon')} />,
-            onChange: () => {
-               if (!user) {
-                  navigate('/login');
-               }
-            },
-         },
+         // {
+         //    title: <div className={cx('title')}>Cài đặt</div>,
+         //    left_icon: <RiSettingsLine className={cx('icon')} />,
+         //    // right_icon: <AiOutlineRight className={cx('icon')} />,
+         //    onChange: () => {
+         //       if (!user) {
+         //          navigate('/login');
+         //       }
+         //    },
+         // },
          {
             title: (
                <div className={cx('title')}>
@@ -170,16 +170,16 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
             left_icon: <BiUserCircle className={cx('icon')} />,
             separate: true,
          },
-         {
-            title: <div className={cx('title')}>Cài đặt</div>,
-            left_icon: <RiSettingsLine className={cx('icon')} />,
-            right_icon: <AiOutlineRight className={cx('icon')} />,
-            onChange: () => {
-               if (!user) {
-                  navigate('/login');
-               }
-            },
-         },
+         // {
+         //    title: <div className={cx('title')}>Cài đặt</div>,
+         //    left_icon: <RiSettingsLine className={cx('icon')} />,
+         //    right_icon: <AiOutlineRight className={cx('icon')} />,
+         //    onChange: () => {
+         //       if (!user) {
+         //          navigate('/login');
+         //       }
+         //    },
+         // },
          {
             title: (
                <div className={cx('title')}>
