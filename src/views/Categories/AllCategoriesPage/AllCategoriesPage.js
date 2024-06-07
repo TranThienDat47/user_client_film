@@ -28,7 +28,7 @@ function AllCategoriesPage({ handleClickMore = () => {}, listCategoriesState }) 
 
                      <div className={cx('footer')}>
                         <div className={cx('sperator')}></div>
-                        {element.products.length > LENGTH_PAGE_DEFAULT + 1 && (
+                        {element.products?.length > LENGTH_PAGE_DEFAULT + 1 && (
                            <div className={cx('wrapper-button')}>
                               <Button
                                  onClick={() => {

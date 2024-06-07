@@ -100,7 +100,7 @@ const Notification = ({ user_id }) => {
                      <h4 className={cx('header-title')}>Thông báo</h4>
                   </div>
                   <div className={cx('notifications-list')}>
-                     {notifications.length > 0 ? (
+                     {notifications?.length > 0 ? (
                         notifications.map((element, index) => (
                            <NotificationItem key={index} data={element}></NotificationItem>
                         ))

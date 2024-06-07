@@ -26,14 +26,14 @@ export const fetchSearchResultProducts = createAsyncThunk(
          });
 
          if (response.success) {
-            if (response.products.length >= LENGTH_PAGE_SEARCH) {
+            if (response.products?.length >= LENGTH_PAGE_SEARCH) {
                return {
                   searchResultProducts: response.products,
                   hasMore: true,
                   pageSearchResultProducts: page,
                };
             } else if (
-               response.products.length > 0 &&
+               response.products?.length > 0 &&
                response.products.length < LENGTH_PAGE_SEARCH
             ) {
                return {

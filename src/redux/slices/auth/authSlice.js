@@ -85,14 +85,14 @@ export const fetchFollowProducts = createAsyncThunk(
          });
 
          if (response.success) {
-            if (response.follows.length >= LENGTH_PAGE_FOLLOW) {
+            if (response.follows?.length >= LENGTH_PAGE_FOLLOW) {
                return {
                   followProduct: response.follows,
                   hasMore: true,
                   pageFollowProduct: page,
                };
             } else if (
-               response.follows.length > 0 &&
+               response.follows?.length > 0 &&
                response.follows.length < LENGTH_PAGE_FOLLOW
             ) {
                return {
@@ -139,14 +139,14 @@ export const fetchSeenMovieProducts = createAsyncThunk(
          });
 
          if (response.success) {
-            if (response.seenMovies.length >= LENGTH_PAGE_FOLLOW) {
+            if (response.seenMovies?.length >= LENGTH_PAGE_FOLLOW) {
                return {
                   seenMovieProduct: response.seenMovies,
                   hasMore: true,
                   pageSeenMovieProduct: page,
                };
             } else if (
-               response.seenMovies.length > 0 &&
+               response.seenMovies?.length > 0 &&
                response.seenMovies.length < LENGTH_PAGE_FOLLOW
             ) {
                return {
@@ -193,14 +193,14 @@ export const fetchSeeLaterMovieProducts = createAsyncThunk(
          });
 
          if (response.success) {
-            if (response.seeLaterMovies.length >= LENGTH_PAGE_FOLLOW) {
+            if (response.seeLaterMovies?.length >= LENGTH_PAGE_FOLLOW) {
                return {
                   seeLaterMovieProduct: response.seeLaterMovies,
                   hasMore: true,
                   pageSeeLaterMovieProduct: page,
                };
             } else if (
-               response.seeLaterMovies.length > 0 &&
+               response.seeLaterMovies?.length > 0 &&
                response.seeLaterMovies.length < LENGTH_PAGE_FOLLOW
             ) {
                return {

@@ -117,7 +117,7 @@ function CommentItem({
          setSuggestedComments((prev) => [...response.comments, ...prev]);
          setLoadingMore(false);
 
-         if (response.comments.length >= LENGTH_PAGE) {
+         if (response.comments?.length >= LENGTH_PAGE) {
             setPageSuggestedComments(page);
 
             const check = await CommentServices.fetchComments({
@@ -126,9 +126,9 @@ function CommentItem({
                limit: LENGTH_PAGE,
             });
 
-            if (check.success && check.comments.length > 0) setHasMore(true);
+            if (check.success && check.comments?.length > 0) setHasMore(true);
             else setHasMore(false);
-         } else if (response.comments.length > 0 && response.comments.length < LENGTH_PAGE) {
+         } else if (response.comments?.length > 0 && response.comments.length < LENGTH_PAGE) {
             setHasMore(false);
             setPageSuggestedComments(page);
          } else if (response.comments.length <= 0) {

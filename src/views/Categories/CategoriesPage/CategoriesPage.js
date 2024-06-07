@@ -25,12 +25,12 @@ function CategoriesPage({ categoryID = null, wrapperRef, defaultProducts = [] })
          limit: LENGTH_PAGE_DEFAULT,
          recently: true,
       }).then((res) => {
-         if (res.products.length >= LENGTH_PAGE_DEFAULT) {
+         if (res.products?.length >= LENGTH_PAGE_DEFAULT) {
             setHasMore(true);
             setLoadingMore(false);
             setProductCurrent((prev) => [...prev, ...res.products]);
             setPageCurrent(page);
-         } else if (res.products.length > 0 && res.products.length < LENGTH_PAGE_DEFAULT) {
+         } else if (res.products?.length > 0 && res.products.length < LENGTH_PAGE_DEFAULT) {
             setHasMore(false);
             setLoadingMore(false);
             setProductCurrent((prev) => [...prev, ...res.products]);
@@ -60,7 +60,7 @@ function CategoriesPage({ categoryID = null, wrapperRef, defaultProducts = [] })
 
    return (
       <div style={{ width: '100%' }}>
-         {defaultProducts.length > 0 ? (
+         {defaultProducts?.length > 0 ? (
             <ListProductHome data={!!defaultProducts.length ? defaultProducts : []} />
          ) : (
             <>

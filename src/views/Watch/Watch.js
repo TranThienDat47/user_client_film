@@ -97,7 +97,7 @@ const Watch = () => {
    }, []);
 
    useEffect(() => {
-      if (productCurrent.product_details && productCurrent.product_details.length > 0) {
+      if (productCurrent.product_details && productCurrent.product_details?.length > 0) {
          const tempDetail = sortedEpisodes(productCurrent.product_details).find(
             (element, index) => element._id === episodeCurrent,
          );
@@ -558,7 +558,7 @@ const Watch = () => {
                               </div>
                               <div className={cx('list-episodes')}>
                                  {productCurrent.product_details &&
-                                 productCurrent.product_details.length > 0 ? (
+                                 productCurrent.product_details?.length > 0 ? (
                                     sortedEpisodes(productCurrent.product_details).map(
                                        (element, index) => {
                                           if (element._id === episodeCurrent) {

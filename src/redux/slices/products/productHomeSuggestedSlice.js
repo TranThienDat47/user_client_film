@@ -24,14 +24,14 @@ export const fetchHomeSuggested = createAsyncThunk(
          console.log(response);
 
          if (response.success) {
-            if (response.products.length >= LENGTH_PAGE_SUGGESTED) {
+            if (response.products?.length >= LENGTH_PAGE_SUGGESTED) {
                return {
                   suggestedProducts: response.products,
                   hasMore: true,
                   pageSuggestedProducts: page,
                };
             } else if (
-               response.products.length > 0 &&
+               response.products?.length > 0 &&
                response.products.length < LENGTH_PAGE_SUGGESTED
             ) {
                return {

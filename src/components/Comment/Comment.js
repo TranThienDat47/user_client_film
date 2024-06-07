@@ -53,10 +53,10 @@ const Comment = forwardRef(({ parent_id = null }, ref) => {
          setSuggestedComments((prev) => [...prev, ...response.comments]);
          setLoadingMore(false);
 
-         if (response.comments.length > LENGTH_PAGE) {
+         if (response.comments?.length > LENGTH_PAGE) {
             setHasMore(true);
             setPageSuggestedComments(page);
-         } else if (response.comments.length > 0 && response.comments.length <= LENGTH_PAGE) {
+         } else if (response.comments?.length > 0 && response.comments.length <= LENGTH_PAGE) {
             setHasMore(false);
             setPageSuggestedComments(page);
          } else if (response.comments.length <= 0) {
