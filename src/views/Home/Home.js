@@ -30,7 +30,8 @@ function Home() {
             limit: 14,
          });
 
-         return response.products;
+         if (response.success) return response.products;
+         else return response.products;
       } catch (err) {
          return [];
       }

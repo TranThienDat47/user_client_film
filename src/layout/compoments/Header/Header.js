@@ -23,7 +23,7 @@ import Notification from './Notification';
 import Menu from '~/components/Popper/Menu';
 import { authSelector } from '~/redux/selectors/auth/authSelector';
 import { handleChangeModeTheme } from '~/utils/handleChangeModeTheme';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SearchLayzy = lazy(() => import('~/components/Search'));
 
@@ -110,7 +110,7 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
                   },
                ],
             },
-            separate: true,
+            // separate: true,
          },
          {
             title: <div className={cx('title')}>Ngôn ngữ: {language}</div>,
@@ -278,9 +278,9 @@ function Header({ collapseDefault = false, onCollapse = () => {}, onExpand = () 
          <header className={cx('wrapper')}>
             <div className={cx('nav')}>
                <AiOutlineMenu className={cx('nav-icon')} onClick={handleClickMenuSidebar} />
-               <a href={config.routes.home} className={cx('logo-link')}>
+               <Link to={config.routes.home} className={cx('logo-link')}>
                   <img src={imgs.logo} alt="Blog" />
-               </a>
+               </Link>
             </div>
 
             <div className={cx('search')}>
