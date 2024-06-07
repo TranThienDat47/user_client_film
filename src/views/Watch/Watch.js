@@ -216,13 +216,15 @@ const Watch = () => {
          loadReadyPage(false);
          setLoadFull(false);
       };
-   });
+   }, []);
 
    useEffect(() => {
       if (isReadyPage) {
          setLoadFull(true);
       }
    }, [
+      productCurrent,
+      loading,
       productDetailCurrentState,
       user,
       showShareState,
@@ -233,6 +235,9 @@ const Watch = () => {
       hasMore,
       loadingMore,
       recommendProducts,
+      parent_id,
+      videoInfoState,
+      valueUrlState,
    ]);
 
    return (
