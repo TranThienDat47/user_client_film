@@ -119,7 +119,7 @@ function Home() {
                   </div>
                   <div className={cx('wrapper_of_block', 'wrapper-product', 'recommend-products')}>
                      <ListProductHome
-                        data={firstProduct.length > 0 ? firstProduct : Array(14).fill(0)}
+                        data={firstProduct?.length > 0 ? firstProduct : Array(14).fill(0)}
                      />
 
                      <LazyLoading
