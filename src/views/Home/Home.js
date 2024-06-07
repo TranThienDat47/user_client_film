@@ -107,7 +107,11 @@ function Home() {
                   </div>
                   <div className={cx('wrapper_of_block', 'wrapper-product', 'new')}>
                      <ListProductHome
-                        data={newProducts?.length > 0 ? newProducts : Array(14).fill(0)}
+                        data={
+                           !!newProducts && newProducts?.length > 0
+                              ? newProducts
+                              : Array(14).fill(0)
+                        }
                      />
                   </div>
                   <div className={cx('heading_of_block')}>
