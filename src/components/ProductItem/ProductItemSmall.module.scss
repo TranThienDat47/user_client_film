@@ -51,7 +51,7 @@
       width: 100%;
 
       &.hover {
-         background-color: rgba(22, 24, 35, 0.1);
+         background-color: var(--hover-item-color);
       }
    }
 }
