@@ -26,7 +26,7 @@
    }
 
    &.medium:not(.small):hover {
-      background-color: rgba(22, 24, 35, 0.1);
+      background-color: var(--hover-item-color);
    }
 
    &.medium:hover .option {
@@ -34,7 +34,7 @@
    }
 
    &.active {
-      background-color: rgba(22, 24, 35, 0.1);
+      background-color: var(--hover-item-color);
    }
 
    .active {
